@@ -71,6 +71,43 @@ def arc_passage(per_point_hourly, min_points=3):
             "points_firing": len(firsts)}
 
 
+def arc_passages_season(per_point_hourly, min_points=3, tol_hours=18):
+    """EVERY frontal passage across a long series, grouped across an arc.
+
+    arc_passage() takes the single strongest passage and is fine for a
+    10-day forecast window. A 93-day season has 10-20 boundaries, so they
+    have to be clustered in time and quorum-checked individually.
+    """
+    allp = []
+    for pi, h in enumerate(per_point_hourly):
+        for dt, s in frontal_passages(h):
+            allp.append((dt, s, pi))
+    allp.sort(key=lambda x: x[0])
+
+    groups, cur = [], []
+    for item in allp:
+        if cur and (item[0] - cur[-1][0]).total_seconds() / 3600.0 > tol_hours:
+            groups.append(cur)
+            cur = []
+        cur.append(item)
+    if cur:
+        groups.append(cur)
+
+    out = []
+    for g in groups:
+        best = {}
+        for dt, s, p in g:
+            if p not in best or s > best[p][1]:
+                best[p] = (dt, s)
+        if len(best) < min_points:
+            continue
+        ts = sorted(dt.timestamp() for dt, _ in best.values())
+        out.append({"when": datetime.fromtimestamp(median(ts)),
+                    "strength": round(mean(s for _, s in best.values()), 1),
+                    "points_firing": len(best)})
+    return out
+
+
 def cluster_fronts(events, min_speed_mph=7.0):
     """Group arc passages into DISTINCT boundaries before measuring anything.
 
@@ -80,14 +117,19 @@ def cluster_fronts(events, min_speed_mph=7.0):
     3 mph, which is not a thing.
     """
     fronts = []
-    for e in sorted(events, key=lambda x: -x["dist_mi"]):
+    for e in sorted(events, key=lambda x: x["when"]):
+        best, best_gap = None, None
         for f in fronts:
             prev = f[-1]
             gap_mi = prev["dist_mi"] - e["dist_mi"]
+            if gap_mi <= 0:                       # must move inward
+                continue
             gap_h = (e["when"] - prev["when"]).total_seconds() / 3600.0
             if 0 <= gap_h <= max(6.0, gap_mi / min_speed_mph):
-                f.append(e)
-                break
+                if best_gap is None or gap_h < best_gap:
+                    best, best_gap = f, gap_h
+        if best is not None:
+            best.append(e)
         else:
             fronts.append([e])
     return fronts

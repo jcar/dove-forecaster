@@ -202,3 +202,65 @@ Front 1: arc4 Sep14 23:00 -> arc3 Sep15 08:00 -> arc2 Sep15 21:00,
 measured speed 10.5 mph (slow side - flag for validation).
 Peak arrival index 43.1 on Fri 2026-09-18, secondary 31.5 Sat Sep 19.
 Front 2 (arc1 only, Sep 19) -> minor bump Sep 20-21.
+
+## F6 — CI verified live (2026-09-12)
+Repo: jcar/dove-forecaster (private). First green run 34724937813, bot
+commit 7f06cda "forecast 2026-09-12" landed on master.
+
+Confirmed: workflow-level `permissions: contents: write` DOES override a
+repo whose default_workflow_permissions is "read". No settings change needed.
+
+GOTCHA: GitHub did not index the workflow from the repo-creation push, nor
+from a later unrelated commit. Only a push that MODIFIED .github/workflows/
+daily.yml itself caused registration (0 workflows -> 1). Expect this on the
+next new repo.
+
+Hardened while in there: concurrency guard (manual dispatch vs the 08:00
+scheduled run) and `git pull --rebase --autostash` before push. Without the
+rebase, two overlapping runs collide on non-fast-forward and silently drop a
+forecast - a hole in the audit trail exactly on the busy days.
+
+DETERMINISM: a clean Ubuntu runner reproduced the local forecast exactly -
+same fronts, same 10.5 mph, same 43.2 peak on Sep 18. Only generated_at
+differed. Given the same weather input the engine is deterministic.
+
+KNOWN MINOR: "today" comes from date.today(), which is the runner's TZ (UTC
+in CI, Chicago locally). Harmless at the 13:00 UTC schedule since that is
+08:00 CDT on the same calendar date. Would mislabel if the cron ever moved
+near UTC midnight. Front/arrival math is unaffected - those are naive
+America/Chicago timestamps throughout and round-trip consistently.
+
+## F7 — ERA5 backtest, 11 seasons (2015-2025). METEOROLOGY VALIDATED.
+Pooled front speeds, n=261:
+  p10 9.1 | p25 13.2 | median 19.9 | p75 34.5 | p90 48.6 mph
+  season medians 16.4-28.4 (tight across 11 independent seasons)
+CONCLUSION: passage detector is NOT biased low. The live 2026-09-12 front's
+10.5 mph sits ~p15-p20 - slow, but 20% of fronts are slower than 12 mph.
+The committed arrival dates survive.
+
+Fronts by arcs swept, per season:
+  1 arc 25.0 (local wind shifts, noise - can never resolve a speed)
+  2 arc 15.3 | 3 arc 8.5 | 4 arc 6.9
+6.9 full four-arc sweeps/season matches the Phase 1 guess of "8-12 times a
+season" that the product would have something to say. Single-arc detections
+are noise by construction; the product keys on multi-arc chains only.
+
+Median peak-index date: arc4 09-25, arc3 09-28, arc2 10-03, arc1 10-11.
+A clean south-propagating wave - BUT the gate was configured to open arc4
+~13 days before arc1, so most of that 16-day offset is the gate doing as
+told, not an independent finding. Confirms the machinery composes. Does
+NOT confirm the timing is right.
+
+Reservoir trajectory (arc 4, median): Sep15 0.91, Oct1 0.58, Oct15 0.33,
+Nov1 0.17, Nov15 0.10. Plausible; unconfirmable without bird data.
+NOTE: an earlier claim in-session that ambient non-front days were draining
+the reservoir was wrong, and the test for it was invalid (arc 4 appears in
+so many fronts that a +/-1 day window covers most of the season).
+
+## OPEN — everything checkable without birds is now checked
+Remaining uncertainty is all downstream of the eBird EBD extract:
+reservoir depletion rate, bird ground speed (150 mi/day strawman), pulse
+width, gate constants, and component weights. STILL BLOCKED on the data
+request.
+Known minor: 3+ arc fronts average 6 days apart but median gap is 4, so
+some single boundaries are likely being split into two events.
