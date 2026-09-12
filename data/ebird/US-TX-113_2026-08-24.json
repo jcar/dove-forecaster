@@ -1,0 +1,33 @@
+{
+ "checklist_hours": 7.58,
+ "date": "2026-08-24",
+ "n_checklists_total": 11,
+ "n_complete": 9,
+ "region": "US-TX-113",
+ "species": {
+  "eucdov": {
+   "birds": 0,
+   "frequency": 0.0,
+   "lists_detected": 0,
+   "per_checklist": 0.0,
+   "per_hour": 0.0,
+   "x_only": 0
+  },
+  "moudov": {
+   "birds": 57,
+   "frequency": 0.444,
+   "lists_detected": 4,
+   "per_checklist": 6.333,
+   "per_hour": 7.516,
+   "x_only": 0
+  },
+  "whwdov": {
+   "birds": 9,
+   "frequency": 0.333,
+   "lists_detected": 3,
+   "per_checklist": 1.0,
+   "per_hour": 1.187,
+   "x_only": 0
+  }
+ }
+}
