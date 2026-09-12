@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+
+# PRIVACY (DECISIONS.md D10): field pin coordinates are NEVER committed.
+# Upstream arc weather is public. The six fields are not.
+fields.json
+fields.yaml
+*.pins.json
+.env
