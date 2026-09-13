@@ -70,6 +70,10 @@ def conditions(home, forecast_days=10, want_hourly=False):
     """Per-day morning and evening conditions at the hunter's own location."""
     res = OpenMeteo().hourly([home], forecast_days=forecast_days,
                              hourly=LOCAL_HOURLY, daily=LOCAL_DAILY)[0]
+    return _summarise(res, want_hourly)
+
+
+def _summarise(res, want_hourly=False):
     h, dly = res["hourly"], res["daily"]
     index = {t: i for i, t in enumerate(h["time"])}
 

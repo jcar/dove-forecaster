@@ -8,3 +8,4 @@ fields.json
 fields.yaml
 *.pins.json
 .env
+data/wxcache/

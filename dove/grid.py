@@ -23,13 +23,23 @@ identical across all points. So mean(index) == mean(raw) * gate * reservoir
 algebraically - the per-point cache can hold `raw` alone and the assembled
 answer is bit-for-bit what per-location fetching would have produced.
 """
+import json
 import math
+import os
+from datetime import date, datetime
+
 from .weather import OpenMeteo
 from .push import daily_features
 from .front import frontal_passages
 
 LAT_STEP = 0.75
-LON_STEP = 0.50
+LON_STEP = 1.00      # ~57 mi. Coarsened from 0.50 to fit Open-Meteo's free
+                     # quota, which bills by LOCATION-DAYS, not by request -
+                     # batching 200 coords into one call saves round-trips and
+                     # nothing else. Latitude spacing is untouched because
+                     # front_speed_mph fits against latitude; longitude only
+                     # samples across the corridor, and 1 deg still gives ~8
+                     # independent stations per 420-mile band.
 BAND_OFFSETS_DEG = (2.25, 4.50, 6.75, 9.00)     # = 155/310/466/621 mi
 BATCH = 200                                      # Open-Meteo takes 200 coords/request
 
@@ -50,12 +60,36 @@ class PointCache:
     """Per-lattice-point derivatives, fetched once and reused by every
     location whose bands touch that point."""
 
-    def __init__(self, past_days, forecast_days=16, model=None):
+    def __init__(self, past_days, forecast_days=16, model=None, cache_dir=None):
         self.past_days, self.forecast_days = past_days, forecast_days
         self.model = model
         self._feat, self._pass = {}, {}
         self.requests = 0
         self.points = 0
+        self.cache_dir = cache_dir
+        self.from_disk = 0
+        if cache_dir:
+            os.makedirs(cache_dir, exist_ok=True)
+
+    # Past weather never changes, so it is fetched once and kept forever.
+    # Without this the daily cost grows all season - 40k location-days today,
+    # 95k by mid-November - because every run re-downloads the whole season.
+    def _path(self, pt):
+        return os.path.join(self.cache_dir, f"{pt[0]}_{pt[1]}.json")
+
+    def _load_disk(self, pt):
+        p = self._path(pt)
+        if not os.path.exists(p):
+            return {}, []
+        d = json.load(open(p))
+        return d.get("features", {}), [(datetime.fromisoformat(t), s) for t, s in d.get("passages", [])]
+
+    def _save_disk(self, pt, feat, passes):
+        today = date.today().isoformat()
+        past_feat = {k: v for k, v in feat.items() if k < today}
+        past_pass = [(t.isoformat(), s) for t, s in passes if t.date().isoformat() < today]
+        json.dump({"features": past_feat, "passages": past_pass},
+                  open(self._path(pt), "w"), separators=(",", ":"))
 
     def load(self, points, progress=None):
         """Fetch in batches, reduce each point, discard the raw series.
@@ -72,8 +106,18 @@ class PointCache:
             self.requests += 1
             for pt, s in zip(chunk, series):
                 h = s["hourly"]
-                self._feat[pt] = daily_features(h)
-                self._pass[pt] = frontal_passages(h)
+                feat, passes = daily_features(h), frontal_passages(h)
+                if self.cache_dir:
+                    old_f, old_p = self._load_disk(pt)
+                    if old_f:
+                        self.from_disk += 1
+                    merged_f = {**old_f, **feat}          # fresh data wins
+                    seen = {t for t, _ in passes}
+                    merged_p = sorted(passes + [x for x in old_p if x[0] not in seen],
+                                      key=lambda x: x[0])
+                    feat, passes = merged_f, merged_p
+                    self._save_disk(pt, feat, passes)
+                self._feat[pt], self._pass[pt] = feat, passes
                 self.points += 1
                 del h, s
             if progress:

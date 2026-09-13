@@ -7,7 +7,7 @@ from .weather import OpenMeteo, ensemble_members
 from .push import daily_features, score_day, Reservoir
 from .front import (arc_passage, arc_passage_from, front_speed_mph, cluster_fronts,
                     frontal_passages, arrival_forecast_wind, ensemble_confidence)
-from .local import conditions
+from .local import conditions, _summarise
 
 ENGINE_VERSION = "0.1.0"
 
@@ -36,7 +36,8 @@ def season_past_days(today=None):
     return max(5, min(92, (today - start).days))
 
 
-def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None):
+def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
+        local_hourly=None, ensemble=False):
     """Forecast for one hunter's location.
 
     `home` is the only thing that makes this location-specific; everything
@@ -84,7 +85,17 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None):
                       index=max(daily.get(w, {}).get("index", 0.0) for w in win))
             events.append(ev)
 
-    local_days, local_fronts, home_push = _local_safe(home)
+    if grid is not None and local_hourly is None:
+        # home is a lattice node, so its own features and passages are
+        # already cached. Display-only extras (gusts, rain, sunrise) are
+        # fetched client-side for the hunter's exact coordinates.
+        hf, hp = grid.features(*home), grid.passages(*home)
+        local_days = []
+        local_fronts = [{"when": t.isoformat(timespec="minutes"), "strength": s}
+                        for t, s in (hp or [])]
+        home_push = {d: v["wind_push"] for d, v in (hf or {}).items()}
+    else:
+        local_days, local_fronts, home_push = _local_safe(home, local_hourly)
 
     # Southward wind push by day and latitude: the four bands plus the
     # fields. This is the wind field the birds actually fly through.
@@ -109,11 +120,14 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None):
                           "index": e["index"]} for e in fr],
         })
 
-    try:
-        _members = ensemble_members(home)      # one call, reused by every front
-    except Exception as ex:
-        print(f"  ensemble skipped ({type(ex).__name__})")
-        _members = None
+    if ensemble is False:                      # single-location path: fetch it
+        try:
+            _members = ensemble_members(home)  # one call, reused by every front
+        except Exception as ex:
+            print(f"  ensemble skipped ({type(ex).__name__})")
+            _members = None
+    else:
+        _members = ensemble                    # fan-out supplies it (or None)
 
     _arr = arrival_forecast_wind(events, push_field, home[0], days_out=future)
 
@@ -144,7 +158,7 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None):
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "home": {"name": home_name, "lat": home[0], "lon": home[1]},
         "engine_version": ENGINE_VERSION,
-        "arcs": {str(i): {k: a[k] for k in ("dist_mi", "north_mi", "label", "mean_lat", "half_width_mi")}
+        "arcs": {str(i): {k: a[k] for k in ("dist_mi", "north_mi", "label", "mean_lat", "half_width_mi", "width_mi", "usable")}
                  for i, a in arcs.items()},
         "arc_scores": {str(i): v for i, v in arc_series.items()},
         "fronts": fronts,
@@ -157,7 +171,7 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None):
     }
 
 
-def _local_safe(home=HOME):
+def _local_safe(home=HOME, hourly=None):
     """Returns (per-day conditions, detected local frontal passages).
 
     The front's arrival at the fields is DETECTED in the local hourly series,
@@ -166,7 +180,11 @@ def _local_safe(home=HOME):
     bands ran 2.5 days early on the first front we checked.
     """
     try:
-        days, hourly = conditions(home, want_hourly=True)
+        if hourly is None:
+            days, hourly = conditions(home, want_hourly=True)
+        else:
+            days = _summarise(hourly)          # hourly is a whole API response here
+            hourly = hourly["hourly"]
         passes = [{"when": dtm.isoformat(timespec="minutes"), "strength": sc}
                   for dtm, sc in frontal_passages(hourly)]
         push = {d: f["wind_push"] for d, f in daily_features(hourly).items()}

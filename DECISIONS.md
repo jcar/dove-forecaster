@@ -614,3 +614,45 @@ ideas collapse the cost:
 VERIFIED: lattice-sourced output matches direct-fetch EXACTLY for the tracked
 location on arcs, arc_scores, fronts, arrival and still_airborne. One request,
 56 unique points, 4.7s.
+
+## F17 — Open-Meteo bills by LOCATION-DAYS, not by HTTP request
+The whole "16 requests covers the flyway" result was true and irrelevant.
+Batching 200 coordinates into one call saves round-trips and nothing else:
+one call for 200 points over 45 days counts as ~9,000. Rate-limited on the
+second batch of the first full build.
+
+Measured: full flyway as designed = 39,555 location-days today, 94,932 by
+mid-November. Throttling started somewhere near 9,000.
+
+THREE FIXES, in order of how much they bought:
+
+1. PAST WEATHER NEVER CHANGES. PointCache now keeps per-node daily_features
+   and frontal_passages on disk forever (data/wxcache, gitignored) and only
+   fetches one new past day plus the forecast window. Without this the daily
+   cost grows all season.
+2. COARSER LONGITUDE ONLY. LON_STEP 0.50 -> 1.00 deg. Latitude spacing is
+   untouched, deliberately: front_speed_mph fits passage time against
+   LATITUDE, so jitter there corrupts the measured speed, while longitude
+   only samples across the corridor. 1 deg still gives 8 independent
+   stations per 420-mile band.
+3. LOCATIONS ARE LATTICE NODES. Location longitudes moved onto the weather
+   lattice, so each site's own series - which is model-critical, feeding the
+   DETECTED front arrival and the southern end of the wind field - comes free
+   from the band fetch instead of a second 436-point request. Display-only
+   extras (gusts, rain %, sunrise) are genuinely presentational and move
+   client-side to the hunter's exact coordinates.
+
+Result: 328 sites, 521 nodes, ONE fetch, ~9,378 location-days/morning
+(from 12,532 with a separate local fetch). Payload 3,470 B/location.
+
+REJECTED: NWS as the bulk source. Free, unlimited, public domain, US-only -
+but api.weather.gov gridpoints carry temperature, windSpeed, windDirection
+and skyCover and NO PRESSURE. That is 20 of 100 Push Index points and our
+cleanest frontal discriminator (11 and 9 points on the real front, zero on
+quiet days). Verified against the live API before rejecting.
+
+## OPEN — licensing
+Open-Meteo's free tier is non-commercial. One hunter's private dashboard sat
+comfortably inside that; a public multi-state site is a greyer area. Founder
+chose to coarsen and stay free for now. Revisit before this carries ads,
+signups, or money. D8 flagged this risk when the sources were chosen.
