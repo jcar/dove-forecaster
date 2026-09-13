@@ -5,9 +5,8 @@ from statistics import mean
 from .geo import arc_points, HOME, HOME_NAME
 from .weather import OpenMeteo, ensemble_members
 from .push import daily_features, score_day, Reservoir
-from .front import (arc_passage, front_speed_mph, arrival_forecast,
-                    cluster_fronts, frontal_passages, arrival_forecast_wind,
-                    ensemble_confidence)
+from .front import (arc_passage, front_speed_mph, cluster_fronts,
+                    frontal_passages, arrival_forecast_wind, ensemble_confidence)
 from .local import conditions
 
 ENGINE_VERSION = "0.1.0"
@@ -18,11 +17,21 @@ WIND_HORIZON = 16      # Open-Meteo max. The flight sim needs runway beyond
                        # written off as "not coming".
 
 
-def run(past=5, future=14):
-    arcs, events, arc_series = arc_points(), [], {}
+def run(home=HOME, home_name=HOME_NAME, past=5, future=14, grid=None):
+    """Forecast for one hunter's location.
+
+    `home` is the only thing that makes this location-specific; everything
+    downstream takes it as a parameter. `grid`, when supplied, is a
+    pre-fetched shared weather cache (see dove/grid.py) so a build covering
+    hundreds of locations pays for the weather once rather than per location.
+    """
+    arcs, events, arc_series = arc_points(home), [], {}
     for idx, arc in arcs.items():
-        series = OpenMeteo().hourly(arc["points"], past_days=past, forecast_days=WIND_HORIZON)
-        hourly = [s["hourly"] for s in series]
+        if grid is not None:
+            hourly = [grid.series(*p) for p in arc["points"]]
+        else:
+            series = OpenMeteo().hourly(arc["points"], past_days=past, forecast_days=WIND_HORIZON)
+            hourly = [s["hourly"] for s in series]
         pp = [daily_features(h) for h in hourly]
         dates = sorted(set.intersection(*[set(p) for p in pp]))
         res, daily = Reservoir(), {}
@@ -50,7 +59,7 @@ def run(past=5, future=14):
                       index=max(daily.get(w, {}).get("index", 0.0) for w in win))
             events.append(ev)
 
-    local_days, local_fronts, home_push = _local_safe()
+    local_days, local_fronts, home_push = _local_safe(home)
 
     # Southward wind push by day and latitude: the four bands plus the
     # fields. This is the wind field the birds actually fly through.
@@ -59,14 +68,14 @@ def run(past=5, future=14):
         for d, v in arc_series[idx].items():
             push_field.setdefault(d, {})[arc["mean_lat"]] = v.get("obs", {}).get("push_mph", 0.0)
     for d, v in home_push.items():
-        push_field.setdefault(d, {})[HOME[0]] = v
+        push_field.setdefault(d, {})[home[0]] = v
 
     fronts = []
     for n, fr in enumerate(cluster_fronts(events), 1):
         spd = front_speed_mph(fr)
         eta = None
         if spd:
-            hrs = (fr[-1]["mean_lat"] - HOME[0]) * 69.0 / spd
+            hrs = (fr[-1]["mean_lat"] - home[0]) * 69.0 / spd
             eta = (fr[-1]["when"] + timedelta(hours=hrs)).isoformat(timespec="minutes")
         fronts.append({
             "id": n, "arcs": [e["arc"] for e in fr], "speed_mph": spd, "reaches_home": eta,
@@ -76,12 +85,12 @@ def run(past=5, future=14):
         })
 
     try:
-        _members = ensemble_members(HOME)      # one call, reused by every front
+        _members = ensemble_members(home)      # one call, reused by every front
     except Exception as ex:
         print(f"  ensemble skipped ({type(ex).__name__})")
         _members = None
 
-    _arr = arrival_forecast_wind(events, push_field, HOME[0], days_out=future)
+    _arr = arrival_forecast_wind(events, push_field, home[0], days_out=future)
 
     # Replace the extrapolated ETA with the DETECTED arrival at the fields.
     # Match each tracked boundary to the strongest local passage that happens
@@ -108,7 +117,7 @@ def run(past=5, future=14):
 
     return {
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
-        "home": {"name": HOME_NAME, "lat": HOME[0], "lon": HOME[1]},
+        "home": {"name": home_name, "lat": home[0], "lon": home[1]},
         "engine_version": ENGINE_VERSION,
         "arcs": {str(i): {k: a[k] for k in ("dist_mi", "north_mi", "label", "mean_lat", "half_width_mi")}
                  for i, a in arcs.items()},
@@ -123,7 +132,7 @@ def run(past=5, future=14):
     }
 
 
-def _local_safe():
+def _local_safe(home=HOME):
     """Returns (per-day conditions, detected local frontal passages).
 
     The front's arrival at the fields is DETECTED in the local hourly series,
@@ -132,7 +141,7 @@ def _local_safe():
     bands ran 2.5 days early on the first front we checked.
     """
     try:
-        days, hourly = conditions(HOME, want_hourly=True)
+        days, hourly = conditions(home, want_hourly=True)
         passes = [{"when": dtm.isoformat(timespec="minutes"), "strength": sc}
                   for dtm, sc in frontal_passages(hourly)]
         push = {d: f["wind_push"] for d, f in daily_features(hourly).items()}

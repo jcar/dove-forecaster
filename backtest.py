@@ -16,7 +16,7 @@ import time
 from datetime import timedelta
 from statistics import mean, median
 
-from dove.geo import arc_points, HOME
+from dove.geo import arc_points
 from dove.weather import OpenMeteo
 from dove.push import daily_features, score_day, Reservoir
 from dove.front import arc_passages_season, cluster_fronts, front_speed_mph
