@@ -2,7 +2,9 @@ name: daily-forecast
 
 on:
   schedule:
-    - cron: "0 13 * * *"   # 13:00 UTC = 08:00 CDT
+    - cron: "23 12 * * *"   # 12:23 UTC = 07:23 CDT. Deliberately an odd
+                            # minute: GitHub's scheduler is swamped on the hour
+                            # and round-time jobs get delayed or dropped.
   workflow_dispatch:
 
 permissions:
