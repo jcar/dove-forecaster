@@ -50,12 +50,14 @@ def frontal_passages(h, min_score=10.0, min_sep_hours=36):
     return [(datetime.fromisoformat(times[i]), round(s, 1)) for s, i in sorted(out, key=lambda x: x[1])]
 
 
-def arc_passage(per_point_hourly, min_points=3):
+def arc_passage(per_point_hourly, min_points=None):
     """Median passage time across an arc's sample points.
 
     Requiring a quorum kills single-station artifacts: one gusty point is
     noise, three points in a row is a boundary.
     """
+    if min_points is None:
+        min_points = max(3, len(per_point_hourly) // 2 + 1)
     firsts = []
     for h in per_point_hourly:
         p = frontal_passages(h)
@@ -71,13 +73,15 @@ def arc_passage(per_point_hourly, min_points=3):
             "points_firing": len(firsts)}
 
 
-def arc_passages_season(per_point_hourly, min_points=3, tol_hours=18):
+def arc_passages_season(per_point_hourly, min_points=None, tol_hours=18):
     """EVERY frontal passage across a long series, grouped across an arc.
 
     arc_passage() takes the single strongest passage and is fine for a
     10-day forecast window. A 93-day season has 10-20 boundaries, so they
     have to be clustered in time and quorum-checked individually.
     """
+    if min_points is None:
+        min_points = max(3, len(per_point_hourly) // 2 + 1)
     allp = []
     for pi, h in enumerate(per_point_hourly):
         for dt, s in frontal_passages(h):
@@ -182,7 +186,7 @@ def arrival_forecast(events, days_out=10, today=None, speed=BIRD_SPEED_MI_PER_DA
                 parts.append((e["arc"], round(c, 1)))
         out.append({"date": d.isoformat(), "arrival": round(total, 1),
                     "from_arcs": sorted(parts, key=lambda x: -x[1])})
-    return out
+    return {"days": out, "still_airborne": round(airborne, 1)}
 
 
 # ---------------------------------------------------------------------------
@@ -207,7 +211,7 @@ def push_at(push_field, day_iso, lat):
     latitudes we actually sample (the four bands plus the fields)."""
     row = push_field.get(day_iso)
     if not row:
-        return 0.0
+        return None          # unknown — NOT calm. See simulate_arrival.
     lats = sorted(row)
     if lat <= lats[0]:
         return row[lats[0]]
@@ -217,7 +221,7 @@ def push_at(push_field, day_iso, lat):
         if a <= lat <= b:
             f = 0.0 if b == a else (lat - a) / (b - a)
             return row[a] * (1 - f) + row[b] * f
-    return 0.0
+    return None
 
 
 def simulate_arrival(depart_day, north_mi, push_field, home_lat, max_days=16):
@@ -227,7 +231,13 @@ def simulate_arrival(depart_day, north_mi, push_field, home_lat, max_days=16):
     for n in range(1, max_days + 1):
         day += timedelta(days=1)
         lat = home_lat + remaining / 69.0
-        flown = daily_flight_mi(push_at(push_field, day.isoformat(), lat))
+        push = push_at(push_field, day.isoformat(), lat)
+        if push is None:
+            # Past the end of the wind field. Treating that as calm would
+            # invent weather and crawl the birds in at 25 mi/day, producing
+            # a confident-looking arrival built on nothing.
+            return None
+        flown = daily_flight_mi(push)
         if flown >= remaining:
             # land partway through the day rather than snapping to midnight
             return n - 1 + (remaining / flown if flown else 1.0)
@@ -239,12 +249,13 @@ def arrival_forecast_wind(events, push_field, home_lat, days_out=10,
                           today=None, spread=0.6):
     """Superpose per-band pulses, each timed by an actual simulated flight."""
     today = today or datetime.now().date()
-    legs = []
+    legs, airborne = [], 0.0
     for e in events:
         lead = simulate_arrival(e["when"].date().isoformat(), e["north_mi"],
                                 push_field, home_lat)
         if lead is None:
-            continue          # still airborne past the horizon
+            airborne += e["index"]      # released, but not landed inside the window
+            continue
         legs.append((e, e["when"] + timedelta(days=lead), lead))
 
     out = []
@@ -262,4 +273,33 @@ def arrival_forecast_wind(events, push_field, home_lat, days_out=10,
                 parts.append((e["arc"], round(c, 1)))
         out.append({"date": d.isoformat(), "arrival": round(total, 1),
                     "from_arcs": sorted(parts, key=lambda x: -x[1])})
-    return out
+    return {"days": out, "still_airborne": round(airborne, 1)}
+
+
+
+def ensemble_confidence(members, target, window_h=48):
+    """How sure are we about THIS front's arrival?
+
+    Anchored on the deterministic estimate: each member contributes its
+    passage nearest that time. Taking each member's *strongest* front
+    instead would compare unrelated weather systems between members and
+    report a spread that is pure artefact.
+    """
+    near = []
+    for m in members:
+        c = [dtm for dtm, _ in frontal_passages(m)
+             if abs((dtm - target).total_seconds()) <= window_h * 3600]
+        if c:
+            near.append(min(c, key=lambda x: abs((x - target).total_seconds())))
+    if not near:
+        return None
+    near.sort()
+    n = len(near)
+    q = lambda fr: near[min(n - 1, int(n * fr))]
+    return {
+        "members": len(members), "agreeing": n,
+        "p10": q(0.10).isoformat(timespec="minutes"),
+        "median": q(0.50).isoformat(timespec="minutes"),
+        "p90": q(0.90).isoformat(timespec="minutes"),
+        "spread_h": round((q(0.75) - q(0.25)).total_seconds() / 3600),
+    }

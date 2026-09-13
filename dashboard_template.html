@@ -178,7 +178,8 @@ foot{display:block; margin-top:42px; padding-top:18px; border-top:1px solid var(
 
   <section>
     <h2>Cold fronts we're tracking</h2>
-    <p class="sub">We clock each front as it crosses the regions, so its speed is measured rather than assumed.</p>
+    <p class="sub">We clock each front as it crosses the regions, so its speed is measured rather than assumed.
+       <b>How sure</b> comes from running 31 separate weather model runs and seeing how much they disagree about the timing.</p>
     <div class="scroll"><table id="fronts"></table></div>
   </section>
 
@@ -209,6 +210,7 @@ foot{display:block; margin-top:42px; padding-top:18px; border-top:1px solid var(
           <li>How quickly birds up north run out over a season</li>
           <li>The strength numbers below aren't calibrated yet &mdash; treat them as bigger-vs-smaller, not as counts</li>
           <li>Whether any of this has ever correctly predicted a single bird</li>
+          <li>Anything past about a week out &mdash; the 31 model runs spread by a day or more that far ahead</li>
           <li>The old region shapes were biasing front speeds slow, so the eleven-year check has to be redone before those numbers mean anything</li>
           <li>Whether birds stop as completely as we assume when the wind turns against them</li>
         </ul>
@@ -474,6 +476,14 @@ document.getElementById('vLead').textContent = peak.arrival >= 4 ? (lead <= 0 ? 
     const eta = f.reaches_home
       ? DOW3[new Date(f.reaches_home).getDay()] + ' ' + new Date(f.reaches_home).toISOString().slice(5,16).replace('T',' ')
       : 'didn’t make it this far';
+    const c = f.confidence;
+    let sure = '<span class="dim">&mdash;</span>';
+    if (c) {
+      const p10 = new Date(c.p10), p90 = new Date(c.p90);
+      sure = '<b>' + c.agreeing + ' of ' + c.members + '</b> models agree' +
+        '<br><span class="dim">likely ' + DOW3[p10.getDay()] + ' ' + md(c.p10.slice(0,10)) +
+        ' \u2013 ' + DOW3[p90.getDay()] + ' ' + md(c.p90.slice(0,10)) + '</span>';
+    }
     return '<tr><td>' + where + '</td>' +
       '<td class="n">' + (f.speed_mph ? f.speed_mph + ' mph' : '—') +
         (f.actual_speed_mph ? '<br><span class="dim">slowed to ' + f.actual_speed_mph +
