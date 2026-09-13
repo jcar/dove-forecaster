@@ -59,7 +59,14 @@ def season(year, arcs, pause=1.5):
                        "start": fr[0]["when"].isoformat(timespec="minutes"),
                        "peak_index": round(max(e["index"] for e in fr), 1),
                        "n_arcs": len(fr)})
+    # Store the raw passage events too: arrival forecasting is a
+    # superposition over per-arc departures, which the front summary alone
+    # cannot reconstruct.
     return {"year": year, "fronts": fronts,
+            "events": [{"arc": e["arc"], "dist_mi": e["dist_mi"],
+                        "mean_lat": e["mean_lat"], "index": e["index"],
+                        "strength": e["strength"], "points_firing": e["points_firing"],
+                        "when": e["when"].isoformat(timespec="minutes")} for e in events],
             "arc_scores": {str(i): v for i, v in arc_series.items()}}
 
 

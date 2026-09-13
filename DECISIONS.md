@@ -286,3 +286,33 @@ NOT enabling GitHub Pages. Pages on this repo would put the dashboard on a
 public URL. It carries no field pins (arc weather and eBird are public data),
 but the repo was made private deliberately and that is the founder's call to
 reverse, not mine. The Artifact serves the "see it" need privately.
+
+## F9 — API 2.0 CANNOT backfill history economically. D9 stands.
+The eBird key unlocked the LIVE layer only. It does not supersede the EBD.
+
+Why: `historic` dedupes to one record per species, so it gives presence, not
+abundance. Abundance requires product/lists + a per-checklist fetch, i.e.
+~25-40 calls per day of history. Three seasons = ~7,000 calls; eBird
+throttled us into a backoff loop that produced ZERO days in several minutes.
+Adaptive pacing (honor Retry-After, ramp the global pause, drift back down)
+was added and is correct, but it cannot make 7,000 calls cheap.
+
+Ongoing cost of grinding on it: the DAILY job needs eBird headroom. Burning
+the rate limit on a backfill that will not finish risks the forward grading
+that does work. Backfill stopped deliberately.
+
+WHAT WORKS: live layer, ~30 calls/day, effort-normalized, 3 species. Now
+wired into daily.py (non-fatal on failure — a throttled eBird must never
+cost us the weather forecast).
+
+CRITICAL PATH: the EBD data request is back on it, for historical Test 1.
+Near-term evidence comes from grading FORWARD, one front at a time.
+
+## OPS MISTAKE — deleted cache before regenerating
+Removed data/backtest/2023-2025.json intending to re-run with `events`
+stored, then immediately hit an Open-Meteo 429. Those three seasons are gone
+until the limit resets (12 calls to restore). Should have written new files
+and swapped. 2015-2022 intact.
+Also: the `events` field turned out unnecessary — test1.py reconstructs
+arrival by CONVOLUTION over arc_scores, which needs nothing but data we
+already store, and doesn't inherit the front detector's thresholds.

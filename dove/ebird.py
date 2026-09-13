@@ -49,28 +49,46 @@ def _session():
     if _SESSION is None:
         s = requests.Session()
         s.headers.update({"X-eBirdApiToken": _key()})
-        retry = Retry(total=5, backoff_factor=1.5,
-                      status_forcelist=(429, 500, 502, 503, 504),
+        # 429 is handled by hand below so we can honor Retry-After and
+        # adapt the global pace; urllib3 would just burn retries at a rate
+        # the server has already told us is too fast.
+        retry = Retry(total=4, backoff_factor=1.5,
+                      status_forcelist=(500, 502, 503, 504),
                       allowed_methods=frozenset(["GET"]))
         s.mount("https://", HTTPAdapter(max_retries=retry, pool_maxsize=8))
         _SESSION = s
     return _SESSION
 
 
+_PAUSE = 0.12
+_PAUSE_MIN, _PAUSE_MAX = 0.12, 4.0
+
+
 def _get(path, **params):
+    """Adaptive pacing. A multi-thousand-call backfill will meet the rate
+    limit; the fix is to slow down and stay slowed, then drift back, not to
+    retry at the same speed until the key gets blocked."""
+    global _PAUSE
     last = None
-    for attempt in range(4):
+    for attempt in range(7):
         try:
+            time.sleep(_PAUSE)
             r = _session().get(f"{BASE}/{path}", params=params, timeout=(10, 45))
+            if r.status_code == 429:
+                _PAUSE = min(_PAUSE_MAX, _PAUSE * 1.8 + 0.05)
+                wait = r.headers.get("Retry-After")
+                time.sleep(float(wait) if wait and wait.isdigit() else 6.0 * (attempt + 1))
+                continue
             r.raise_for_status()
+            _PAUSE = max(_PAUSE_MIN, _PAUSE * 0.97)      # drift back down when calm
             return r.json()
         except (requests.Timeout, requests.ConnectionError) as e:
             last = e
-            time.sleep(2.0 * (attempt + 1))   # Retry() does not cover read timeouts
-    raise last
+            time.sleep(2.0 * (attempt + 1))
+    raise last or RuntimeError(f"gave up on {path} (rate limited)")
 
 
-def daily_index(region, d, pause=0.12):
+def daily_index(region, d):
     """Effort-normalized dove density for one region on one date.
 
     Denominator is COMPLETE checklists with a real duration — never raw
@@ -87,7 +105,6 @@ def daily_index(region, d, pause=0.12):
 
     for L in lists:
         c = _get(f"product/checklist/view/{L['subId']}")
-        time.sleep(pause)
         dur = c.get("durationHrs")
         # complete lists with real effort only; incidental sightings carry no denominator
         if not c.get("allObsReported") or not dur or dur <= 0:

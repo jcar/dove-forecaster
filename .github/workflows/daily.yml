@@ -22,6 +22,8 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements.txt
       - run: python daily.py
+        env:
+          EBIRD_API_KEY: ${{ secrets.EBIRD_API_KEY }}
       - run: python dashboard.py
       - name: Commit forecast
         run: |

@@ -7,8 +7,9 @@ provable after the fact and cannot be quietly retuned into looking right.
 """
 import json
 import os
-from datetime import date
+from datetime import date, timedelta
 from dove.engine import run
+from dove.ebird import daily_index
 
 OUT = "data/forecasts"
 
@@ -19,6 +20,18 @@ def main():
     path = f"{OUT}/{date.today().isoformat()}.json"
     with open(path, "w") as f:
         json.dump(result, f, indent=1, sort_keys=True)
+
+    # Ground truth for the days just past. Sustainable at ~30 calls/day;
+    # the historical backfill is NOT (see DECISIONS F9). Never fatal — a
+    # throttled eBird must not cost us the weather forecast.
+    for back in (2, 1):
+        d = date.today() - timedelta(days=back)
+        try:
+            g = daily_index("US-TX-113", d)
+            print(f"  ebird {d}: {g['n_complete']} lists, "
+                  f"moudov {g['species']['moudov']['per_hour']}/hr")
+        except Exception as e:
+            print(f"  ebird {d}: skipped ({type(e).__name__})")
 
     peak = max(result["arrival"], key=lambda r: r["arrival"])
     print(f"wrote {path}")
