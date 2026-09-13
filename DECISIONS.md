@@ -578,3 +578,39 @@ to the state agency. LEGAL_LIGHT_OFFSET_MIN deleted.
 ## OPEN — front clustering still splits boundaries
 Today front 1 covers bands [4,3,1] and front 2 is band [2] alone. A boundary
 cannot skip a band. Known issue since the F7 gap analysis; not chased yet.
+
+## D17 — One shared weather lattice (dove/grid.py)
+350 locations x 4 bands x 9 points = 12,600 weather points a day, naively.
+But locations 50 mi apart look at nearly the same country upstream. Two
+ideas collapse the cost:
+
+1. ONE LATTICE, 0.75 deg rows x 0.50 deg columns. Band distances changed to
+   155.25/310.50/465.75/621.00 mi - whole multiples of the row spacing
+   (2.25/4.50/6.75/9.00 deg) - so band_lat = snapped_user_lat + offset is
+   ALWAYS another lattice row exactly. This matters because front_speed_mph
+   least-squares-fits passage time against LATITUDE; any snapping jitter on
+   that axis corrupts the measured speed. 3.5% further than the old round
+   numbers, far inside model error.
+
+2. CACHE DERIVATIVES, NOT RAW SERIES. frontal_passages costs ~22 ms/point and
+   raw hourly for a full lattice is hundreds of MB. Each point is fetched,
+   reduced to daily_features + frontal_passages, and the series discarded.
+   Split arc_passage_from() out of arc_passage() so cached passages can be
+   reused by every location whose band touches that point.
+
+   Sound because the band score FACTORISES: score_day gives
+   index = raw * gate * reservoir, and within one band `gate` (a function of
+   that band's latitude and the date) and `reservoir` are identical across
+   all points. So mean(index) == mean(raw) * gate * reservoir algebraically.
+
+3. SELECT LATTICE COLUMNS, don't snap generated points. First attempt
+   generated 9 even points then snapped them - several collapsed onto the
+   same node and the quorum counted one station repeatedly, the same false
+   agreement as F10's collapsed window. Front speed came out None. Now the
+   window selects the columns inside it, so every point is a distinct node
+   and the count varies with width (8 columns for a 217 mi band, 17 for
+   420 mi) - honest, since a narrow band really does have fewer stations.
+
+VERIFIED: lattice-sourced output matches direct-fetch EXACTLY for the tracked
+location on arcs, arc_scores, fronts, arrival and still_airborne. One request,
+56 unique points, 4.7s.

@@ -1,6 +1,8 @@
 """Arc geometry for the upstream watch cone.  See DECISIONS.md D4."""
 import math
 
+from .grid import LON_STEP, snap_lat, snap_lon
+
 R_EARTH_MI = 3958.7613
 
 # Named hunt locations. Dove Blasters runs Collin + Grayson County properties
@@ -43,11 +45,17 @@ CORRIDOR_HALF_MI = 210.0        # half-width of the source corridor
 # The funnel widens with distance until it hits the flyway edges, then stops:
 # half-width = min(CORRIDOR_HALF_MI, 0.7 * north_mi). Close in, country 200 mi
 # to your east is beside you, not upstream, so band 1 stays narrow.
+# Distances are whole multiples of the 0.75 deg lattice row spacing
+# (2.25 / 4.50 / 6.75 / 9.00 deg), so band_lat = snapped_user_lat + offset is
+# ALWAYS another lattice row exactly. That matters because front_speed_mph
+# least-squares-fits passage time against latitude: any snapping jitter on
+# that axis would corrupt the measured speed. 3.5% further than the old round
+# 150/300/450/600, which is far inside model error.
 BANDS = [
-    (1, 150, "Oklahoma"),            # OKC · Shawnee · Fort Smith
-    (2, 300, "Southern Kansas"),     # Dodge City · Wichita · Springfield MO
-    (3, 450, "Northern Kansas"),     # Norton · Marysville · N Missouri
-    (4, 600, "Nebraska & Iowa"),     # Valentine · Norfolk · Waterloo
+    (1, 155.25, "Oklahoma"),         # 2.25 deg
+    (2, 310.50, "Southern Kansas"),  # 4.50 deg
+    (3, 465.75, "Northern Kansas"),  # 6.75 deg
+    (4, 621.00, "Nebraska & Iowa"),  # 9.00 deg
 ]
 ARCS = BANDS
 
@@ -72,7 +80,19 @@ def arc_points(home=HOME, arcs=ARCS, n=SAMPLES_PER_ARC):
         # also where those birds actually come from.
         centre = min(max(home[1], CMU_W + half_deg), CMU_E - half_deg)
         lo, hi = centre - half_deg, centre + half_deg
-        pts = [(round(lat, 4), round(lo + (hi - lo) * i / (n - 1), 4)) for i in range(n)]
+        # SELECT the lattice columns inside the window rather than generating
+        # n evenly-spaced points and snapping them. Snapping collapses several
+        # points onto the same node, and the quorum then counts one station
+        # repeatedly - the same false-agreement failure as a collapsed window.
+        # Point count therefore varies with window width, which is honest:
+        # a narrower band genuinely has fewer independent stations.
+        c0 = math.ceil(lo / LON_STEP) * LON_STEP
+        cols = []
+        c = c0
+        while c <= hi + 1e-9:
+            cols.append(round(c, 4))
+            c += LON_STEP
+        pts = [(round(lat, 4), c) for c in cols]
         # true distance to the corridor edge, for the bird's flight time
         edge_mi = max(abs(p[1] - home[1]) for p in pts) * 69.0 * math.cos(math.radians(lat))
         mean_mi = (north_mi + math.hypot(north_mi, edge_mi)) / 2.0

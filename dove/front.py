@@ -51,18 +51,24 @@ def frontal_passages(h, min_score=10.0, min_sep_hours=36):
 
 
 def arc_passage(per_point_hourly, min_points=None):
-    """Median passage time across an arc's sample points.
+    """Median passage time across an arc's sample points, from raw series."""
+    return arc_passage_from([frontal_passages(h) for h in per_point_hourly], min_points)
+
+
+def arc_passage_from(passages_per_point, min_points=None):
+    """Same, from passages already detected.
+
+    Split out so a shared lattice can detect each point's passages ONCE and
+    every location whose band touches that point reuses the result -
+    frontal_passages costs ~22 ms a point, which is the difference between a
+    two-minute build and an eight-minute one.
 
     Requiring a quorum kills single-station artifacts: one gusty point is
-    noise, three points in a row is a boundary.
+    noise, five points across the corridor is a boundary.
     """
     if min_points is None:
-        min_points = max(3, len(per_point_hourly) // 2 + 1)
-    firsts = []
-    for h in per_point_hourly:
-        p = frontal_passages(h)
-        if p:
-            firsts.append(p)
+        min_points = max(3, len(passages_per_point) // 2 + 1)
+    firsts = [p for p in passages_per_point if p]
     if len(firsts) < min_points:
         return None
     # group by the strongest passage at each point
