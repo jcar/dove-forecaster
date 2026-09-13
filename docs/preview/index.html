@@ -12,7 +12,8 @@
   --s1:#3987e5; --s2:#d95926; --s3:#199e70;
   --r0:#1a2130; --r1:#123055; --r2:#184f95; --r3:#256abf; --r4:#3987e5; --r5:#6da7ec; --r6:#9ec5f4;
   --bar:#3987e5; --barPeak:#d9a441;
-  --wgo:#e0a93f; --wgo2:#ffe6a8; --whold:#44597a; --wmid:#141922;
+  --wgo:#2f7fa8; --wgo2:#9fe3f5; --whold:#5a4436; --wmid:#141922;
+  --frontln:#cdf3ff; --bird:#e9a93c; --bird2:#ffe2a0;
 }
 @media (prefers-color-scheme: light){
   :root:not([data-theme="dark"]){
@@ -24,7 +25,8 @@
     --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
     --r0:#e9e5d9; --r1:#cde2fb; --r2:#9ec5f4; --r3:#6da7ec; --r4:#3987e5; --r5:#256abf; --r6:#104281;
     --bar:#2a78d6; --barPeak:#8d6011;
-    --wgo:#b8801f; --wgo2:#e8c979; --whold:#7f93b3; --wmid:#e7e3d8;
+    --wgo:#2b6f96; --wgo2:#7ec4dd; --whold:#a08a74; --wmid:#e7e3d8;
+    --frontln:#1d5f7d; --bird:#b8801f; --bird2:#d8a441;
   }
 }
 :root[data-theme="light"]{
@@ -36,7 +38,8 @@
   --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
   --r0:#e9e5d9; --r1:#cde2fb; --r2:#9ec5f4; --r3:#6da7ec; --r4:#3987e5; --r5:#256abf; --r6:#104281;
   --bar:#2a78d6; --barPeak:#8d6011;
-  --wgo:#b8801f; --wgo2:#e8c979; --whold:#7f93b3; --wmid:#e7e3d8;
+  --wgo:#2b6f96; --wgo2:#7ec4dd; --whold:#a08a74; --wmid:#e7e3d8;
+  --frontln:#1d5f7d; --bird:#b8801f; --bird2:#d8a441;
 }
 *{box-sizing:border-box}
 body{margin:0; background:var(--ground); color:var(--ink);
@@ -148,10 +151,9 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
 
   <div style="margin-top:22px;padding:14px 18px;border:1px solid var(--wheat);border-radius:3px;
        background:color-mix(in oklab, var(--wheat) 9%, transparent);font-size:13.5px;line-height:1.5">
-    <b style="color:var(--wheat)">Design preview &mdash; partial data.</b>
-    65 south Texas locations and only <b>2 days</b> of wind, so the animation barely moves.
-    The real build tonight has 152 locations and ~30 days &mdash; the field will actually drift south.
-    Judge the look and feel here, not the motion.
+    <b style="color:var(--wheat)">Design preview &mdash; 2 days of wind only.</b>
+    The front line and the colours are final; the <b>motion</b> is not, because there is almost no
+    history cached yet. Tonight it reaches ~30 days, and a season backfill takes it to months.
   </div>
 
   <div class="finder" id="finder">
@@ -174,19 +176,28 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
       <div class="flyrow">
         <figure><div class="flymap"><canvas id="wind" width="480" height="640"></canvas><svg id="fly" viewBox="0 0 480 640" role="img" aria-label="Wind and expected dove arrivals across the Central Flyway, animated by day"></svg></div></figure>
         <div class="flykey">
-          <h4>Background &mdash; the wind</h4>
-          <p>Measured southward push, on a real grid from south Texas to the Canadian line.
-            <span class="scale" id="windScale"></span>
-            <span class="scaleLab"><span>warm southerly<br>birds sit</span><span style="text-align:right">cold northerly<br>birds ride it</span></span>
-          </p>
-          <h4>Dots &mdash; expected arrivals</h4>
-          <p>One per place we forecast, brighter and bigger when more birds are due
-             <b>at that spot</b> that morning. Tap one to open it.</p>
-          <h4>Rings &mdash; a front crossing</h4>
-          <p>Where a cold front was detected passing that day.</p>
-          <p class="dim" style="font-size:12px">Nothing is drawn <i>between</i> locations. The flight model has
-             no east-west position for a bird, so we don't pretend to know one. Arrival numbers are relative,
-             not counts.</p>
+          <h4>What you're watching</h4>
+          <svg viewBox="0 0 240 92" style="width:100%;max-width:240px;margin:2px 0 10px">
+            <rect x="0" y="6" width="52" height="20" rx="3" fill="var(--wgo)" opacity="0.75"/>
+            <rect x="0" y="6" width="26" height="20" rx="3" fill="var(--wgo2)" opacity="0.55"/>
+            <text x="62" y="17" font-size="11" fill="var(--ink)" font-family="Archivo">Cold air</text>
+            <text x="62" y="29" font-size="10" fill="var(--ink3)" font-family="Archivo">pushing south</text>
+            <path d="M2,50 Q16,44 28,50 T52,49" fill="none" stroke="var(--frontln)" stroke-width="5" opacity="0.18" stroke-linecap="round"/>
+            <path d="M2,50 Q16,44 28,50 T52,49" fill="none" stroke="var(--frontln)" stroke-width="1.6" opacity="0.95" stroke-linecap="round"/>
+            <text x="62" y="48" font-size="11" fill="var(--ink)" font-family="Archivo">The front</text>
+            <text x="62" y="60" font-size="10" fill="var(--ink3)" font-family="Archivo">its leading edge, that day</text>
+            <circle cx="14" cy="80" r="13" fill="var(--bird2)" opacity="0.22"/>
+            <circle cx="14" cy="80" r="4.6" fill="var(--bird)"/>
+            <circle cx="40" cy="80" r="7" fill="var(--bird2)" opacity="0.16"/>
+            <circle cx="40" cy="80" r="2.4" fill="var(--bird)" opacity="0.75"/>
+            <text x="62" y="78" font-size="11" fill="var(--ink)" font-family="Archivo">The birds</text>
+            <text x="62" y="90" font-size="10" fill="var(--ink3)" font-family="Archivo">bigger = more due that morning</text>
+          </svg>
+          <p><b>The front arrives first.</b> Watch the bright edge sweep down, then the warm dots
+             bloom behind it a day or two later. That gap is the whole reason this thing exists.</p>
+          <p class="dim" style="font-size:12px">Nothing is drawn <i>between</i> the dots. The flight model
+             has no east-west position for a bird in the air, so we don't invent one. The front line joins
+             places where a crossing was actually detected. Arrival sizes are relative, not counts.</p>
         </div>
       </div>
       <figure class="scroll" style="margin-top:26px"><svg id="flight" viewBox="0 0 1000 240" role="img" aria-label="One flight south from each northern latitude"></svg></figure>
@@ -373,7 +384,7 @@ function windColour(v){
   if(v==null) return null;
   if(v>=0){
     const t=Math.min(1,v/18);
-    return {c:mix(tok('--wgo'),tok('--wgo2'),Math.max(0,(t-0.55)/0.45)), a:Math.min(0.92,t*1.25)};
+    return {c:mix(tok('--wgo'),tok('--wgo2'),Math.max(0,(t-0.55)/0.45)), a:Math.min(0.85,t*1.2)};
   }
   return {c:tok('--whold'), a:Math.min(0.5,(-v/14)*0.5)};
 }
@@ -440,9 +451,6 @@ async function loadFlow(){
   if(REDUCED()) $('#play').innerHTML='&#9654; Step a day';
   setFrame(i<0?FLOW.dates.length-1:i);
   drawFlights();
-  $('#windScale').innerHTML=[-12,-8,-4,-1,3,7,11,15,18].map(function(v){
-    const c=windColour(v);
-    return '<i style="background:'+c.c+';opacity:'+Math.max(0.06,c.a).toFixed(2)+'"></i>';}).join('');
 }
 
 let DOTS=[], HALOS=[], RINGS=null;
@@ -464,7 +472,7 @@ function buildFly(){
 
   const gd=el('g',{}); s.appendChild(gd);
   FLOW.sites.forEach(function(st){
-    const h=el('circle',{cx:st.xy[0],cy:st.xy[1],r:0,fill:tok('--wgo2'),opacity:0});
+    const h=el('circle',{cx:st.xy[0],cy:st.xy[1],r:0,fill:tok('--bird2'),opacity:0});
     gd.appendChild(h); HALOS.push(h);
     const c=el('circle',{cx:st.xy[0],cy:st.xy[1],r:1.6,fill:tok('--ink3'),opacity:0.4});
     c.style.cursor='pointer';
@@ -487,21 +495,50 @@ function setFrame(f){
     const v=(st.a[i0]||0)+((st.a[i1]||0)-(st.a[i0]||0))*t;
     const q=Math.max(0,Math.min(1,v/mx));
     DOTS[k].setAttribute('r',(1.6+q*3.4).toFixed(2));
-    DOTS[k].setAttribute('fill', v<1?tok('--ink3'):ramp[Math.min(6,Math.floor(q*6.999))]);
+    DOTS[k].setAttribute('fill', v<1?tok('--ink3'):mix(tok('--bird'),tok('--bird2'),q));
     DOTS[k].setAttribute('opacity', v<1?0.35:1);
     HALOS[k].setAttribute('r',(4+q*13).toFixed(2));          // bloom where birds are due
     HALOS[k].setAttribute('opacity',(q*0.22).toFixed(3));
   });
-  RINGS.innerHTML='';
-  const fr=(FLOW.fronts||[]).find(x=>x.date===FLOW.dates[Math.round(FRAME)]);
-  if(fr) fr.n.forEach(function(n){
-    const p=FLOW.grid.xy[n];
-    RINGS.appendChild(el('circle',{cx:p[0],cy:p[1],r:3.4,fill:'none',
-      stroke:tok('--wgo2'),'stroke-width':0.9,opacity:0.55}));
-  });
+  drawFront(FLOW.dates[Math.round(FRAME)]);
   $('#scrub').value=Math.round(FRAME);
   const d=FLOW.dates[Math.round(FRAME)], dd=dt(d);
   $('#flyDay').textContent=DOW3[dd.getDay()]+' '+nice(d);
+}
+
+function drawFront(day){
+  /* A boundary, drawn as a boundary. Scattered rings at each detection read
+     as noise; the same detections joined across longitude read as the front
+     it is. One median latitude per longitude column, through real crossings
+     only - nothing is drawn where nothing was detected. */
+  RINGS.innerHTML='';
+  const fr=(FLOW.fronts||[]).find(x=>x.date===day);
+  if(!fr||!fr.n.length) return;
+  const byLon=new Map();
+  fr.n.forEach(function(n){
+    const [li,oi]=FLOW.mask[n];
+    if(!byLon.has(oi)) byLon.set(oi,[]);
+    byLon.get(oi).push({li:li,xy:FLOW.grid.xy[n]});
+  });
+  const cols=[...byLon.entries()].sort((a,b)=>a[0]-b[0]).map(function(e){
+    const v=e[1].sort((a,b)=>a.li-b.li);
+    return v[Math.floor(v.length/2)].xy;                 // median latitude in that column
+  });
+  if(cols.length<2){
+    cols.forEach(p=>RINGS.appendChild(el('circle',{cx:p[0],cy:p[1],r:3,fill:'none',
+      stroke:tok('--frontln'),'stroke-width':1.2,opacity:0.8})));
+    return;
+  }
+  let d='M'+cols[0][0].toFixed(1)+','+cols[0][1].toFixed(1);
+  for(let i=1;i<cols.length;i++){                        // smooth through the columns
+    const a=cols[i-1],b=cols[i],mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2;
+    d+='Q'+a[0].toFixed(1)+','+a[1].toFixed(1)+' '+mx.toFixed(1)+','+my.toFixed(1);
+  }
+  d+='L'+cols[cols.length-1][0].toFixed(1)+','+cols[cols.length-1][1].toFixed(1);
+  RINGS.appendChild(el('path',{d:d,fill:'none',stroke:tok('--frontln'),'stroke-width':5,
+    opacity:0.18,'stroke-linecap':'round','stroke-linejoin':'round'}));   // glow
+  RINGS.appendChild(el('path',{d:d,fill:'none',stroke:tok('--frontln'),'stroke-width':1.6,
+    opacity:0.95,'stroke-linecap':'round','stroke-linejoin':'round'}));
 }
 
 function tick(ts){
