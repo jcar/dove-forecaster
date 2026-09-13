@@ -5,7 +5,7 @@ from statistics import mean
 from .geo import arc_points, HOME, HOME_NAME
 from .weather import OpenMeteo, ensemble_members
 from .push import daily_features, score_day, Reservoir
-from .front import (arc_passage, front_speed_mph, cluster_fronts,
+from .front import (arc_passage, arc_passage_from, front_speed_mph, cluster_fronts,
                     frontal_passages, arrival_forecast_wind, ensemble_confidence)
 from .local import conditions
 
@@ -48,11 +48,13 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None):
     arcs, events, arc_series = arc_points(home), [], {}
     for idx, arc in arcs.items():
         if grid is not None:
-            hourly = [grid.series(*p) for p in arc["points"]]
+            pp = [grid.features(*p) for p in arc["points"]]
+            band_passages = [grid.passages(*p) for p in arc["points"]]
         else:
             series = OpenMeteo().hourly(arc["points"], past_days=past, forecast_days=WIND_HORIZON)
             hourly = [s["hourly"] for s in series]
-        pp = [daily_features(h) for h in hourly]
+            pp = [daily_features(h) for h in hourly]
+            band_passages = None
         dates = sorted(set.intersection(*[set(p) for p in pp]))
         res, daily = Reservoir(), {}
         for i, d in enumerate(dates):
@@ -73,7 +75,8 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None):
         # window only, so a correct reservoir does not bloat the payload.
         arc_series[idx] = {d: daily[d] for d in sorted(daily)[-DISPLAY_DAYS:]}
 
-        ev = arc_passage(hourly)
+        ev = (arc_passage_from(band_passages) if band_passages is not None
+              else arc_passage(hourly))
         if ev:
             win = [(ev["when"].date() + timedelta(days=k)).isoformat() for k in (0, 1)]
             ev.update(arc=idx, dist_mi=arc["dist_mi"], north_mi=arc["north_mi"],
