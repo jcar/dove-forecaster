@@ -1,0 +1,550 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<title>Dove Arrival Watch</title>
+<style>
+/* Predawn over cut stubble: the hour that matters, and the two colours a
+   September dove morning is actually made of. Dark-first by intent. */
+:root{
+  color-scheme: dark;
+  --ground:#12151c; --surface:#191d26; --raise:#212633;
+  --ink:#eef0f4; --ink2:#9aa3b0; --ink3:#6d7684;
+  --line:#272d39; --line2:#1d222c;
+  --wheat:#d9a441;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+  --r0:#1a2130; --r1:#123055; --r2:#184f95; --r3:#256abf; --r4:#3987e5; --r5:#6da7ec; --r6:#9ec5f4;
+  --bar:#3987e5; --barPeak:#d9a441;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    color-scheme: light;
+    --ground:#e7e3d8; --surface:#f4f2ea; --raise:#fffdf7;
+    --ink:#15181d; --ink2:#535a63; --ink3:#7e8590;
+    --line:#d2cdbe; --line2:#e0dbcd;
+    --wheat:#8d6011;
+    --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+    --r0:#e9e5d9; --r1:#cde2fb; --r2:#9ec5f4; --r3:#6da7ec; --r4:#3987e5; --r5:#256abf; --r6:#104281;
+    --bar:#2a78d6; --barPeak:#8d6011;
+  }
+}
+:root[data-theme="light"]{
+  color-scheme: light;
+  --ground:#e7e3d8; --surface:#f4f2ea; --raise:#fffdf7;
+  --ink:#15181d; --ink2:#535a63; --ink3:#7e8590;
+  --line:#d2cdbe; --line2:#e0dbcd;
+  --wheat:#8d6011;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+  --r0:#e9e5d9; --r1:#cde2fb; --r2:#9ec5f4; --r3:#6da7ec; --r4:#3987e5; --r5:#256abf; --r6:#104281;
+  --bar:#2a78d6; --barPeak:#8d6011;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--ground); color:var(--ink);
+  font-family:Archivo,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased}
+body::before{content:""; position:fixed; inset:0 0 auto 0; height:320px; z-index:0; pointer-events:none;
+  background:radial-gradient(120% 100% at 50% 0%, color-mix(in oklab, var(--wheat) 12%, transparent) 0%, transparent 70%)}
+.wrap{position:relative; z-index:1; max-width:1080px; margin:0 auto; padding-inline:20px; padding-block:0 72px}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace; font-variant-numeric:tabular-nums}
+.dim{color:var(--ink3)}
+.eyebrow{font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--wheat); font-weight:600}
+h1{font-family:Bitter,Georgia,serif; margin:0; font-weight:700; letter-spacing:-.02em; line-height:1.05; text-wrap:balance}
+.top{display:flex; flex-wrap:wrap; gap:12px 20px; align-items:center; justify-content:space-between;
+  padding-block:18px; border-bottom:1px solid var(--line)}
+.brand{display:flex; align-items:baseline; gap:10px}
+.brand .n{font-family:Bitter,serif; font-weight:700; font-size:17px; letter-spacing:-.01em}
+.where{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.where .cur{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--ink2)}
+button{font:inherit; font-size:13px; padding:7px 13px; border-radius:2px; cursor:pointer;
+  background:var(--raise); color:var(--ink); border:1px solid var(--line)}
+button:hover{border-color:var(--wheat)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--wheat); outline-offset:2px}
+.finder{margin-top:34px; background:var(--surface); border:1px solid var(--line); border-radius:3px; padding:22px}
+.finder h2{font-family:Bitter,serif; font-size:19px; font-weight:600; margin:0 0 4px; letter-spacing:-.01em;
+  text-transform:none; color:var(--ink)}
+.finder p{margin:0 0 16px; color:var(--ink2); font-size:14px; max-width:58ch}
+.row{display:flex; gap:8px; flex-wrap:wrap}
+input[type=search]{flex:1 1 260px; font:inherit; padding:10px 13px; border-radius:2px; min-width:0;
+  background:var(--ground); color:var(--ink); border:1px solid var(--line)}
+.hits{list-style:none; margin:12px 0 0; padding:0; display:flex; flex-direction:column; gap:1px}
+.hits li{padding:9px 12px; background:var(--raise); cursor:pointer; font-size:14px;
+  display:flex; justify-content:space-between; gap:12px; border:1px solid transparent}
+.hits li:hover{border-color:var(--wheat)}
+.hits .sub{color:var(--ink3); font-size:12.5px; font-family:"IBM Plex Mono",monospace}
+.mast{padding-block:34px 26px}
+.mast h1{font-size:clamp(29px,5.2vw,46px)}
+.mast p{margin:13px 0 0; color:var(--ink2); max-width:60ch; font-size:16px}
+.verdict{margin-top:24px; background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--wheat);
+  border-radius:3px; padding:20px 22px; display:flex; flex-wrap:wrap; gap:16px 34px; align-items:baseline}
+.verdict .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); font-weight:600}
+.verdict .v{font-family:"IBM Plex Mono",monospace; font-size:20px; font-weight:600; margin-top:4px}
+section{padding-block:38px 0}
+h2{margin:0 0 3px; font-size:11.5px; font-weight:600; letter-spacing:.15em; text-transform:uppercase; color:var(--wheat)}
+.sub{margin:0 0 18px; color:var(--ink3); font-size:13.5px; max-width:70ch}
+figure{margin:0}
+.scroll{overflow-x:auto; overflow-y:hidden}
+svg{display:block; max-width:100%; height:auto}
+svg text{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+.leg{display:flex; flex-wrap:wrap; gap:6px 20px; margin-top:12px; font-size:12.5px; color:var(--ink2)}
+.leg span{display:inline-flex; align-items:center; gap:7px}
+.leg i{width:11px; height:11px; border-radius:2px; display:inline-block; flex:none}
+table{border-collapse:collapse; width:100%; font-size:13.5px}
+th{text-align:left; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3);
+  font-weight:600; padding:0 14px 8px 0; border-bottom:1px solid var(--line); white-space:nowrap}
+td{padding:11px 14px 11px 0; border-bottom:1px solid var(--line2); vertical-align:top}
+td.w,td.n{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; white-space:nowrap}
+td.w b{color:var(--ink); font-weight:600}
+tr:last-child td{border-bottom:none}
+tr.best td{background:var(--raise)}
+tr.best td:first-child{box-shadow:inset 3px 0 0 var(--wheat)}
+.howto{margin-top:26px; border:1px solid var(--line); border-radius:3px; overflow:hidden}
+.howto .hd{padding:13px 18px; background:var(--surface); border-bottom:1px solid var(--line);
+  font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--wheat); font-weight:600}
+.howto ol{margin:0; padding:16px 18px 18px 38px; color:var(--ink2); font-size:14.5px}
+.howto li{padding:4px 0}
+.howto b{color:var(--ink); font-weight:600}
+.ledger{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:0 34px}
+.ledger ul{list-style:none; margin:0; padding:0}
+.ledger li{padding:9px 0 9px 22px; border-bottom:1px solid var(--line2); position:relative; font-size:13.5px; color:var(--ink2)}
+.ledger li:last-child{border-bottom:none}
+.ledger li::before{position:absolute; left:0; top:9px; font-family:"IBM Plex Mono",monospace; font-size:12px}
+.ledger .ok li::before{content:"\2713"; color:var(--wheat)}
+.ledger .no li::before{content:"\2013"; color:var(--ink3)}
+.ledger h3{margin:0 0 4px; font-size:10.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink3); font-weight:600}
+#tip{position:fixed; pointer-events:none; z-index:30; opacity:0; transition:opacity .1s;
+  background:var(--ink); color:var(--ground); padding:8px 11px; border-radius:3px;
+  font-family:"IBM Plex Mono",monospace; font-size:11.5px; line-height:1.5; white-space:pre;
+  box-shadow:0 6px 18px rgba(0,0,0,.3); max-width:290px}
+foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(--line); color:var(--ink3); font-size:12.5px}
+[hidden]{display:none!important}
+@media (max-width:560px){ .verdict{flex-direction:column; gap:16px} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><span class="n">Dove Arrival Watch</span>
+      <span class="dim mono" style="font-size:12px">Texas &amp; Oklahoma</span></div>
+    <div class="where"><span class="cur" id="curLoc">&mdash;</span>
+      <button id="change" hidden>Change location</button>
+      <button id="theme" title="Light / dark">&#9681;</button></div>
+  </div>
+
+  <div style="margin-top:22px;padding:14px 18px;border:1px solid var(--wheat);border-radius:3px;
+       background:color-mix(in oklab, var(--wheat) 9%, transparent);font-size:13.5px;line-height:1.5">
+    <b style="color:var(--wheat)">Design preview &mdash; partial data.</b>
+    Only <b>65 south Texas</b> locations are loaded, from test runs; the real build covers 152 across
+    Texas and Oklahoma and runs tonight. The map will look like a band across the bottom of the state,
+    and a search for anywhere north will snap to the nearest loaded point, which may be hundreds of miles off.
+    Judge the look and the flow here, not the coverage.
+  </div>
+
+  <div class="finder" id="finder">
+    <h2>Where do you hunt?</h2>
+    <p>Type a town in Texas or Oklahoma. You get the forecast for that ground &mdash; its own cold fronts,
+       its own arrival days &mdash; not a guess borrowed from somewhere nearby.</p>
+    <div class="row">
+      <input type="search" id="q" placeholder="Van Alstyne, TX" autocomplete="off" enterkeyhint="search">
+      <button id="go">Find</button>
+    </div>
+    <ul class="hits" id="hits"></ul>
+    <p class="dim" id="finderNote" style="margin:14px 0 0; font-size:12.5px"></p>
+  </div>
+
+  <div id="overview">
+    <section>
+      <h2>Across the flyway this week</h2>
+      <p class="sub">Every place we forecast, coloured by how many birds should arrive on its best morning.
+         Tap any dot to open that ground.</p>
+      <figure class="scroll"><svg id="map" viewBox="0 0 1000 620" role="img" aria-label="Expected dove arrivals across Texas and Oklahoma"></svg></figure>
+      <div class="leg" id="mapLeg"></div>
+    </section>
+  </div>
+
+  <div id="site" hidden>
+    <div class="mast">
+      <div class="eyebrow" id="eyebrow">&nbsp;</div>
+      <h1 id="headline">&nbsp;</h1>
+      <p id="plain"></p>
+    </div>
+    <div class="verdict">
+      <div><div class="k">Go this morning</div><div class="v mono" id="vDay">&mdash;</div></div>
+      <div><div class="k">How many</div><div class="v mono" id="vStr">&mdash;</div></div>
+      <div><div class="k">Coming from</div><div class="v mono" id="vFrom">&mdash;</div></div>
+      <div><div class="k">Days of notice</div><div class="v mono" id="vLead">&mdash;</div></div>
+    </div>
+    <div class="howto">
+      <div class="hd">How this works</div>
+      <ol>
+        <li>Doves don't leave on a schedule &mdash; they go when a <b>cold front</b> gives them a north wind to ride.</li>
+        <li>So we watch four stretches of country upstream of you, out to <b>620 miles north</b>.</li>
+        <li>Birds ride that wind while it holds &mdash; up to about 200 miles in a day &mdash; and <b>sit down when it quits.</b></li>
+        <li>The front outruns the birds. Cool air reaches you first; they land a day or two <b>behind</b> it. That gap is the whole point.</li>
+      </ol>
+    </div>
+    <section>
+      <h2>The front, then the birds</h2>
+      <p class="sub">Dashed line is the weather. Bars are the birds. They are not the same day.</p>
+      <figure class="scroll"><svg id="arrival" viewBox="0 0 1000 340" role="img" aria-label="Front arrival versus bird arrival"></svg></figure>
+      <div class="leg" id="arrLeg"></div>
+    </section>
+    <section>
+      <h2>Day by day at your fields</h2>
+      <p class="sub">Conditions at your exact coordinates, pulled live. <b>North wind in bold</b> &mdash; that's post-front air.
+         Doves turn into the wind to land, so set up with it at your back and they work toward you.</p>
+      <div class="scroll"><table id="cond"></table></div>
+    </section>
+    <section>
+      <h2>What's happening upstream</h2>
+      <p class="sub">North at the top, the way the country lies. Darker means birds were being pushed harder out of there that day.</p>
+      <figure class="scroll"><svg id="heat" viewBox="0 0 1000 250" role="img" aria-label="Push strength by region and day"></svg></figure>
+      <div class="leg" id="heatLeg"></div>
+    </section>
+    <section>
+      <h2>Cold fronts we're tracking</h2>
+      <p class="sub">Each front is clocked as it crosses the bands, so its speed is measured rather than assumed.
+         <b>How sure</b> comes from 31 separate weather model runs and how much they disagree.</p>
+      <div class="scroll"><table id="fronts"></table></div>
+    </section>
+  </div>
+
+  <section>
+    <h2>Are the birds actually moving?</h2>
+    <p class="sub">Doves counted per birdwatching stop across the whole flyway. Collared-doves are the check:
+       they don't migrate, so their line should stay flat when the others jump. If all three move together, we're watching people, not birds.</p>
+    <figure class="scroll"><svg id="birds" viewBox="0 0 1000 300" role="img" aria-label="Dove counts across the flyway"></svg></figure>
+    <div class="leg" id="birdLeg"></div>
+  </section>
+
+  <section>
+    <h2>How much to trust this</h2>
+    <p class="sub">The weather half has been checked against eleven years of records. The bird half has never been checked at all.</p>
+    <div class="ledger">
+      <div><h3>Checked and working</h3><ul class="ok">
+        <li>Front speeds &mdash; <span class="mono" id="spdMed">&mdash;</span> typical across <span class="mono" id="spdN">&mdash;</span> fronts, 2015&ndash;2025</li>
+        <li>About <b>7 big continent-wide fronts</b> a season, which matches a real dove season</li>
+        <li>Same answer on any machine &mdash; no randomness hiding in it</li>
+      </ul></div>
+      <div><h3>Still guesswork</h3><ul class="no">
+        <li>How far a dove really covers on a given tailwind &mdash; that number sets the arrival day</li>
+        <li>How fast the birds up north run out over a season</li>
+        <li>Strength labels aren't calibrated &mdash; read them as bigger-vs-smaller, not as counts</li>
+        <li>Whether any of this has ever correctly predicted a single bird</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <foot>Every morning's forecast is saved before anyone knows how it turned out, so the record can't be tidied up later.
+    Sunrise and sunset are astronomy; shooting hours and season dates belong to your state agency, not to us.
+    <span id="gen" class="mono"></span></foot>
+</div>
+<div id="tip" role="status"></div>
+<script>
+const $=s=>document.querySelector(s);
+const cs=getComputedStyle(document.documentElement), tok=n=>cs.getPropertyValue(n).trim();
+const RAMP=()=>['--r0','--r1','--r2','--r3','--r4','--r5','--r6'].map(tok);
+const el=(n,a)=>{const x=document.createElementNS('http://www.w3.org/2000/svg',n);for(const k in a)x.setAttribute(k,a[k]);return x;};
+const DOW=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DOW3=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const dt=s=>new Date(s+'T12:00:00'), md=s=>(dt(s).getMonth()+1)+'/'+dt(s).getDate();
+const nice=s=>MON[dt(s).getMonth()]+' '+dt(s).getDate();
+const tip=$('#tip');
+const show=(e,t)=>{tip.textContent=t;tip.style.opacity=1;const p=14,w=tip.offsetWidth,h=tip.offsetHeight;
+  tip.style.left=Math.min(Math.max(8,e.clientX+p),innerWidth-w-8)+'px';tip.style.top=Math.max(e.clientY-h-p,8)+'px';};
+const hide=()=>tip.style.opacity=0;
+const strength=v=>v<4?'Nothing moving':v<14?'A few birds':v<30?'Decent push':'Big push';
+const northish=d=>d!=null&&(d>=300||d<=60);
+const PT=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+const compass=d=>PT[Math.round((d%360)/22.5)%16];
+let INDEX=null,SITE=null,PLACE=null,WAVE=null;
+
+try{const t=localStorage.getItem('dove.theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}
+$('#theme').onclick=()=>{
+  const cur=document.documentElement.getAttribute('data-theme');
+  const next=cur==='light'?'dark':cur==='dark'?'light':(matchMedia('(prefers-color-scheme: dark)').matches?'light':'dark');
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem('dove.theme',next)}catch(e){}
+  drawMap(); drawBirds(); if(SITE) drawSite();
+};
+
+async function boot(){
+  try{INDEX=await (await fetch('data/index.json')).json();}
+  catch(e){$('#finderNote').textContent='Forecast data has not been published yet.';return;}
+  $('#gen').textContent='Last updated '+INDEX.generated_at.replace('T',' ').slice(0,16)+'Z.';
+  drawMap(); loadBacktest(); loadBirds();
+  const url=new URLSearchParams(location.search).get('loc');
+  let saved=null; try{saved=JSON.parse(localStorage.getItem('dove.place')||'null')}catch(e){}
+  if(url&&INDEX.sites.some(s=>s.id===url)) selectSite(url,saved&&saved.id===url?saved.name:null,saved&&saved.lat,saved&&saved.lon);
+  else if(saved&&INDEX.sites.some(s=>s.id===saved.id)) selectSite(saved.id,saved.name,saved.lat,saved.lon);
+}
+function nearestSite(lat,lon){
+  return INDEX.sites.reduce((a,b)=>{const d=s=>(s.lat-lat)**2+((s.lon-lon)*Math.cos(lat*Math.PI/180))**2;return d(b)<d(a)?b:a;});
+}
+async function search(){
+  const q=$('#q').value.trim(); if(!q)return;
+  $('#finderNote').textContent='Searching...'; $('#hits').innerHTML='';
+  try{
+    const r=await (await fetch('https://geocoding-api.open-meteo.com/v1/search?count=8&country=US&name='+encodeURIComponent(q))).json();
+    const res=(r.results||[]).filter(x=>['Texas','Oklahoma'].includes(x.admin1));
+    if(!res.length){$('#finderNote').textContent='No match in Texas or Oklahoma — those are the two states we publish for right now.';return;}
+    $('#finderNote').textContent='';
+    $('#hits').innerHTML=res.map((x,i)=>'<li data-i="'+i+'"><span>'+x.name+(x.admin2?', '+x.admin2:'')+', '+x.admin1+
+      '</span><span class="sub">'+x.latitude.toFixed(2)+', '+x.longitude.toFixed(2)+'</span></li>').join('');
+    [...$('#hits').children].forEach(li=>li.onclick=()=>{const x=res[+li.dataset.i];
+      selectSite(nearestSite(x.latitude,x.longitude).id, x.name+', '+x.admin1, x.latitude, x.longitude);});
+  }catch(e){$('#finderNote').textContent='Search is unavailable right now. Try again in a moment.';}
+}
+$('#go').onclick=search;
+$('#q').addEventListener('keydown',e=>{if(e.key==='Enter')search();});
+$('#change').onclick=()=>{$('#finder').hidden=false;$('#overview').hidden=false;$('#site').hidden=true;$('#change').hidden=true;$('#q').focus();};
+
+async function selectSite(id,name,lat,lon){
+  try{SITE=await (await fetch('data/loc/'+id+'.json')).json();}
+  catch(e){$('#finderNote').textContent='That spot has no forecast published yet.';return;}
+  PLACE={id:id,name:name||null,lat:lat!=null?lat:SITE.lat,lon:lon!=null?lon:SITE.lon};
+  try{localStorage.setItem('dove.place',JSON.stringify(PLACE))}catch(e){}
+  history.replaceState(null,'','?loc='+id);
+  $('#curLoc').textContent=PLACE.name||(SITE.lat+', '+SITE.lon);
+  $('#finder').hidden=true;$('#overview').hidden=true;$('#site').hidden=false;$('#change').hidden=false;
+  drawSite(); loadLocal();
+  scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});
+}
+
+function drawMap(){
+  const s=$('#map'); if(!INDEX)return; s.innerHTML='';
+  const W=1000,H=620,L=24,R=24,T=20,B=34, ramp=RAMP();
+  const lats=INDEX.sites.map(x=>x.lat), lons=INDEX.sites.map(x=>x.lon);
+  const la0=Math.min(...lats)-.6,la1=Math.max(...lats)+.6,lo0=Math.min(...lons)-.6,lo1=Math.max(...lons)+.6;
+  const X=lo=>L+(W-L-R)*(lo-lo0)/(lo1-lo0), Y=la=>T+(H-T-B)*(1-(la-la0)/(la1-la0));
+  const mx=Math.max(8,...INDEX.sites.map(x=>x.peak));
+  INDEX.sites.forEach(p=>{
+    const t=Math.max(0,Math.min(1,p.peak/mx));
+    const c=el('circle',{cx:X(p.lon).toFixed(1),cy:Y(p.lat).toFixed(1),r:8,
+      fill:ramp[Math.min(6,Math.floor(t*6.999))],stroke:tok('--ground'),'stroke-width':1.5});
+    c.style.cursor='pointer';
+    c.addEventListener('pointermove',e=>show(e,p.lat+', '+p.lon+'\n'+strength(p.peak)+
+      '\nbest morning '+DOW3[dt(p.peak_date).getDay()]+' '+nice(p.peak_date)));
+    c.addEventListener('pointerleave',hide);
+    c.addEventListener('click',()=>selectSite(p.id,null,p.lat,p.lon));
+    s.appendChild(c);
+  });
+  [['Amarillo',35.22,-101.83],['Lubbock',33.58,-101.86],['Oklahoma City',35.47,-97.52],['Tulsa',36.15,-95.99],
+   ['Dallas',32.78,-96.80],['Austin',30.27,-97.74],['Houston',29.76,-95.37],['San Antonio',29.42,-98.49]].forEach(function(c){
+    var n=c[0],la=c[1],lo=c[2];
+    if(la<la0||la>la1||lo<lo0||lo>lo1)return;
+    s.appendChild(el('circle',{cx:X(lo),cy:Y(la),r:2.5,fill:tok('--ink2')}));
+    const t=el('text',{x:X(lo)+10,y:Y(la)+4,'font-size':11,fill:tok('--ink2')}); t.textContent=n; s.appendChild(t);
+  });
+  $('#mapLeg').innerHTML='<span style="gap:3px">'+ramp.map(c=>'<i style="background:'+c+';width:22px;border-radius:1px"></i>').join('')+
+    '</span><span class="dim">quiet &rarr; big push</span><span class="dim">tap any dot for that ground</span>';
+}
+
+function drawSite(){
+  const D=SITE, ramp=RAMP();
+  const peak=D.arrival.reduce((a,b)=>b.arrival>a.arrival?b:a);
+  const bandName=a=>(D.arcs[a]||{}).label||('Band '+a);
+  const fr=D.fronts.find(f=>f.reaches_home)||null;
+  let bestDate=peak.date, note='';
+  if(fr&&peak.arrival>=4){
+    const rh=new Date(fr.reaches_home), pm=dt(peak.date); pm.setHours(8,0,0,0);
+    if(rh>pm){
+      const nxt=D.arrival.find(r=>dt(r.date)>dt(peak.date)&&r.arrival>=peak.arrival*0.6);
+      if(nxt){bestDate=nxt.date; note=' The front does not clear until '+DOW[rh.getDay()]+
+        ' evening, so '+DOW[dt(peak.date).getDay()]+' morning is still ahead of it. '+
+        DOW[dt(nxt.date).getDay()]+' sits behind the wind shift with nearly as many birds.';}
+    }
+  }
+  const froms=peak.from_arcs.slice(0,2).map(a=>bandName(a[0]));
+  $('#eyebrow').textContent=(PLACE&&PLACE.name?PLACE.name:'Your fields')+' · '+
+    (fr&&fr.speed_mph?'front measured at '+fr.speed_mph+' mph':'no front tracked');
+  if(peak.arrival>=4){
+    $('#headline').textContent='Birds should hit your fields '+DOW[dt(peak.date).getDay()]+' morning';
+    $('#plain').textContent='That is '+nice(peak.date)+'. Most of them out of '+
+      (froms.length>1?froms[0]+' and '+froms[1]:(froms[0]||'upstream'))+'.'+note;
+  }else{
+    $('#headline').textContent='No new birds headed your way yet';
+    $('#plain').textContent='Nothing is pushing doves south right now. What is on your fields is what was already there. Check back after the next cold front.';
+  }
+  const today=new Date(); today.setHours(0,0,0,0);
+  const lead=Math.round((dt(bestDate)-today)/864e5);
+  $('#vDay').textContent=peak.arrival>=4?DOW3[dt(bestDate).getDay()]+' '+nice(bestDate):'—';
+  $('#vStr').textContent=strength(peak.arrival);
+  $('#vFrom').textContent=peak.arrival>=4?(froms[0]||'—'):'—';
+  $('#vLead').textContent=peak.arrival>=4?(lead<=0?'today':lead+' day'+(lead>1?'s':'')):'—';
+
+  (function(){
+    const s=$('#arrival'); s.innerHTML='';
+    const W=1000,H=340,L=30,R=18,T=92,B=46,iw=W-L-R,ih=H-T-B;
+    const rows=D.arrival, mx=Math.max(10,...rows.map(r=>r.arrival));
+    const step=iw/rows.length, bw=Math.min(44,step*0.58), y=v=>T+ih-(v/mx)*ih, centre=i=>L+step*i+step/2;
+    const peakI=rows.findIndex(r=>r.date===peak.date);
+    let frX=null;
+    if(fr&&fr.reaches_home){
+      const t0=dt(rows[0].date).getTime(),t1=dt(rows[rows.length-1].date).getTime();
+      const f=(new Date(fr.reaches_home).getTime()-t0)/(t1-t0);
+      if(f>=0&&f<=1)frX=L+step/2+f*(iw-step);
+    }
+    [['Big push',30],['Decent',14],['A few',4]].forEach(function(p){
+      if(p[1]>mx)return;
+      s.appendChild(el('line',{x1:L,x2:W-R,y1:y(p[1]),y2:y(p[1]),stroke:tok('--line'),'stroke-width':1,'stroke-dasharray':'3 4'}));
+      const t=el('text',{x:L+2,y:y(p[1])-5,'font-size':10,fill:tok('--ink3')}); t.textContent=p[0]; s.appendChild(t);});
+    rows.forEach((r,i)=>{
+      const cx=centre(i), isPeak=i===peakI&&r.arrival>=4;
+      const h=r.arrival>0?Math.max(2,ih-(y(r.arrival)-T)):0;
+      if(h>0)s.appendChild(el('rect',{x:cx-bw/2,y:y(r.arrival),width:bw,height:h,rx:3,fill:isPeak?tok('--barPeak'):tok('--bar')}));
+      const a=el('text',{x:cx,y:H-26,'text-anchor':'middle','font-size':11.5,fill:isPeak?tok('--ink'):tok('--ink3'),'font-weight':isPeak?600:400});
+      a.textContent=DOW3[dt(r.date).getDay()]; s.appendChild(a);
+      const b2=el('text',{x:cx,y:H-11,'text-anchor':'middle','font-size':10,fill:tok('--ink3')}); b2.textContent=md(r.date); s.appendChild(b2);
+      if(isPeak){const v=el('text',{x:cx,y:y(r.arrival)-9,'text-anchor':'middle','font-size':11.5,'font-weight':600,fill:tok('--ink')});
+        v.textContent=strength(r.arrival); s.appendChild(v);}
+      const hit=el('rect',{x:L+step*i,y:T,width:step,height:ih,fill:'transparent'});
+      hit.addEventListener('pointermove',e=>show(e,DOW[dt(r.date).getDay()]+', '+nice(r.date)+'\n'+strength(r.arrival)+
+        (r.from_arcs.length?'\n\ncoming from:\n'+r.from_arcs.map(a=>'  '+bandName(a[0])).join('\n'):'')));
+      hit.addEventListener('pointerleave',hide); s.appendChild(hit);
+    });
+    s.appendChild(el('line',{x1:L,x2:W-R,y1:T+ih,y2:T+ih,stroke:tok('--line'),'stroke-width':1}));
+    if(frX!==null){
+      s.appendChild(el('line',{x1:frX,x2:frX,y1:44,y2:T+ih,stroke:tok('--ink2'),'stroke-width':1.5,'stroke-dasharray':'5 4'}));
+      const rh=new Date(fr.reaches_home);
+      const c1=el('text',{x:frX,y:36,'text-anchor':'middle','font-size':12,'font-weight':600,fill:tok('--ink')});
+      c1.textContent='Front hits '+DOW3[rh.getDay()]; s.appendChild(c1);
+      const c2=el('text',{x:frX,y:50,'text-anchor':'middle','font-size':10.5,fill:tok('--ink3')});
+      c2.textContent='wind switches, feels great'; s.appendChild(c2);
+      if(peakI>=0&&rows[peakI].arrival>=4){
+        const px=centre(peakI), gy=70;
+        if(px-frX>44){
+          s.appendChild(el('path',{d:'M'+(frX+3)+' '+gy+'H'+(px-3),stroke:tok('--wheat'),'stroke-width':1.5,fill:'none'}));
+          [[frX+3,1],[px-3,-1]].forEach(function(q){s.appendChild(el('path',{d:'M'+q[0]+' '+gy+'l'+(6*q[1])+' -4 v8 z',fill:tok('--wheat')}));});
+          const days=Math.round((dt(peak.date)-rh)/864e5);
+          const g=el('text',{x:(frX+px)/2,y:gy-7,'text-anchor':'middle','font-size':11.5,'font-weight':600,fill:tok('--wheat')});
+          g.textContent='wait '+days+' more day'+(days>1?'s':''); s.appendChild(g);
+        }
+        const p1=el('text',{x:px,y:36,'text-anchor':'middle','font-size':12,'font-weight':600,fill:tok('--ink')});
+        p1.textContent='Birds land '+DOW3[dt(peak.date).getDay()]; s.appendChild(p1);
+        const p2=el('text',{x:px,y:50,'text-anchor':'middle','font-size':10.5,fill:tok('--ink3')});
+        p2.textContent='this is the morning to go'; s.appendChild(p2);
+      }
+    }
+    $('#arrLeg').innerHTML='<span><i style="background:'+tok('--barPeak')+'"></i>best morning</span>'+
+      '<span><i style="background:'+tok('--bar')+'"></i>birds expected</span>'+
+      '<span class="dim">dashed line = the weather, bars = the birds</span>';
+  })();
+
+  (function(){
+    const s=$('#heat'); s.innerHTML='';
+    const W=1000,H=250,L=186,R=14,T=26,B=42;
+    const bands=Object.keys(D.scores).sort((a,b)=>b-a);
+    const days=Object.keys(D.scores[bands[0]]).sort();
+    const cw=(W-L-R)/days.length, rh=(H-T-B)/bands.length;
+    const mx=Math.max(1,...bands.map(b=>Math.max(...days.map(d=>(D.scores[b][d]||[0])[0]||0))));
+    bands.forEach((b,ri)=>{
+      const meta=D.arcs[b]||{};
+      const n1=el('text',{x:0,y:T+rh*ri+rh/2-6,'font-size':13,fill:tok('--ink'),'font-weight':600});
+      n1.textContent=meta.label||('Band '+b); s.appendChild(n1);
+      const n2=el('text',{x:0,y:T+rh*ri+rh/2+9,'font-size':10.5,fill:tok('--ink3')});
+      n2.textContent=Math.round(meta.north_mi||0)+' mi north'+(meta.usable===false?' · thin data':''); s.appendChild(n2);
+      days.forEach((d,ci)=>{
+        const cell=D.scores[b][d]||[0,null,null], v=cell[0]||0;
+        const idx=v<=0?0:Math.min(6,Math.floor((v/mx)*6.999));
+        const c=el('rect',{x:L+cw*ci+1,y:T+rh*ri+1,width:Math.max(1,cw-2),height:Math.max(1,rh-2),rx:2,fill:ramp[idx]});
+        c.addEventListener('pointermove',e=>show(e,(meta.label||b)+'  '+nice(d)+'\n'+
+          (v<2?'quiet — nothing pushing':strength(v)+' out of here')+
+          (cell[1]!=null?'\n\nwind pushing south '+Math.round(cell[1])+' mph\ntemp drop '+Math.round(cell[2])+'°F':'')));
+        c.addEventListener('pointerleave',hide); s.appendChild(c);
+      });
+    });
+    days.forEach((d,ci)=>{if(ci%2)return;
+      const t=el('text',{x:L+cw*ci+cw/2,y:H-20,'text-anchor':'middle','font-size':10,fill:tok('--ink3')});
+      t.textContent=md(d); s.appendChild(t);});
+    $('#heatLeg').innerHTML='<span style="gap:3px">'+ramp.map(c=>'<i style="background:'+c+';width:22px;border-radius:1px"></i>').join('')+
+      '</span><span class="dim">quiet &rarr; hard push</span>';
+  })();
+
+  (function(){
+    const rows=D.fronts.map(f=>{
+      const where=f.arcs.map(bandName).join(' → ');
+      const eta=f.reaches_home?DOW3[new Date(f.reaches_home).getDay()]+' '+new Date(f.reaches_home).toISOString().slice(5,16).replace('T',' ')
+        :'did not make it this far';
+      const c=f.confidence;
+      const sure=c?'<b>'+c.agreeing+' of '+c.members+'</b> models agree<br><span class="dim">likely '+
+        DOW3[new Date(c.p10).getDay()]+' '+md(c.p10.slice(0,10))+' – '+DOW3[new Date(c.p90).getDay()]+' '+md(c.p90.slice(0,10))+'</span>'
+        :'<span class="dim">—</span>';
+      return '<tr><td>'+where+'</td><td class="n">'+(f.speed_mph?f.speed_mph+' mph':'—')+
+        (f.actual_speed_mph?'<br><span class="dim">slowed to '+f.actual_speed_mph+' getting here</span>':'')+
+        '</td><td class="n">'+eta+'</td><td class="n">'+sure+'</td></tr>';
+    }).join('');
+    $('#fronts').innerHTML='<thead><tr><th>Swept through</th><th>Speed up north</th><th>Reaches your fields</th><th>How sure</th></tr></thead><tbody>'+
+      (rows||'<tr><td colspan="4">No fronts moving right now.</td></tr>')+'</tbody>';
+  })();
+}
+
+async function loadLocal(){
+  const t=$('#cond');
+  t.innerHTML='<tbody><tr><td class="dim">Loading conditions at your coordinates...</td></tr></tbody>';
+  try{
+    const u='https://api.open-meteo.com/v1/forecast?latitude='+PLACE.lat+'&longitude='+PLACE.lon+
+      '&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation_probability'+
+      '&daily=sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=10';
+    const r=await (await fetch(u)).json();
+    const h=r.hourly, idx={}; h.time.forEach((x,i)=>idx[x]=i);
+    const arr={}; SITE.arrival.forEach(x=>arr[x.date]=x.arrival);
+    const peak=SITE.arrival.reduce((a,b)=>b.arrival>a.arrival?b:a);
+    const win=(i0,i1)=>{
+      const g=k=>{const o=[];for(let i=i0;i<i1;i++)if(h[k][i]!=null)o.push(h[k][i]);return o;};
+      const T=g('temperature_2m'),S=g('wind_speed_10m'),G=g('wind_gusts_10m'),Dd=g('wind_direction_10m'),P=g('precipitation_probability');
+      if(!T.length)return null;
+      const x=Dd.reduce((s,d)=>s+Math.cos(d*Math.PI/180),0), yy=Dd.reduce((s,d)=>s+Math.sin(d*Math.PI/180),0);
+      return {t:Math.round(T.reduce((a,b)=>a+b)/T.length),w:Math.round(S.reduce((a,b)=>a+b)/S.length),
+        g:G.length?Math.round(Math.max(...G)):null,d:Math.round((Math.atan2(yy,x)*180/Math.PI+360)%360),
+        r:P.length?Math.max(...P):null};};
+    const cell=w=>{if(!w)return '<td class="w dim">—</td>';
+      const n=northish(w.d);
+      return '<td class="w">'+w.t+'&deg; &nbsp;'+(n?'<b>':'')+compass(w.d)+' '+w.w+(w.g&&w.g>w.w+5?'g'+w.g:'')+(n?'</b>':'')+
+        (w.r>=20?' <span class="dim">'+w.r+'% rain</span>':'')+'</td>';};
+    let body='';
+    r.daily.time.slice(0,9).forEach((d,k)=>{
+      const sr=r.daily.sunrise[k], ss=r.daily.sunset[k];
+      const i0=idx[sr.slice(0,14)+'00'], i1=idx[ss.slice(0,14)+'00'];
+      const m=i0!=null?win(i0,i0+3):null, e=i1!=null?win(Math.max(0,i1-3),i1):null;
+      const v=arr[d]||0, best=d===peak.date&&v>=4;
+      body+='<tr'+(best?' class="best"':'')+'><td><b>'+DOW3[dt(d).getDay()]+'</b> <span class="dim">'+md(d)+'</span></td>'+
+        '<td class="w">'+sr.slice(11,16)+'</td>'+cell(m)+cell(e)+'<td class="w dim">'+ss.slice(11,16)+'</td>'+
+        '<td>'+(v>=4?strength(v):'<span class="dim">—</span>')+'</td></tr>';
+    });
+    t.innerHTML='<thead><tr><th>Day</th><th>Sunrise</th><th>Morning<br><span class="dim">first 3 hrs</span></th>'+
+      '<th>Evening<br><span class="dim">last 3 hrs</span></th><th>Sunset</th><th>Birds</th></tr></thead><tbody>'+body+'</tbody>';
+  }catch(e){
+    t.innerHTML='<tbody><tr><td class="dim">Conditions are unavailable right now. The forecast above still stands.</td></tr></tbody>';
+  }
+}
+
+async function loadBirds(){try{WAVE=await (await fetch('data/wave.json')).json();drawBirds();}catch(e){}}
+function drawBirds(){
+  const s=$('#birds'); if(!WAVE)return; s.innerHTML='';
+  const days=Object.keys(WAVE.days).sort().slice(-30);
+  if(days.length<3){$('#birdLeg').innerHTML='<span class="dim">Only '+days.length+' day(s) collected so far — this needs a few weeks before it says anything.</span>';return;}
+  const W=1000,H=300,L=44,R=110,T=22,B=44,iw=W-L-R,ih=H-T-B;
+  const SER=[['moudov','Mourning','--s1'],['whwdov','White-wing','--s2'],['eucdov','Collared','--s3']];
+  const val=(d,k)=>{const c=WAVE.days[d][k];return c&&c.locations?c.birds/c.locations:0;};
+  const mx=Math.max(0.5,...days.map(d=>Math.max(...SER.map(q=>val(d,q[0])))));
+  const X=i=>L+(days.length===1?iw/2:iw*i/(days.length-1)), Y=v=>T+ih-(v/mx)*ih;
+  for(let i=0;i<=4;i++){const v=mx*i/4;
+    s.appendChild(el('line',{x1:L,x2:W-R,y1:Y(v),y2:Y(v),stroke:tok('--line2'),'stroke-width':1}));
+    const t=el('text',{x:L-8,y:Y(v)+4,'text-anchor':'end','font-size':10.5,fill:tok('--ink3')});t.textContent=v.toFixed(1);s.appendChild(t);}
+  SER.forEach(function(q){
+    const k=q[0],n=q[1],c=tok(q[2]), pts=days.map((d,i)=>[X(i),Y(val(d,k))]);
+    s.appendChild(el('path',{d:'M'+pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join('L'),fill:'none',stroke:c,
+      'stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'}));
+    pts.forEach(p=>s.appendChild(el('circle',{cx:p[0],cy:p[1],r:3,fill:c,stroke:tok('--ground'),'stroke-width':2})));
+    const lb=el('text',{x:W-R+8,y:pts[pts.length-1][1]+4,'font-size':11.5,fill:tok('--ink2')});
+    lb.textContent=n+(k==='eucdov'?' (check)':''); s.appendChild(lb);});
+  days.forEach((d,i)=>{if(i%4===0){const t=el('text',{x:X(i),y:H-26,'text-anchor':'middle','font-size':10,fill:tok('--ink3')});
+    t.textContent=md(d);s.appendChild(t);}});
+  s.appendChild(el('line',{x1:L,x2:W-R,y1:T+ih,y2:T+ih,stroke:tok('--line'),'stroke-width':1}));
+  $('#birdLeg').innerHTML=SER.map(function(q){return '<span><i style="background:'+tok(q[2])+'"></i>'+q[1]+
+    (q[0]==='eucdov'?' — does not migrate':'')+'</span>';}).join('')+
+    '<span class="dim">doves per birdwatching stop, whole flyway</span>';
+}
+async function loadBacktest(){try{const b=await (await fetch('data/backtest.json')).json();
+  $('#spdN').textContent=b.speeds.length;
+  $('#spdMed').textContent=b.speeds.length?b.speeds[Math.floor(b.speeds.length/2)].toFixed(0)+' mph':'—';}catch(e){}}
+boot();
+</script>
