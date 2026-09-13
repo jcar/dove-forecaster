@@ -146,9 +146,10 @@ foot{display:block; margin-top:42px; padding-top:18px; border-top:1px solid var(
   </div>
 
   <section>
-    <h2>Next ten mornings</h2>
-    <p class="sub">How many birds should be landing on your fields each morning. Tap or hover a bar to see where they're coming from.</p>
-    <figure class="scroll"><svg id="arrival" viewBox="0 0 1000 300" role="img" aria-label="Expected dove arrivals by morning"></svg></figure>
+    <h2>The front, then the birds</h2>
+    <p class="sub">The cold front gets here first &mdash; you'll feel the wind switch and the temperature drop.
+       The birds it kicked loose are still in the air. They land a day or two later. Don't confuse the two.</p>
+    <figure class="scroll"><svg id="arrival" viewBox="0 0 1000 340" role="img" aria-label="When the front arrives versus when the birds arrive"></svg></figure>
     <div class="leg" id="arrLeg"></div>
   </section>
 
@@ -271,8 +272,10 @@ if (peak.arrival >= 4) {
   if (fr1 && fr1.reaches_home) {
     const rh = new Date(fr1.reaches_home);
     const gap = Math.round((dt(peak.date) - rh) / 86400000);
-    p += ' A cold front cleared them out, and it reaches your fields ' + DOW[rh.getDay()] +
-         ' night — but the birds are slower than the weather, so give it ' +
+    const hh = rh.getHours();
+    const when = hh < 5 ? ' before dawn' : hh < 11 ? ' morning' : hh < 17 ? ' afternoon' : ' evening';
+    p += ' A cold front cleared them out, and it reaches your fields ' + DOW[rh.getDay()] + when +
+         ' — but the birds are slower than the weather, so give it ' +
          (gap > 0 ? 'about ' + gap + ' more day' + (gap > 1 ? 's' : '') : 'a bit') + ' after the wind turns.';
   }
   document.getElementById('plain').textContent = p;
@@ -287,13 +290,25 @@ document.getElementById('vStr').textContent  = strength(peak.arrival);
 document.getElementById('vFrom').textContent = peak.arrival >= 4 ? (froms[0] || '—') : '—';
 document.getElementById('vLead').textContent = peak.arrival >= 4 ? (lead <= 0 ? 'today' : lead + ' day' + (lead>1?'s':'')) : '—';
 
-/* ---------- arrivals ---------- */
+/* ---------- the front, then the birds ---------- */
 (function(){
-  const s = document.getElementById('arrival'), W = 1000, H = 300;
-  const L = 30, R = 18, T = 30, B = 46, iw = W-L-R, ih = H-T-B;
+  const s = document.getElementById('arrival'), W = 1000, H = 340;
+  const L = 30, R = 18, T = 92, B = 46, iw = W-L-R, ih = H-T-B;
   const rows = D.forecast.arrival, mx = Math.max(10, ...rows.map(r => r.arrival));
   const step = iw / rows.length, bw = Math.min(46, step * 0.58);
   const y = v => T + ih - (v/mx)*ih;
+  const centre = i => L + step*i + step/2;
+  const peakI = rows.findIndex(r => r.date === peak.date);
+
+  /* where the front lands on this axis, to the hour */
+  const fr = D.forecast.fronts.find(f => f.reaches_home);
+  let frX = null;
+  if (fr){
+    const ft = new Date(fr.reaches_home).getTime();
+    const t0 = dt(rows[0].date).getTime(), t1 = dt(rows[rows.length-1].date).getTime();
+    const f01 = (ft - t0) / (t1 - t0);
+    if (f01 >= 0 && f01 <= 1) frX = L + step/2 + f01 * (iw - step);
+  }
 
   [['Big push',30],['Decent',14],['A few',4]].forEach(([lab,v]) => {
     if (v > mx) return;
@@ -302,29 +317,57 @@ document.getElementById('vLead').textContent = peak.arrival >= 4 ? (lead <= 0 ? 
   });
 
   rows.forEach((r,i) => {
-    const cx = L + step*i + step/2, isPeak = r.date === peak.date && r.arrival >= 4;
+    const cx = centre(i), isPeak = i === peakI && r.arrival >= 4;
     const h = r.arrival > 0 ? Math.max(2, ih - (y(r.arrival)-T)) : 0;
     if (h > 0) s.appendChild(el('rect',{x:cx-bw/2, y:y(r.arrival), width:bw, height:h, rx:3,
       fill: isPeak ? tok('--barPeak') : tok('--bar')}));
     const a = el('text',{x:cx, y:H-26,'text-anchor':'middle','font-size':11.5,
       fill: isPeak ? tok('--ink') : tok('--ink3'), 'font-weight': isPeak ? 600 : 400});
     a.textContent = DOW3[dt(r.date).getDay()]; s.appendChild(a);
-    const b = el('text',{x:cx, y:H-11,'text-anchor':'middle','font-size':10,fill:tok('--ink3')});
-    b.textContent = md(r.date); s.appendChild(b);
+    const b2 = el('text',{x:cx, y:H-11,'text-anchor':'middle','font-size':10,fill:tok('--ink3')});
+    b2.textContent = md(r.date); s.appendChild(b2);
     if (isPeak){ const v = el('text',{x:cx, y:y(r.arrival)-9,'text-anchor':'middle','font-size':11.5,
       'font-weight':600, fill:tok('--ink')}); v.textContent = strength(r.arrival); s.appendChild(v); }
     const hit = el('rect',{x:L+step*i, y:T, width:step, height:ih, fill:'transparent'});
     hit.addEventListener('pointermove', e => show(e,
       DOW[dt(r.date).getDay()] + ', ' + nice(r.date) + '\n' + strength(r.arrival) +
-      (r.from_arcs.length ? '\n\ncoming from:\n' + r.from_arcs.map(a =>
-        '  ' + bandName(a[0])).join('\n') : '\nnothing headed this way')));
+      (r.from_arcs.length ? '\n\ncoming from:\n' + r.from_arcs.map(a => '  ' + bandName(a[0])).join('\n') : '')));
     hit.addEventListener('pointerleave', hide); s.appendChild(hit);
   });
   s.appendChild(el('line',{x1:L,x2:W-R,y1:T+ih,y2:T+ih,stroke:tok('--line'),'stroke-width':1}));
+
+  /* the front, and the gap it opens before the birds */
+  if (frX !== null){
+    s.appendChild(el('line',{x1:frX, x2:frX, y1:44, y2:T+ih,
+      stroke:tok('--ink2'), 'stroke-width':1.5, 'stroke-dasharray':'5 4'}));
+    const rh = new Date(fr.reaches_home);
+    const cap = el('text',{x:frX, y:36,'text-anchor':'middle','font-size':12,'font-weight':600,fill:tok('--ink')});
+    cap.textContent = 'Front hits ' + DOW3[rh.getDay()]; s.appendChild(cap);
+    const cap2 = el('text',{x:frX, y:50,'text-anchor':'middle','font-size':10.5,fill:tok('--ink3')});
+    cap2.textContent = 'wind switches, feels great'; s.appendChild(cap2);
+
+    if (peakI >= 0 && rows[peakI].arrival >= 4){
+      const px = centre(peakI), gy = 70;
+      if (px - frX > 40){
+        s.appendChild(el('path',{d:'M'+(frX+3)+' '+gy+'H'+(px-3), stroke:tok('--ink2'),'stroke-width':1.5,fill:'none'}));
+        [[frX+3,1],[px-3,-1]].forEach(([x,d2]) => s.appendChild(el('path',
+          {d:'M'+x+' '+gy+'l'+(6*d2)+' -4 v8 z', fill:tok('--ink2')})));
+        const days = Math.round((dt(peak.date) - rh) / 86400000);
+        const g2 = el('text',{x:(frX+px)/2, y:gy-7,'text-anchor':'middle','font-size':11.5,
+          'font-weight':600, fill:tok('--ink')});
+        g2.textContent = 'wait ' + days + ' more day' + (days>1?'s':''); s.appendChild(g2);
+      }
+      const pc = el('text',{x:px, y:36,'text-anchor':'middle','font-size':12,'font-weight':600,fill:tok('--ink')});
+      pc.textContent = 'Birds land ' + DOW3[dt(peak.date).getDay()]; s.appendChild(pc);
+      const pc2 = el('text',{x:px, y:50,'text-anchor':'middle','font-size':10.5,fill:tok('--ink3')});
+      pc2.textContent = 'this is the morning to go'; s.appendChild(pc2);
+    }
+  }
+
   document.getElementById('arrLeg').innerHTML =
     '<span><i style="background:' + tok('--barPeak') + '"></i>best morning</span>' +
     '<span><i style="background:' + tok('--bar') + '"></i>birds expected</span>' +
-    '<span style="color:var(--ink3)">taller means more birds</span>';
+    '<span style="color:var(--ink3)">dashed line = the weather, bars = the birds</span>';
 })();
 
 /* ---------- what's happening up north ---------- */
