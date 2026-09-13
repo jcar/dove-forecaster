@@ -18,11 +18,11 @@ for fr in r["fronts"]:
               f"{p['points_firing']}/5 pts  push idx {p['index']:.0f}")
 print("  " + "-" * 74)
 for fr in r["fronts"]:
-    eta = f"  -> reaches Dallas {datetime.fromisoformat(fr['reaches_home']):%a %b %d %H:%M}" if fr["reaches_home"] else ""
+    eta = f"  -> reaches the fields {datetime.fromisoformat(fr['reaches_home']):%a %b %d %H:%M}" if fr["reaches_home"] else ""
     print(f"  front {fr['id']}: {'+'.join('arc'+str(a) for a in fr['arcs']):<22} "
           f"speed {str(fr['speed_mph'])+' mph' if fr['speed_mph'] else 'unresolved':<12}{eta}")
 
-print("\n  ARRIVAL FORECAST — Dallas")
+print(f"\n  ARRIVAL FORECAST — {r['home']['name']}")
 print("  " + "-" * 74)
 for row in r["arrival"]:
     src = "  <- " + ", ".join(f"arc{a}:{v}" for a, v in row["from_arcs"]) if row["from_arcs"] else ""

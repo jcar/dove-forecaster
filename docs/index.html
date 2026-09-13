@@ -178,6 +178,9 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
              not counts.</p>
         </div>
       </div>
+      <figure class="scroll" style="margin-top:26px"><svg id="flight" viewBox="0 0 1000 240" role="img" aria-label="One flight south from each northern latitude"></svg></figure>
+      <p class="sub" id="flightNote" style="margin-top:10px"></p>
+
       <div class="transport">
         <button id="play">&#9654; Play</button>
         <input type="range" id="scrub" min="0" max="0" value="0" step="1" aria-label="Day">
@@ -290,7 +293,7 @@ $('#theme').onclick=()=>{
   const next=cur==='light'?'dark':cur==='dark'?'light':(matchMedia('(prefers-color-scheme: dark)').matches?'light':'dark');
   document.documentElement.setAttribute('data-theme',next);
   try{localStorage.setItem('dove.theme',next)}catch(e){}
-  if(FLOW){buildFly(); setFrame(FRAME);} drawBirds(); if(SITE) drawSite();
+  if(FLOW){buildFly(); setFrame(FRAME); drawFlights();} drawBirds(); if(SITE) drawSite();
 };
 
 async function boot(){
@@ -370,6 +373,7 @@ async function loadFlow(){
   const i=Math.max(0, FLOW.dates.findIndex(d=>d>=today));
   $('#scrub').max=FLOW.dates.length-1;
   setFrame(i<0?FLOW.dates.length-1:i);
+  drawFlights();
   $('#windScale').innerHTML=[-12,-8,-4,0,5,10,15,18].map(v=>
     '<i style="background:'+windColour(v)+'"></i>').join('');
 }
@@ -438,6 +442,48 @@ function setFrame(i){
   $('#scrub').value=FRAME;
   const dd=dt(d);
   $('#flyDay').textContent=DOW3[dd.getDay()]+' '+nice(d);
+}
+
+/* ---------- one cohort's actual journey ----------
+   Latitude down the side, days across. A FLAT segment is a day the birds sat
+   down because the wind turned against them - the part of the model a bar
+   chart cannot express. */
+function drawFlights(){
+  const s=$('#flight'); if(!s||!FLOW) return; s.innerHTML='';
+  const tr=FLOW.traces||[];
+  if(!tr.length){ $('#flightNote').textContent=''; return; }
+  const W=1000,H=240,L=54,R=140,T=18,B=38,iw=W-L-R,ih=H-T-B;
+  const all=tr.flatMap(t=>t.steps);
+  const days=[...new Set(all.map(s=>s.date))].sort();
+  const la1=Math.max(...tr.map(t=>t.from_lat)), la0=Math.min(...all.map(s=>s.lat));
+  const X=d=>L+(days.length<2?iw/2:iw*days.indexOf(d)/(days.length-1));
+  const Y=la=>T+ih*(la1-la)/Math.max(0.001,(la1-la0));
+  [la1,(la1+la0)/2,la0].forEach(function(la){
+    s.appendChild(el('line',{x1:L,x2:W-R,y1:Y(la),y2:Y(la),stroke:tok('--line2'),'stroke-width':1}));
+    const t2=el('text',{x:L-8,y:Y(la)+4,'text-anchor':'end','font-size':10.5,fill:tok('--ink3')});
+    t2.textContent=la.toFixed(1)+'N'; s.appendChild(t2);});
+  days.forEach((d,i)=>{ if(i%3===0||i===days.length-1){
+    const t2=el('text',{x:X(d),y:H-16,'text-anchor':'middle','font-size':10,fill:tok('--ink3')});
+    t2.textContent=md(d); s.appendChild(t2);}});
+  const cols=[tok('--s1'),tok('--s2'),tok('--s3')];
+  tr.forEach(function(t2,k){
+    const c=cols[k%3];
+    const pts=[[X(t2.steps[0].date),Y(t2.from_lat)]].concat(t2.steps.map(s2=>[X(s2.date),Y(s2.lat)]));
+    s.appendChild(el('path',{d:'M'+pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join('L'),
+      fill:'none',stroke:c,'stroke-width':2.2,'stroke-linejoin':'round','stroke-linecap':'round'}));
+    t2.steps.forEach(function(s2,i){
+      if(s2.flown_mi!==0) return;                    // mark only the stalls
+      const x=X(s2.date),y=Y(s2.lat);
+      s.appendChild(el('circle',{cx:x,cy:y,r:4,fill:'none',stroke:tok('--wheat'),'stroke-width':1.6}));
+    });
+    const last=pts[pts.length-1];
+    const lb=el('text',{x:W-R+8,y:last[1]+4,'font-size':11.5,fill:tok('--ink2')});
+    lb.textContent=t2.from+(t2.lead_days?' · '+t2.lead_days+'d':' · still flying'); s.appendChild(lb);
+  });
+  const stalls=all.filter(s2=>s2.flown_mi===0).length;
+  $('#flightNote').innerHTML='One flight south from each latitude, using the wind each day actually brought. '+
+    (stalls?'<b>Ringed points are days they sat down</b> &mdash; the wind turned against them and they went nowhere. ':'')+
+    'Lines end where the birds reached north Texas, or where our wind data runs out.';
 }
 
 function tick(ts){
