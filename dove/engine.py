@@ -2,7 +2,7 @@
 from datetime import datetime, timedelta
 from statistics import mean
 
-from .geo import arc_points, HOME
+from .geo import arc_points, HOME, HOME_NAME
 from .weather import OpenMeteo
 from .push import daily_features, score_day, Reservoir
 from .front import arc_passage, front_speed_mph, arrival_forecast, cluster_fronts
@@ -57,6 +57,7 @@ def run(past=5, future=10):
 
     return {
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "home": {"name": HOME_NAME, "lat": HOME[0], "lon": HOME[1]},
         "engine_version": ENGINE_VERSION,
         "arcs": {str(i): {k: a[k] for k in ("dist_mi", "label", "mean_lat", "half_angle")}
                  for i, a in arcs.items()},

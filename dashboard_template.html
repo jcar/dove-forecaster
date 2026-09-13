@@ -123,7 +123,7 @@ foot{display:block; margin-top:42px; padding-top:18px; border-top:1px solid var(
   <div class="strip" id="strip"></div>
 
   <div class="mast">
-    <div class="sup">Dove arrival watch &middot; Dallas</div>
+    <div class="sup">Dove arrival watch &middot; Collin &amp; Grayson County</div>
     <h1 id="headline">&nbsp;</h1>
     <p id="plain"></p>
   </div>
@@ -139,9 +139,9 @@ foot{display:block; margin-top:42px; padding-top:18px; border-top:1px solid var(
     <div class="hd">How this works</div>
     <ol>
       <li>Doves don't leave on a schedule &mdash; they leave when a <b>cold front</b> pushes through and gives them a north wind to ride.</li>
-      <li>So we watch four stretches of country north of you: <b>the Red River, northern Oklahoma, Kansas, and Nebraska.</b></li>
+      <li>So we watch four stretches of country north of your fields: <b>central Oklahoma, southern Kansas, central Kansas, and Nebraska.</b></li>
       <li>When a front crosses one of them, the birds staged there take off with it. The farther north they were, the longer their flight &mdash; roughly <b>a day of flying per 150 miles.</b></li>
-      <li>The front moves faster than the birds do. So the cool weather gets to Dallas first, and the birds show up a day or two <b>behind</b> it. That gap is what this whole thing is for.</li>
+      <li>The front moves faster than the birds do. So the cool weather gets to you first, and the birds show up a day or two <b>behind</b> it. That gap is what this whole thing is for.</li>
     </ol>
   </div>
 
@@ -154,7 +154,7 @@ foot{display:block; margin-top:42px; padding-top:18px; border-top:1px solid var(
 
   <section>
     <h2>What's happening up north</h2>
-    <p class="sub">Each row is a stretch of country, laid out the way it sits on a map &mdash; Nebraska on top, the Red River closest to you at the bottom.
+    <p class="sub">Each row is a stretch of country, laid out the way it sits on a map &mdash; Nebraska on top, Oklahoma closest to you at the bottom.
        Darker means birds were getting pushed harder out of there that day.</p>
     <figure class="scroll"><svg id="heat" viewBox="0 0 1000 250" role="img" aria-label="Push strength by region and day"></svg></figure>
     <div class="leg" id="heatLeg"></div>
@@ -168,7 +168,7 @@ foot{display:block; margin-top:42px; padding-top:18px; border-top:1px solid var(
 
   <section>
     <h2>Are the birds actually here?</h2>
-    <p class="sub">Doves counted per hour by birdwatchers around Dallas &mdash; adjusted for how many people were out looking, so it counts birds and not birders.
+    <p class="sub">Doves counted per hour by birdwatchers in the area &mdash; adjusted for how many people were out looking, so it counts birds and not birders.
        Collared-doves are the check: they don't migrate, so their line should stay flat when the others jump. If all three move together, we're just watching birdwatchers.</p>
     <figure class="scroll"><svg id="birds" viewBox="0 0 1000 300" role="img" aria-label="Doves counted per observer hour"></svg></figure>
     <div class="leg" id="birdLeg"></div>
@@ -227,11 +227,13 @@ const md = s => (dt(s).getMonth()+1) + '/' + dt(s).getDate();
 const nice = s => MON[dt(s).getMonth()] + ' ' + dt(s).getDate();
 
 /* Plain-English names for the four watch regions, nearest to farthest. */
+/* Named from where the sample points actually land, given the anchor.
+   Re-derive these if the anchor location moves. */
 const BAND = {
-  1: {name:'Red River',        towns:'Ardmore · Durant',        days:1},
-  2: {name:'North Oklahoma',   towns:'Tulsa · Oklahoma City',   days:2},
-  3: {name:'Kansas',           towns:'Wichita · Salina',        days:3},
-  4: {name:'Nebraska',         towns:'Lincoln · Grand Island',  days:4}
+  1: {name:'Central Oklahoma',  towns:'Oklahoma City · Shawnee · Muskogee', days:1},
+  2: {name:'Southern Kansas',   towns:'Wichita · Ponca City · Joplin',      days:2},
+  3: {name:'Central Kansas',    towns:'Salina · Hays · Topeka',             days:3},
+  4: {name:'Nebraska & Plains', towns:'North Platte · Norfolk · Omaha',     days:4}
 };
 const bandName = a => (BAND[a] || {name:'Band ' + a}).name;
 
@@ -246,7 +248,7 @@ function strength(v){
 const g = new Date(D.forecast.generated_at);
 const stamp = g.toISOString().slice(0,16).replace('T',' ') + 'Z';
 document.getElementById('strip').innerHTML =
-  '<span>Six fields near <b>Dallas, TX</b></span>' +
+  '<span>' + (D.forecast.home ? '<b>' + D.forecast.home.name + '</b>' : 'North Texas') + '</span>' +
   '<span>Updated <b>' + stamp + '</b></span>' +
   '<span>Bird counts <b>' + Object.keys(D.ebird).length + ' days</b></span>';
 document.getElementById('gen').textContent = 'Last updated ' + stamp + '.';
@@ -266,7 +268,7 @@ if (peak.arrival >= 4) {
   if (fr1 && fr1.reaches_home) {
     const rh = new Date(fr1.reaches_home);
     const gap = Math.round((dt(peak.date) - rh) / 86400000);
-    p += ' A cold front cleared them out, and it gets to Dallas ' + DOW[rh.getDay()] +
+    p += ' A cold front cleared them out, and it reaches your fields ' + DOW[rh.getDay()] +
          ' night — but the birds are slower than the weather, so give it ' +
          (gap > 0 ? 'about ' + gap + ' more day' + (gap > 1 ? 's' : '') : 'a bit') + ' after the wind turns.';
   }
@@ -372,7 +374,7 @@ document.getElementById('vLead').textContent = peak.arrival >= 4 ? (lead <= 0 ? 
       '<td class="n">' + f.passages.map(p => bandName(p.arc) + ', ' +
           nice(p.when.slice(0,10)) + ' ' + p.when.slice(11)).join('<br>') + '</td></tr>';
   }).join('');
-  t.innerHTML = '<thead><tr><th>Swept through</th><th>Moving at</th><th>Reaches Dallas</th>' +
+  t.innerHTML = '<thead><tr><th>Swept through</th><th>Moving at</th><th>Reaches your fields</th>' +
     '<th>When it crossed each one</th></tr></thead><tbody>' +
     (rows || '<tr><td colspan="4">No fronts moving right now.</td></tr>') + '</tbody>';
 })();

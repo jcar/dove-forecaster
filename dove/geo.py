@@ -2,7 +2,16 @@
 import math
 
 R_EARTH_MI = 3958.7613
-HOME = (32.78, -96.80)          # Dallas, TX
+
+# Named hunt locations.
+LOCATIONS = {
+    "North Texas": (33.391, -96.579, "North Texas reference point (D11 anchor)"),
+    "dallas":       (32.780, -96.800, "Dallas, TX"),
+}
+
+HOME_KEY = "North Texas"
+HOME = LOCATIONS[HOME_KEY][:2]
+HOME_NAME = LOCATIONS[HOME_KEY][2]
 CONE_CENTER_BEARING = 0.0       # due north
 SAMPLES_PER_ARC = 5
 
