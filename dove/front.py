@@ -202,9 +202,16 @@ def push_at(push_field, day_iso, lat):
     return None
 
 
-def simulate_arrival(depart_day, north_mi, push_field, home_lat, max_days=16):
+def simulate_arrival(depart_day, north_mi, push_field, home_lat, max_days=16,
+                    trace=None):
     """March one departure south. Returns fractional days to the fields, or
-    None if they are still in the air past the horizon."""
+    None if they are still in the air past the horizon.
+
+    Pass a list as `trace` to collect the journey itself - each day's date,
+    latitude, miles still to go, the tailwind it got and how far it flew.
+    The loop already computes all of that and throws it away; collecting it
+    costs nothing and is what the flyway animation is drawn from.
+    """
     remaining, day = float(north_mi), date.fromisoformat(depart_day)
     for n in range(1, max_days + 1):
         day += timedelta(days=1)
@@ -216,6 +223,10 @@ def simulate_arrival(depart_day, north_mi, push_field, home_lat, max_days=16):
             # a confident-looking arrival built on nothing.
             return None
         flown = daily_flight_mi(push)
+        if trace is not None:
+            trace.append({"date": day.isoformat(), "lat": round(lat, 3),
+                          "remaining_mi": round(remaining), "push_mph": round(push, 1),
+                          "flown_mi": round(min(flown, remaining))})
         if flown >= remaining:
             # land partway through the day rather than snapping to midnight
             return n - 1 + (remaining / flown if flown else 1.0)
