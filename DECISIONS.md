@@ -384,3 +384,50 @@ F7's front-speed distribution (median 19.9, n=261) was computed with the
 old cone. It is not evidence for the current geometry. Blocked on an
 Open-Meteo 429; ~44 calls when the limit clears. Dashboard now says so
 rather than claiming a validation it no longer has.
+
+## F11 — Extrapolated front ETA was 2.5 DAYS EARLY. Now detected, not guessed.
+Adding local field conditions (option A) immediately caught a real bug.
+
+front_speed_mph measured the boundary at 15.8 mph across the northern bands
+and linearly extrapolated 600 mi to the fields -> ETA Wed Sep 16 14:00.
+The local hourly forecast showed south winds and 95-100F straight through
+Thursday. No front. The actual wind shift is Fri Sep 18 19:00 (NNE, then
+70F by Saturday dawn) - a 25F drop, and the strongest of four detected
+local passages by a wide margin (strength 26.0 vs 13.8-17.5).
+
+Real average speed to the fields: 4.2 mph. It shed ~75% of its speed
+pushing into September heat in Texas. Linear extrapolation from the fast
+northern segment is simply wrong for this geography.
+
+FIX: run the SAME frontal_passages() detector on the hunter's own hourly
+series and match each tracked boundary to the strongest local passage after
+its last band crossing. reaches_home is now measured. The extrapolation is
+kept as eta_extrapolated so the deceleration stays visible.
+
+## F12 — The biggest bar is not the best morning
+Arrival peaks Fri Sep 18 (58) but Friday MORNING is pre-front: 80F, west
+wind. Saturday morning is 71F behind a NNE wind with 52. For an actual hunt
+Saturday is the better morning, and the headline was pointing at Friday
+because it read the tallest bar.
+
+Headline now checks whether the front clears before the peak morning and
+recommends the morning after when it is materially cooler and carries at
+least 60% of the birds. Deliberately NOT a blended score - we have no way
+to validate weights on comfort vs bird count, and inventing one would be
+the same false precision as showing "43.2".
+
+## OPEN — the arrival model does not know the front stalled
+Birds fly a constant 150 mi/day regardless of whether the tailwind held.
+This front decelerated from 15.8 to 4.2 mph; real doves riding it would
+likely stall too, which would push arrivals later than we predict. The
+model currently lets birds outrun a dying front. Needs the bird speed to
+depend on conditions en route. Flagged, not fixed.
+
+## D12 — Field conditions (option A) shipped
+dove/local.py: legal light (TX dove, 1/2 hr before sunrise - surfaced as
+guidance with a TPWD verify note, never as authority), sunrise/sunset,
+and morning/evening windows of temp, wind speed, gusts, direction, rain.
+Wind direction uses a CIRCULAR mean - averaging 350 and 10 arithmetically
+gives 180, due south, the exact opposite of the truth.
+North-component winds bolded on the dashboard: post-frontal air is what
+you want, and doves land into the wind, so set up with it at your back.

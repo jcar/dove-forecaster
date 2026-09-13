@@ -25,15 +25,18 @@ class OpenMeteo(WeatherProvider):
     def __init__(self, mode="forecast", timeout=90):
         self.mode, self.timeout = mode, timeout
 
-    def hourly(self, points, start=None, end=None, past_days=None, forecast_days=None):
+    def hourly(self, points, start=None, end=None, past_days=None, forecast_days=None,
+               hourly=None, daily=None):
         params = {
             "latitude": ",".join(str(p[0]) for p in points),
             "longitude": ",".join(str(p[1]) for p in points),
-            "hourly": ",".join(HOURLY),
+            "hourly": ",".join(hourly or HOURLY),
             "temperature_unit": "fahrenheit",
             "wind_speed_unit": "mph",
             "timezone": "America/Chicago",
         }
+        if daily:
+            params["daily"] = ",".join(daily)
         if self.mode == "archive":
             url, params["start_date"], params["end_date"] = ARCHIVE_URL, start, end
         else:

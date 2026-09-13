@@ -5,7 +5,9 @@ from statistics import mean
 from .geo import arc_points, HOME, HOME_NAME
 from .weather import OpenMeteo
 from .push import daily_features, score_day, Reservoir
-from .front import arc_passage, front_speed_mph, arrival_forecast, cluster_fronts
+from .front import (arc_passage, front_speed_mph, arrival_forecast,
+                    cluster_fronts, frontal_passages)
+from .local import conditions
 
 ENGINE_VERSION = "0.1.0"
 
@@ -55,6 +57,29 @@ def run(past=5, future=10):
                           "index": e["index"]} for e in fr],
         })
 
+    local_days, local_fronts = _local_safe()
+
+    # Replace the extrapolated ETA with the DETECTED arrival at the fields.
+    # Match each tracked boundary to the strongest local passage that happens
+    # after its last band crossing. Keep the extrapolation alongside so the
+    # deceleration is visible rather than hidden.
+    for f in fronts:
+        last = max(p["when"] for p in f["passages"])
+        cand = [p for p in local_fronts if p["when"] > last]
+        f["eta_extrapolated"] = f.pop("reaches_home")
+        if cand:
+            best = max(cand, key=lambda p: p["strength"])
+            f["reaches_home"] = best["when"]
+            f["reaches_home_source"] = "detected"
+            hrs = (datetime.fromisoformat(best["when"])
+                   - datetime.fromisoformat(last)).total_seconds() / 3600.0
+            north = max(a["north_mi"] for i, a in arcs.items() if i == min(f["arcs"]))
+            f["actual_speed_mph"] = round(north / hrs, 1) if hrs > 0 else None
+        else:
+            f["reaches_home"] = None
+            f["reaches_home_source"] = "none detected"
+            f["actual_speed_mph"] = None
+
     return {
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "home": {"name": HOME_NAME, "lat": HOME[0], "lon": HOME[1]},
@@ -64,4 +89,26 @@ def run(past=5, future=10):
         "arc_scores": {str(i): v for i, v in arc_series.items()},
         "fronts": fronts,
         "arrival": arrival_forecast(events),
+        # Conditions at the fields themselves. Never fatal — the arrival
+        # forecast is the product; this is the useful extra beside it.
+        "local": local_days,
+        "local_fronts": local_fronts,
     }
+
+
+def _local_safe():
+    """Returns (per-day conditions, detected local frontal passages).
+
+    The front's arrival at the fields is DETECTED in the local hourly series,
+    not extrapolated from how fast it crossed Nebraska. Fronts decelerate
+    pushing into Texas heat in September, and a linear fit from the northern
+    bands ran 2.5 days early on the first front we checked.
+    """
+    try:
+        days, hourly = conditions(HOME, want_hourly=True)
+        passes = [{"when": dtm.isoformat(timespec="minutes"), "strength": sc}
+                  for dtm, sc in frontal_passages(hourly)]
+        return days, passes
+    except Exception as e:
+        print(f"  local conditions skipped ({type(e).__name__})")
+        return [], []
