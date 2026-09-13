@@ -1751,7 +1751,7 @@
    "speed_mph": 50.0
   }
  ],
- "generated_at": "2026-09-13T09:04:35-05:00",
+ "generated_at": "2026-09-13T09:57:21-05:00",
  "home": {
   "lat": 33.391,
   "lon": -96.579,
@@ -1763,13 +1763,12 @@
    "evening": {
     "cloud_pct": 5,
     "gust_mph": 24,
-    "rain_pct": 8,
+    "rain_pct": 4,
     "temp_f": 98,
     "wind_dir": 172,
     "wind_from": "S",
     "wind_mph": 12
    },
-   "legal_start": "06:38",
    "morning": {
     "cloud_pct": 0,
     "gust_mph": 17,
@@ -1793,7 +1792,6 @@
     "wind_from": "S",
     "wind_mph": 14
    },
-   "legal_start": "06:38",
    "morning": {
     "cloud_pct": 1,
     "gust_mph": 18,
@@ -1811,13 +1809,12 @@
    "evening": {
     "cloud_pct": 11,
     "gust_mph": 24,
-    "rain_pct": 0,
+    "rain_pct": 2,
     "temp_f": 98,
     "wind_dir": 165,
     "wind_from": "SSE",
     "wind_mph": 13
    },
-   "legal_start": "06:39",
    "morning": {
     "cloud_pct": 0,
     "gust_mph": 21,
@@ -1835,13 +1832,12 @@
    "evening": {
     "cloud_pct": 18,
     "gust_mph": 19,
-    "rain_pct": 13,
+    "rain_pct": 10,
     "temp_f": 97,
     "wind_dir": 171,
     "wind_from": "S",
     "wind_mph": 9
    },
-   "legal_start": "06:40",
    "morning": {
     "cloud_pct": 0,
     "gust_mph": 17,
@@ -1859,13 +1855,12 @@
    "evening": {
     "cloud_pct": 16,
     "gust_mph": 17,
-    "rain_pct": 27,
+    "rain_pct": 32,
     "temp_f": 98,
     "wind_dir": 151,
     "wind_from": "SSE",
     "wind_mph": 8
    },
-   "legal_start": "06:40",
    "morning": {
     "cloud_pct": 1,
     "gust_mph": 11,
@@ -1883,13 +1878,12 @@
    "evening": {
     "cloud_pct": 21,
     "gust_mph": 21,
-    "rain_pct": 2,
+    "rain_pct": 12,
     "temp_f": 98,
     "wind_dir": 168,
     "wind_from": "SSE",
     "wind_mph": 8
    },
-   "legal_start": "06:41",
    "morning": {
     "cloud_pct": 1,
     "gust_mph": 13,
@@ -1913,7 +1907,6 @@
     "wind_from": "S",
     "wind_mph": 10
    },
-   "legal_start": "06:42",
    "morning": {
     "cloud_pct": 0,
     "gust_mph": 15,
@@ -1937,7 +1930,6 @@
     "wind_from": "SSE",
     "wind_mph": 10
    },
-   "legal_start": "06:42",
    "morning": {
     "cloud_pct": 2,
     "gust_mph": 14,
@@ -1961,7 +1953,6 @@
     "wind_from": "WNW",
     "wind_mph": 6
    },
-   "legal_start": "06:43",
    "morning": {
     "cloud_pct": 67,
     "gust_mph": 18,
@@ -1985,7 +1976,6 @@
     "wind_from": "NW",
     "wind_mph": 1
    },
-   "legal_start": "06:44",
    "morning": {
     "cloud_pct": 84,
     "gust_mph": 21,

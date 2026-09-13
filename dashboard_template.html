@@ -164,8 +164,6 @@ foot{display:block; margin-top:42px; padding-top:18px; border-top:1px solid var(
        that's post-front air, and it's what you want. Doves turn into the wind to land, so set up with it at
        your back and they work toward you instead of flaring off behind you.</p>
     <div class="scroll"><table id="cond"></table></div>
-    <p class="sub" style="margin-top:12px">Shooting hours shown are Texas dove &mdash; a half hour before sunrise to sunset.
-       Regulations change every year; confirm against the current TPWD Outdoor Annual before you rely on it.</p>
   </section>
 
   <section>
@@ -456,13 +454,13 @@ document.getElementById('vLead').textContent = peak.arrival >= 4 ? (lead <= 0 ? 
       (w.rain_pct >= 20 ? ' <span class="dim">' + w.rain_pct + '% rain</span>' : '') + '</td>';
   };
 
-  t.innerHTML = '<thead><tr><th>Day</th><th>Legal light</th><th>Morning<br><span class="dim">first 3 hrs</span></th>' +
+  t.innerHTML = '<thead><tr><th>Day</th><th>Sunrise</th><th>Morning<br><span class="dim">first 3 hrs</span></th>' +
     '<th>Evening<br><span class="dim">last 3 hrs</span></th><th>Sunset</th><th>Birds</th></tr></thead><tbody>' +
     loc.slice(0,9).map(r => {
       const v = arr[r.date] ?? 0, best = r.date === peak.date && v >= 4;
       return '<tr' + (best ? ' class="best"' : '') + '>' +
         '<td><b>' + DOW3[dt(r.date).getDay()] + '</b> <span class="dim">' + md(r.date) + '</span></td>' +
-        '<td class="w">' + r.legal_start + '</td>' + cell(r.morning) + cell(r.evening) +
+        '<td class="w">' + r.sunrise + '</td>' + cell(r.morning) + cell(r.evening) +
         '<td class="w dim">' + r.sunset + '</td>' +
         '<td>' + (v >= 4 ? strength(v) : '<span class="dim">&mdash;</span>') + '</td></tr>';
     }).join('') + '</tbody>';
