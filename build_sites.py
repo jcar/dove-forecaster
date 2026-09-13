@@ -26,8 +26,9 @@ def slim(res, site):
         "arcs": {k: {kk: v[kk] for kk in ("label", "north_mi", "mean_lat", "usable")}
                  for k, v in res["arcs"].items()},
         "arrival": res["arrival"], "still_airborne": res["still_airborne"],
-        "fronts": [{k: f.get(k) for k in ("id", "arcs", "speed_mph", "reaches_home",
-                                          "actual_speed_mph", "confidence", "passages")}
+        "fronts": [{k: f.get(k) for k in ("id", "arcs", "skipped_bands", "speed_mph",
+                                          "reaches_home", "actual_speed_mph",
+                                          "confidence", "passages")}
                    for f in res["fronts"]],
         # heatmap needs only what its tooltip shows
         "scores": {b: {d: [v["index"], v.get("obs", {}).get("push_mph"),
