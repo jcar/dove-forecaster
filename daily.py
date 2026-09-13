@@ -10,6 +10,7 @@ import os
 from datetime import date, timedelta
 from dove.engine import run
 from dove.ebird import daily_index
+from dove.wave import snapshot
 
 OUT = "data/forecasts"
 
@@ -32,6 +33,18 @@ def main():
                   f"moudov {g['species']['moudov']['per_hour']}/hr")
         except Exception as e:
             print(f"  ebird {d}: skipped ({type(e).__name__})")
+
+    # Flyway-wide dove density. ~39 calls; accumulates the southward wave.
+    # Counts are NOT comparable between bands - DFW has 50 reporting
+    # locations against 4-8 in Nebraska. Each band is read against its own
+    # history, never against another band.
+    try:
+        w = snapshot(date.today().isoformat())
+        tot = sum(v["birds"] for sp in w["counts"].values()
+                  for d in sp.get("moudov", {}).values() for v in [d])
+        print(f"  wave: {len(w['counts'])} circles, {tot} mourning doves logged")
+    except Exception as e:
+        print(f"  wave skipped ({type(e).__name__})")
 
     peak = max(result["arrival"], key=lambda r: r["arrival"])
     print(f"wrote {path}")

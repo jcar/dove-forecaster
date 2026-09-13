@@ -1,0 +1,8 @@
+# Hunt reports. Append a line when you go out; leave it alone when you don't.
+# The model can be graded against this once there are enough rows to mean
+# something - which at a couple of hunts a season, there won't be. It exists
+# so the data has somewhere to go if Dove Blasters or anyone else ever
+# supplies volume.
+#
+# date,location,hours,birds_seen,birds_taken,wind,notes
+date,location,hours,birds_seen,birds_taken,wind,notes

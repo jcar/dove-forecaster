@@ -502,3 +502,40 @@ sit. Arrival now peaks Sep 23 (50.6) rather than Sep 19.
 The answer moved four days between yesterday and today. Causes: the model
 pin, and the wind-driven flight meeting real headwinds. That swing is
 itself information about how much to trust a 10-day dove forecast.
+
+## D14 — Flyway wave accumulator (2026-09-13)
+dove/wave.py. 13 circles (3 across each band + the fields) x 3 species,
+50 km radius, ~39 calls/morning, ~15s. Uses data/obs/geo/recent, which
+returns every recent sighting in a radius in ONE call - no checklist walk,
+so this is sustainable forever where the historical backfill was not.
+
+WHY A WAVE, NOT A COUNT: a single county rising is weak - observer noise
+fakes it. A rise that PROPAGATES SOUTH band by band, in the order and at
+the speed our fronts predict, is migration or nothing. Birders in Nebraska
+and Texas do not coordinate their weekends. It also measures the wave's
+SPEED, which is a direct test of the 150 mi/day flight assumption.
+
+RAW COUNTS ONLY. We store birds, locations and counted-records per circle
+per species per observation date, never a derived index. The right
+normalisation is unsettled, and raw means we can revise it later without
+re-fetching a season we cannot get back.
+
+CRITICAL: counts are NOT comparable between bands. First snapshot showed
+home with 50 reporting locations against 4-8 in Nebraska - that is pure
+birder density, not birds. Each band must be read against its OWN history.
+Northern bands are thin (4-8 locations), so the signal up there will be
+noisy; this needs weeks, not days.
+
+SANITY CHECK PASSED: white-winged dove returned 0 at every northern circle
+and 153 at home. Whitewings are a southern bird, absent from Kansas and
+Nebraska. The data is real.
+
+## D15 — Hunt log: built minimal, deliberately
+data/hunt_log.csv, a header and nothing else. Founder was straight that he
+is not in the field enough for his own reports to be worth anything, and he
+is right - a couple of hunts a season is noise, and I should not have
+listed it beside the wave as comparable. It exists so hunter-observed data
+has somewhere to go IF volume ever arrives.
+The real target is Dove Blasters' own reservation data: half a dozen
+properties, which fields filled, how hunts went. Field-level, hunter-
+observed, exactly on target. That is a relationship to build, not code.
