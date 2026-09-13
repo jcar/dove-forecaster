@@ -11,9 +11,11 @@ from dove.grid import PointCache, snap, BATCH
 from dove.weather import OpenMeteo
 from dove.local import LOCAL_HOURLY, LOCAL_DAILY
 from dove.engine import run, season_past_days
+import flyway
 
 OUT = "docs/data"
 DISPLAY_DAYS = 14
+FLOW_DAYS = 30          # ~2 weeks back plus the forecast, for the animation
 
 
 def slim(res, site):
@@ -71,6 +73,19 @@ def main():
     json.dump({"generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                "sites": index}, open(f"{OUT}/index.json", "w"), separators=(",", ":"))
 
+    # the moving picture: ~30 days of the real 2D wind field plus each
+    # location's arrivals, read from the cache we already loaded
+    try:
+        all_dates = sorted({d for f in cache._feat.values() for d in f})
+        dates = all_dates[-FLOW_DAYS:]
+        loaded = [json.load(open(f"{OUT}/loc/{s['id']}.json")) for s in sites
+                  if os.path.exists(f"{OUT}/loc/{s['id']}.json")]
+        fp, fsz = flyway.export(cache, loaded, dates)
+        print(f"  flow: {fsz/1000:.0f} KB, {len(dates)} days "
+              f"({dates[0]}..{dates[-1]}), {len(cache._feat)} wind nodes")
+    except Exception as ex:
+        print(f"  flow export skipped ({type(ex).__name__}: {ex})")
+
     sz = sum(os.path.getsize(f"{OUT}/loc/{s['id']}.json") for s in sites
              if os.path.exists(f"{OUT}/loc/{s['id']}.json"))
     print(f"\n  built {built}, failed {failed}")
@@ -80,4 +95,6 @@ def main():
     print(f"  elapsed {time.time()-t0:.0f}s")
 
 
-main()
+# Guarded: importing this module must never start fetching weather.
+if __name__ == "__main__":
+    main()

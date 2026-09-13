@@ -79,6 +79,48 @@ def arc_passage_from(passages_per_point, min_points=None):
             "points_firing": len(firsts)}
 
 
+def arc_passages_from(passages_per_point, min_points=None, tol_hours=18):
+    """EVERY quorum-passing passage at a band, from cached per-point passages.
+
+    arc_passage_from returns only the STRONGEST passage at a band, which
+    silently drops a band out of a front's chain whenever its strongest event
+    belongs to a different system. Real case: a boundary swept bands 4, 3 and
+    1 on Sep 12, but band 2's strongest passage was a bigger front on Sep 15,
+    so band 2 vanished from the chain and the front appeared to skip a
+    latitude - which a southward boundary cannot do.
+    """
+    if min_points is None:
+        min_points = max(3, len(passages_per_point) // 2 + 1)
+    allp = []
+    for pi, ps in enumerate(passages_per_point):
+        for dtm, s in ps:
+            allp.append((dtm, s, pi))
+    allp.sort(key=lambda x: x[0])
+
+    groups, cur = [], []
+    for item in allp:
+        if cur and (item[0] - cur[-1][0]).total_seconds() / 3600.0 > tol_hours:
+            groups.append(cur)
+            cur = []
+        cur.append(item)
+    if cur:
+        groups.append(cur)
+
+    out = []
+    for g in groups:
+        best = {}
+        for dtm, s, p in g:
+            if p not in best or s > best[p][1]:
+                best[p] = (dtm, s)
+        if len(best) < min_points:
+            continue
+        ts = sorted(dtm.timestamp() for dtm, _ in best.values())
+        out.append({"when": datetime.fromtimestamp(median(ts)),
+                    "strength": round(mean(s for _, s in best.values()), 1),
+                    "points_firing": len(best)})
+    return out
+
+
 def arc_passages_season(per_point_hourly, min_points=None, tol_hours=18):
     """EVERY frontal passage across a long series, grouped across an arc.
 
