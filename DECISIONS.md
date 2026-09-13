@@ -349,3 +349,38 @@ noise. Candidate fix: narrow the far cone or skew it west. Not yet done.
 
 If exact field coordinates are ever wanted, they go in gitignored
 fields.json per D10 - never committed.
+
+## F10 — Cone geometry was WRONG. Replaced with a flyway corridor.
+Two defects in D4's concentric cones:
+
+1. FLYWAY LEAK. At +/-45deg and 600 mi the far band spanned 104.5W to 88.7W -
+   eastern Colorado to central Illinois. Illinois doves are Eastern
+   Management Unit and go down the Mississippi; they were never coming to
+   North Texas. We were sampling weather over birds that are not ours.
+2. LATITUDE SMEAR (the worse one). Points inside a single cone band sat at
+   DIFFERENT latitudes. Front tracking regresses passage time against
+   latitude, so mixing latitudes inside one band corrupted the very
+   measurement the arrival date depends on - and biased speeds LOW.
+
+Replacement: each band is a CONSTANT-LATITUDE segment across the Central
+Flyway corridor.
+  - band k at home_lat + 150k/69 degrees north
+  - half-width = min(210 mi, 0.7 * north_mi) - the funnel widens with
+    distance until it hits the flyway edges, then stops. Close in, country
+    200 mi east of you is beside you, not upstream.
+  - clipped to FLYWAY_W -102.0 / FLYWAY_E -92.0 (CMU working bounds)
+
+Now: band1 Oklahoma 35.57N, band2 S Kansas 37.74N, band3 N Kansas 39.91N,
+band4 Nebraska & Iowa 42.09N. Every point inside the CMU.
+
+EVIDENCE THE FIX IS REAL: the live front's measured speed went
+10.5 (Dallas + cone) -> 13.5 (corridor anchor + cone) -> 15.0 mph
+(corridor anchor + latitude bands), converging toward the 19.9 mph
+historical median as the geometry got honest. The "slow front" reading
+earlier in this session was substantially a geometry artifact.
+
+## STALE — the 11-season validation must be re-run
+F7's front-speed distribution (median 19.9, n=261) was computed with the
+old cone. It is not evidence for the current geometry. Blocked on an
+Open-Meteo 429; ~44 calls when the limit clears. Dashboard now says so
+rather than claiming a validation it no longer has.
