@@ -316,3 +316,36 @@ and swapped. 2015-2022 intact.
 Also: the `events` field turned out unnecessary — test1.py reconstructs
 arrival by CONVOLUTION over arc_scores, which needs nothing but data we
 already store, and doesn't inherit the front detector's thresholds.
+
+## D11 — Anchor moved to the Dove Blasters corridor (2026-09-12)
+Founder hunts Dove Blasters, a North Texas day-hunt/membership outfit.
+Public info: Collin + Grayson County properties around Anna, Melissa,
+Van Alstyne and Howe (US-75 corridor). Named fields (Big Boy, Wildcat,
+Cowboy, Flat Top, Roadhouse, Sinbad) exist but exact coordinates are
+members-only behind their app - NOT guessed, not stored.
+
+Anchor: 33.391N -96.579W, the centroid of those four towns. ~44 mi north
+of downtown Dallas, which every earlier forecast in this project used. All
+their properties sit within ~25 mi of the centroid, which is well inside
+this model's real resolution - so ONE anchor covers the whole operation.
+Deliberately did not build a picker across the four towns: their forecasts
+would differ by less than the model's error, which is false precision.
+
+Effect of the move: front speed on the live boundary re-measured 13.5 mph
+(was 10.5 from Dallas), front reaches the fields Sep 16 15:04 (was 22:48),
+peak arrival index 53.9 (was 43.2). Peak day unchanged at Sep 18.
+Earlier forecasts were running slightly LATE for these fields.
+
+Bands re-derived from where the sample points actually land now:
+  1  150 mi  Central Oklahoma    OKC / Shawnee / Muskogee     1 day
+  2  300 mi  Southern Kansas     Wichita / Ponca City         2 days
+  3  450 mi  Central Kansas      Salina / Hays / Topeka       3 days
+  4  600 mi  Nebraska & Plains   North Platte / Norfolk       4 days
+
+CONCERN: band 4 at +/-45deg and 600 mi now spans 104.5W to 88.7W - eastern
+Colorado to central Illinois. Illinois birds go down the Mississippi flyway,
+not to North Texas, so the eastern edge of band 4 is probably contributing
+noise. Candidate fix: narrow the far cone or skew it west. Not yet done.
+
+If exact field coordinates are ever wanted, they go in gitignored
+fields.json per D10 - never committed.

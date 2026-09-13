@@ -2,7 +2,24 @@
 import math
 
 R_EARTH_MI = 3958.7613
-HOME = (32.78, -96.80)          # Dallas, TX
+
+# Named hunt locations. Dove Blasters runs Collin + Grayson County properties
+# along the US-75 corridor (Anna, Melissa, Van Alstyne, Howe). Exact field
+# coordinates are members-only, so we anchor on the corridor centroid - every
+# one of their properties sits within ~25 mi of it, which is far inside the
+# resolution this forecast actually has.
+LOCATIONS = {
+    "doveblasters": (33.391, -96.579, "Dove Blasters — Collin & Grayson Co."),
+    "anna":         (33.350, -96.549, "Anna, TX"),
+    "melissa":      (33.286, -96.573, "Melissa, TX"),
+    "vanalstyne":   (33.421, -96.581, "Van Alstyne, TX"),
+    "howe":         (33.507, -96.613, "Howe, TX"),
+    "dallas":       (32.780, -96.800, "Dallas, TX"),
+}
+
+HOME_KEY = "doveblasters"
+HOME = LOCATIONS[HOME_KEY][:2]
+HOME_NAME = LOCATIONS[HOME_KEY][2]
 CONE_CENTER_BEARING = 0.0       # due north
 SAMPLES_PER_ARC = 5
 
