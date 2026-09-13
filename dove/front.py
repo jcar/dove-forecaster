@@ -161,34 +161,6 @@ def front_speed_mph(events):
     return round(spd, 1) if 5.0 <= spd <= 70.0 else None   # sanity band
 
 
-def arrival_forecast(events, days_out=10, today=None, speed=BIRD_SPEED_MI_PER_DAY):
-    """Superpose one bird pulse per arc.
-
-    Birds do not ride the front in. They DEPART when the front clears the
-    latitude they're staged at, then fly south at their own pace. So each
-    arc contributes a pulse arriving at its own lead time, and the big days
-    are when pulses from several arcs land together.
-    """
-    today = today or datetime.now().date()
-    out = []
-    for k in range(days_out):
-        d = today + timedelta(days=k)
-        target = datetime.combine(d, time(ARRIVAL_HOUR))
-        total, parts = 0.0, []
-        for e in events:
-            center = e["when"] + timedelta(days=e["dist_mi"] / speed)
-            sigma = 0.35 + e["dist_mi"] / 1200.0      # distant arcs arrive smeared
-            dt_d = (target - center).total_seconds() / 86400.0
-            w = math.exp(-0.5 * (dt_d / sigma) ** 2)
-            c = e["index"] * w
-            total += c
-            if c > 1.0:
-                parts.append((e["arc"], round(c, 1)))
-        out.append({"date": d.isoformat(), "arrival": round(total, 1),
-                    "from_arcs": sorted(parts, key=lambda x: -x[1])})
-    return {"days": out, "still_airborne": round(airborne, 1)}
-
-
 # ---------------------------------------------------------------------------
 # Wind-driven arrival. See DECISIONS.md F13.
 #
@@ -274,7 +246,6 @@ def arrival_forecast_wind(events, push_field, home_lat, days_out=10,
         out.append({"date": d.isoformat(), "arrival": round(total, 1),
                     "from_arcs": sorted(parts, key=lambda x: -x[1])})
     return {"days": out, "still_airborne": round(airborne, 1)}
-
 
 
 def ensemble_confidence(members, target, window_h=48):

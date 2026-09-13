@@ -22,11 +22,13 @@ HOME = LOCATIONS[HOME_KEY][:2]
 HOME_NAME = LOCATIONS[HOME_KEY][2]
 SAMPLES_PER_ARC = 9   # denser sampling across the corridor; same request count
 
-# Central Management Unit working bounds. Doves east of roughly the
-# Mississippi belong to the Eastern Management Unit and go down that flyway,
-# not to North Texas; the high plains west of ~102W winter further south and
-# west. Sampling outside these feeds us birds that were never coming here.
-FLYWAY_W, FLYWAY_E = -102.0, -92.0
+# Central Management Unit outer bounds. Doves east of roughly the Mississippi
+# belong to the Eastern Management Unit and go down that flyway; the high
+# plains west of the Rockies winter further south and west. The corridor is
+# always centred on the HUNTER and only clamped by these - the old absolute
+# -102/-92 window was one hunter's longitude baked in as if it were geography.
+CMU_W, CMU_E = -104.0, -90.0
+FLYWAY_W, FLYWAY_E = CMU_W, CMU_E      # legacy names, still imported by wave.py
 CORRIDOR_HALF_MI = 210.0        # half-width of the source corridor
 
 # (index, miles NORTH, label)
@@ -43,16 +45,6 @@ BANDS = [
 ARCS = BANDS
 
 
-def destination(lat, lon, bearing_deg, dist_mi):
-    """Great-circle destination from a point given bearing and distance."""
-    lat1, lon1 = math.radians(lat), math.radians(lon)
-    brg, d = math.radians(bearing_deg), dist_mi / R_EARTH_MI
-    lat2 = math.asin(math.sin(lat1) * math.cos(d) +
-                     math.cos(lat1) * math.sin(d) * math.cos(brg))
-    lon2 = lon1 + math.atan2(math.sin(brg) * math.sin(d) * math.cos(lat1),
-                             math.cos(d) - math.sin(lat1) * math.sin(lat2))
-    return round(math.degrees(lat2), 4), round((math.degrees(lon2) + 540) % 360 - 180, 4)
-
 
 def arc_points(home=HOME, arcs=ARCS, n=SAMPLES_PER_ARC):
     """Constant-latitude bands across the flyway corridor.
@@ -67,8 +59,8 @@ def arc_points(home=HOME, arcs=ARCS, n=SAMPLES_PER_ARC):
         lat = home[0] + north_mi / 69.0
         half_mi = min(CORRIDOR_HALF_MI, 0.7 * north_mi)
         half_deg = half_mi / (69.0 * math.cos(math.radians(lat)))
-        lo = max(home[1] - half_deg, FLYWAY_W)
-        hi = min(home[1] + half_deg, FLYWAY_E)
+        lo = max(home[1] - half_deg, CMU_W)
+        hi = min(home[1] + half_deg, CMU_E)
         pts = [(round(lat, 4), round(lo + (hi - lo) * i / (n - 1), 4)) for i in range(n)]
         # true distance to the corridor edge, for the bird's flight time
         edge_mi = max(abs(p[1] - home[1]) for p in pts) * 69.0 * math.cos(math.radians(lat))
