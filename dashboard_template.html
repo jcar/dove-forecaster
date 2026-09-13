@@ -34,12 +34,11 @@
 body{
   margin:0; background:var(--ground); color:var(--ink);
   font-family:Archivo,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;
 }
 .wrap{max-width:1060px; margin:0 auto; padding-inline:20px; padding-block:0 64px}
 .mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace; font-variant-numeric:tabular-nums}
 
-/* ---- status strip ---- */
 .strip{
   display:flex; flex-wrap:wrap; gap:8px 26px; align-items:baseline;
   padding-block:16px; border-bottom:1px solid var(--line);
@@ -48,61 +47,58 @@ body{
 }
 .strip b{color:var(--ink2); font-weight:500}
 
-/* ---- masthead ---- */
-.mast{padding-block:30px 26px; border-bottom:1px solid var(--line)}
+.mast{padding-block:30px 24px}
 .mast h1{
-  margin:0; font-size:clamp(27px,4.6vw,40px); font-weight:700;
-  letter-spacing:-.022em; line-height:1.08; text-wrap:balance;
+  margin:0; font-size:clamp(28px,5vw,43px); font-weight:700;
+  letter-spacing:-.024em; line-height:1.06; text-wrap:balance;
 }
-.mast p{margin:9px 0 0; color:var(--ink2); max-width:62ch; font-size:15.5px}
+.mast .sup{
+  font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink3); font-weight:600; margin-bottom:10px;
+}
+.mast p{margin:12px 0 0; color:var(--ink2); max-width:60ch; font-size:16px}
 
-/* ---- headline claim ---- */
-.claim{
-  margin-top:26px; background:var(--raise); border:1px solid var(--line);
-  border-radius:3px; padding:22px 24px;
-  display:grid; grid-template-columns:auto 1fr; gap:26px; align-items:center;
+.verdict{
+  margin-top:24px; background:var(--raise); border:1px solid var(--line);
+  border-radius:3px; padding:20px 22px; display:flex; flex-wrap:wrap; gap:14px 30px; align-items:baseline;
 }
-.claim .when{border-right:1px solid var(--line2); padding-right:26px}
-.claim .lab{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); font-weight:600}
-.claim .day{font-family:"IBM Plex Mono",monospace; font-size:35px; font-weight:600; line-height:1.05; letter-spacing:-.02em; margin-top:5px; white-space:nowrap}
-.claim .dat{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--ink2); margin-top:2px}
-.claim .why{font-size:15.5px; line-height:1.55; margin:0}
-.claim .why em{font-style:normal; font-family:"IBM Plex Mono",monospace; font-weight:600; color:var(--ink)}
+.verdict .k{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); font-weight:600}
+.verdict .v{font-family:"IBM Plex Mono",monospace; font-size:20px; font-weight:600; margin-top:3px}
 
-/* ---- sections ---- */
-section{padding-block:34px 0}
-h2{
-  margin:0 0 3px; font-size:12px; font-weight:600; letter-spacing:.13em;
-  text-transform:uppercase; color:var(--ink2);
+/* explainer */
+.howto{
+  margin-top:26px; border:1px solid var(--line); border-radius:3px; overflow:hidden;
 }
-.sub{margin:0 0 18px; color:var(--ink3); font-size:13.5px; max-width:68ch}
+.howto .hd{
+  padding:13px 18px; background:var(--raise); border-bottom:1px solid var(--line);
+  font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink2); font-weight:600;
+}
+.howto ol{margin:0; padding:16px 18px 18px 38px; color:var(--ink2); font-size:14.5px}
+.howto li{padding:4px 0}
+.howto b{color:var(--ink); font-weight:600}
+
+section{padding-block:36px 0}
+h2{margin:0 0 3px; font-size:12px; font-weight:600; letter-spacing:.13em; text-transform:uppercase; color:var(--ink2)}
+.sub{margin:0 0 18px; color:var(--ink3); font-size:13.5px; max-width:70ch}
 figure{margin:0}
 .scroll{overflow-x:auto; overflow-y:hidden}
 svg{display:block; max-width:100%; height:auto}
 svg text{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
 
-/* ---- legend ---- */
 .leg{display:flex; flex-wrap:wrap; gap:6px 20px; margin-top:12px; font-size:12.5px; color:var(--ink2)}
 .leg span{display:inline-flex; align-items:center; gap:7px}
 .leg i{width:11px; height:11px; border-radius:2px; display:inline-block; flex:none}
 
-/* ---- front table ---- */
 table{border-collapse:collapse; width:100%; font-size:13.5px}
 th{
   text-align:left; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase;
-  color:var(--ink3); font-weight:600; padding:0 14px 8px 0; border-bottom:1px solid var(--line);
-  white-space:nowrap;
+  color:var(--ink3); font-weight:600; padding:0 14px 8px 0; border-bottom:1px solid var(--line); white-space:nowrap;
 }
 td{padding:11px 14px 11px 0; border-bottom:1px solid var(--line2); vertical-align:top}
 td.n{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; white-space:nowrap}
 tr:last-child td{border-bottom:none}
-.chip{
-  display:inline-block; font-family:"IBM Plex Mono",monospace; font-size:11px;
-  padding:2px 7px; border-radius:2px; border:1px solid var(--line); color:var(--ink2);
-}
 
-/* ---- ledger ---- */
-.ledger{display:grid; grid-template-columns:repeat(auto-fit,minmax(248px,1fr)); gap:0 34px; margin-top:4px}
+.ledger{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:0 34px; margin-top:4px}
 .ledger ul{list-style:none; margin:0; padding:0}
 .ledger li{padding:9px 0 9px 22px; border-bottom:1px solid var(--line2); position:relative; font-size:13.5px; color:var(--ink2)}
 .ledger li:last-child{border-bottom:none}
@@ -111,18 +107,14 @@ tr:last-child td{border-bottom:none}
 .ledger .no li::before{content:"\2013"; color:var(--ink3)}
 .ledger h3{margin:0 0 4px; font-size:11px; letter-spacing:.11em; text-transform:uppercase; color:var(--ink3); font-weight:600}
 
-/* ---- tooltip ---- */
 #tip{
   position:fixed; pointer-events:none; z-index:20; opacity:0; transition:opacity .1s;
-  background:var(--ink); color:var(--ground); padding:7px 10px; border-radius:3px;
-  font-family:"IBM Plex Mono",monospace; font-size:11.5px; line-height:1.45; white-space:pre;
-  box-shadow:0 4px 14px rgba(0,0,0,.22);
+  background:var(--ink); color:var(--ground); padding:8px 11px; border-radius:3px;
+  font-family:"IBM Plex Mono",monospace; font-size:11.5px; line-height:1.5; white-space:pre;
+  box-shadow:0 4px 14px rgba(0,0,0,.22); max-width:280px;
 }
-foot{display:block; margin-top:40px; padding-top:18px; border-top:1px solid var(--line); color:var(--ink3); font-size:12.5px}
-@media (max-width:560px){
-  .claim{grid-template-columns:1fr; gap:18px}
-  .claim .when{border-right:none; border-bottom:1px solid var(--line2); padding-right:0; padding-bottom:16px}
-}
+foot{display:block; margin-top:42px; padding-top:18px; border-top:1px solid var(--line); color:var(--ink3); font-size:12.5px}
+@media (max-width:560px){ .verdict{flex-direction:column; gap:14px} }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -131,81 +123,84 @@ foot{display:block; margin-top:40px; padding-top:18px; border-top:1px solid var(
   <div class="strip" id="strip"></div>
 
   <div class="mast">
-    <h1>When the flight birds get here</h1>
-    <p>A migration forecast for six fields outside Dallas. It watches four arcs of country to the north,
-       finds cold fronts as they cross each one, measures how fast they're moving, and works out which
-       morning the birds they launched will actually land on you.</p>
+    <div class="sup">Dove arrival watch &middot; Dallas</div>
+    <h1 id="headline">&nbsp;</h1>
+    <p id="plain"></p>
   </div>
 
-  <div class="claim">
-    <div class="when">
-      <div class="lab">Peak arrival</div>
-      <div class="day mono" id="peakDay">—</div>
-      <div class="dat mono" id="peakDate"></div>
-    </div>
-    <p class="why" id="why"></p>
+  <div class="verdict">
+    <div><div class="k">Best morning</div><div class="v mono" id="vDay">&mdash;</div></div>
+    <div><div class="k">How many</div><div class="v mono" id="vStr">&mdash;</div></div>
+    <div><div class="k">Coming from</div><div class="v mono" id="vFrom">&mdash;</div></div>
+    <div><div class="k">Days of notice</div><div class="v mono" id="vLead">&mdash;</div></div>
+  </div>
+
+  <div class="howto">
+    <div class="hd">How this works</div>
+    <ol>
+      <li>Doves don't leave on a schedule &mdash; they leave when a <b>cold front</b> pushes through and gives them a north wind to ride.</li>
+      <li>So we watch four stretches of country north of you: <b>the Red River, northern Oklahoma, Kansas, and Nebraska.</b></li>
+      <li>When a front crosses one of them, the birds staged there take off with it. The farther north they were, the longer their flight &mdash; roughly <b>a day of flying per 150 miles.</b></li>
+      <li>The front moves faster than the birds do. So the cool weather gets to Dallas first, and the birds show up a day or two <b>behind</b> it. That gap is what this whole thing is for.</li>
+    </ol>
   </div>
 
   <section>
-    <h2>Arrival forecast</h2>
-    <p class="sub">Expected dove arrival at the fields, by morning. Each arc contributes its own pulse:
-       birds leave when the front clears the latitude they're staged at, then fly south at their own pace.</p>
-    <figure class="scroll"><svg id="arrival" viewBox="0 0 1000 300" role="img" aria-label="Arrival forecast by day"></svg></figure>
+    <h2>Next ten mornings</h2>
+    <p class="sub">How many birds should be landing on your fields each morning. Tap or hover a bar to see where they're coming from.</p>
+    <figure class="scroll"><svg id="arrival" viewBox="0 0 1000 300" role="img" aria-label="Expected dove arrivals by morning"></svg></figure>
     <div class="leg" id="arrLeg"></div>
   </section>
 
   <section>
-    <h2>Push index by arc</h2>
-    <p class="sub">North at the top, the way the country lies. Darker means a stronger push out of that latitude
-       band that day — wind, temperature drop, pressure rise, gated by season and by how many birds are left up there.</p>
-    <figure class="scroll"><svg id="heat" viewBox="0 0 1000 230" role="img" aria-label="Push index heatmap by arc and day"></svg></figure>
+    <h2>What's happening up north</h2>
+    <p class="sub">Each row is a stretch of country, laid out the way it sits on a map &mdash; Nebraska on top, the Red River closest to you at the bottom.
+       Darker means birds were getting pushed harder out of there that day.</p>
+    <figure class="scroll"><svg id="heat" viewBox="0 0 1000 250" role="img" aria-label="Push strength by region and day"></svg></figure>
     <div class="leg" id="heatLeg"></div>
   </section>
 
   <section>
-    <h2>Fronts being tracked</h2>
-    <p class="sub">Speed is measured, not assumed — a least-squares fit of passage time against latitude
-       across the arcs a boundary actually swept.</p>
+    <h2>Cold fronts we're tracking</h2>
+    <p class="sub">We clock each front as it crosses the regions, so its speed is measured rather than assumed.</p>
     <div class="scroll"><table id="fronts"></table></div>
   </section>
 
   <section>
-    <h2>Ground truth</h2>
-    <p class="sub">Doves per observer-hour on complete eBird checklists in Dallas County — effort-normalized, so
-       it counts birds and not birders. Eurasian Collared-Dove is the control: it doesn't migrate, so it
-       should <em>not</em> track the others. If it does, we're measuring observers.</p>
-    <figure class="scroll"><svg id="birds" viewBox="0 0 1000 300" role="img" aria-label="Dove density per observer-hour"></svg></figure>
+    <h2>Are the birds actually here?</h2>
+    <p class="sub">Doves counted per hour by birdwatchers around Dallas &mdash; adjusted for how many people were out looking, so it counts birds and not birders.
+       Collared-doves are the check: they don't migrate, so their line should stay flat when the others jump. If all three move together, we're just watching birdwatchers.</p>
+    <figure class="scroll"><svg id="birds" viewBox="0 0 1000 300" role="img" aria-label="Doves counted per observer hour"></svg></figure>
     <div class="leg" id="birdLeg"></div>
   </section>
 
   <section>
-    <h2>What's proven and what isn't</h2>
-    <p class="sub">Eleven seasons of ERA5 reanalysis validated the weather half. The bird half is still open.</p>
+    <h2>How much to trust this</h2>
+    <p class="sub">The weather half has been checked against eleven years of records. The bird half hasn't been checked at all yet.</p>
     <div class="ledger">
       <div>
-        <h3>Validated</h3>
+        <h3>Checked and working</h3>
         <ul class="ok">
-          <li>Front speeds, <span class="mono" id="spdMed"></span> median across <span class="mono" id="spdN"></span> fronts, 2015&ndash;2025</li>
-          <li>Detector is not biased low &mdash; the live front's speed sits near the 15th percentile</li>
-          <li>~7 full four-arc continental sweeps per season</li>
-          <li>Engine is deterministic across machines</li>
+          <li>Front speeds &mdash; <span class="mono" id="spdMed"></span> typical, across <span class="mono" id="spdN"></span> fronts from 2015&ndash;2025</li>
+          <li>We find about <b>7 big continent-wide fronts</b> a season, which matches a real dove season</li>
+          <li>Same answer on any machine &mdash; no randomness hiding in it</li>
         </ul>
       </div>
       <div>
-        <h3>Not yet validated</h3>
+        <h3>Still guesswork</h3>
         <ul class="no">
-          <li>Bird ground speed &mdash; 150 mi/day is a guess, and it sets the peak date directly</li>
-          <li>How fast each arc's population depletes over a season</li>
-          <li>Pulse width, seasonal gate constants, all five component weights</li>
-          <li>Whether any of this predicts an actual bird</li>
+          <li>How fast a dove flies in a day. We assume 150 miles &mdash; that number sets the arrival date</li>
+          <li>How quickly birds up north run out over a season</li>
+          <li>The strength numbers below aren't calibrated yet &mdash; treat them as bigger-vs-smaller, not as counts</li>
+          <li>Whether any of this has ever correctly predicted a single bird</li>
         </ul>
       </div>
     </div>
   </section>
 
   <foot>
-    Forecasts are committed to git each morning before the outcome is known, so the record can't be
-    quietly retuned into looking right. <span id="gen" class="mono"></span>
+    Every morning's forecast is saved before anyone knows how it turned out, so the record can't be quietly fixed up later.
+    <span id="gen" class="mono"></span>
   </foot>
 </div>
 
@@ -219,160 +214,193 @@ const RAMP = ['--r0','--r1','--r2','--r3','--r4','--r5','--r6'].map(tok);
 const tip = document.getElementById('tip');
 const show = (e, t) => { tip.textContent = t; tip.style.opacity = 1;
   const p = 14, w = tip.offsetWidth, h = tip.offsetHeight;
-  tip.style.left = Math.min(e.clientX + p, innerWidth - w - 8) + 'px';
+  tip.style.left = Math.min(Math.max(8, e.clientX + p), innerWidth - w - 8) + 'px';
   tip.style.top  = Math.max(e.clientY - h - p, 8) + 'px'; };
 const hide = () => tip.style.opacity = 0;
 const el = (n, a) => { const x = document.createElementNS('http://www.w3.org/2000/svg', n);
   for (const k in a) x.setAttribute(k, a[k]); return x; };
-const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const dt  = s => new Date(s + 'T12:00:00');
-const md  = s => (dt(s).getMonth()+1) + '/' + dt(s).getDate();
+const DOW  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DOW3 = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MON  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const dt = s => new Date(s + 'T12:00:00');
+const md = s => (dt(s).getMonth()+1) + '/' + dt(s).getDate();
+const nice = s => MON[dt(s).getMonth()] + ' ' + dt(s).getDate();
 
-/* ---------- status strip ---------- */
+/* Plain-English names for the four watch regions, nearest to farthest. */
+const BAND = {
+  1: {name:'Red River',        towns:'Ardmore · Durant',        days:1},
+  2: {name:'North Oklahoma',   towns:'Tulsa · Oklahoma City',   days:2},
+  3: {name:'Kansas',           towns:'Wichita · Salina',        days:3},
+  4: {name:'Nebraska',         towns:'Lincoln · Grand Island',  days:4}
+};
+const bandName = a => (BAND[a] || {name:'Band ' + a}).name;
+
+/* Uncalibrated strength bands — deliberately words, not false precision. */
+function strength(v){
+  if (v < 4)  return 'Nothing moving';
+  if (v < 14) return 'A few birds';
+  if (v < 30) return 'Decent push';
+  return 'Big push';
+}
+
 const g = new Date(D.forecast.generated_at);
+const stamp = g.toISOString().slice(0,16).replace('T',' ') + 'Z';
 document.getElementById('strip').innerHTML =
-  '<span>Dallas, TX &middot; <b>32.78N 96.80W</b></span>' +
-  '<span>Engine <b>v' + D.forecast.engine_version + '</b></span>' +
-  '<span>Run <b>' + g.toISOString().slice(0,16).replace('T',' ') + 'Z</b></span>' +
-  '<span>Ground truth <b>' + Object.keys(D.ebird).length + ' days</b></span>';
-document.getElementById('gen').textContent = 'Generated ' + g.toISOString().slice(0,16).replace('T',' ') + 'Z.';
+  '<span>Six fields near <b>Dallas, TX</b></span>' +
+  '<span>Updated <b>' + stamp + '</b></span>' +
+  '<span>Bird counts <b>' + Object.keys(D.ebird).length + ' days</b></span>';
+document.getElementById('gen').textContent = 'Last updated ' + stamp + '.';
 
 /* ---------- headline ---------- */
-const peak = D.arrivalPeak = D.forecast.arrival.reduce((a,b) => b.arrival > a.arrival ? b : a);
-document.getElementById('peakDay').textContent  = DOW[dt(peak.date).getDay()];
-document.getElementById('peakDate').textContent = peak.date;
+const peak = D.forecast.arrival.reduce((a,b) => b.arrival > a.arrival ? b : a);
+const today = new Date(); today.setHours(0,0,0,0);
+const lead = Math.round((dt(peak.date) - today) / 86400000);
 const fr1 = D.forecast.fronts.find(f => f.speed_mph) || null;
-let why;
-if (fr1) {
-  const arr = dt(peak.date), rh = new Date(fr1.reaches_home);
-  const lag = Math.round((arr - rh) / 86400000);
-  why = 'A boundary swept ' + fr1.arcs.map(a => 'arc ' + a).join(' → ') +
-        ' at a measured <em>' + fr1.speed_mph + ' mph</em>, reaching Dallas ' +
-        DOW[rh.getDay()] + ' night. The birds it launched are slower than the air &mdash; expect them ' +
-        (lag > 0 ? '<em>' + lag + ' day' + (lag>1?'s':'') + ' behind the front</em>, ' : '') +
-        'peaking ' + DOW[arr.getDay()] + ' morning, mostly out of ' +
-        peak.from_arcs.map(a => 'arc ' + a[0]).join(' and ') + '.';
-} else {
-  why = 'No organized boundary in the watch cone right now. Nothing is being pushed south.';
-}
-document.getElementById('why').innerHTML = why;
+const froms = peak.from_arcs.slice(0,2).map(a => bandName(a[0]));
 
-/* ---------- arrival chart ---------- */
+if (peak.arrival >= 4) {
+  document.getElementById('headline').textContent =
+    'Birds should hit your fields ' + DOW[dt(peak.date).getDay()] + ' morning';
+  let p = 'That’s ' + nice(peak.date) + '. Most of them are coming out of ' +
+    (froms.length > 1 ? froms[0] + ' and ' + froms[1] : froms[0]) + '.';
+  if (fr1 && fr1.reaches_home) {
+    const rh = new Date(fr1.reaches_home);
+    const gap = Math.round((dt(peak.date) - rh) / 86400000);
+    p += ' A cold front cleared them out, and it gets to Dallas ' + DOW[rh.getDay()] +
+         ' night — but the birds are slower than the weather, so give it ' +
+         (gap > 0 ? 'about ' + gap + ' more day' + (gap > 1 ? 's' : '') : 'a bit') + ' after the wind turns.';
+  }
+  document.getElementById('plain').textContent = p;
+} else {
+  document.getElementById('headline').textContent = 'No new birds headed your way yet';
+  document.getElementById('plain').textContent =
+    'Nothing is pushing doves south right now. Whatever is on your fields is what was already there. ' +
+    'Check back after the next cold front.';
+}
+document.getElementById('vDay').textContent  = peak.arrival >= 4 ? DOW3[dt(peak.date).getDay()] + ' ' + nice(peak.date) : '—';
+document.getElementById('vStr').textContent  = strength(peak.arrival);
+document.getElementById('vFrom').textContent = peak.arrival >= 4 ? (froms[0] || '—') : '—';
+document.getElementById('vLead').textContent = peak.arrival >= 4 ? (lead <= 0 ? 'today' : lead + ' day' + (lead>1?'s':'')) : '—';
+
+/* ---------- arrivals ---------- */
 (function(){
   const s = document.getElementById('arrival'), W = 1000, H = 300;
-  const L = 46, R = 18, T = 22, B = 44, iw = W-L-R, ih = H-T-B;
-  const rows = D.forecast.arrival, mx = Math.max(4, ...rows.map(r => r.arrival));
-  const step = iw / rows.length, bw = Math.min(46, step * 0.6);
+  const L = 30, R = 18, T = 30, B = 46, iw = W-L-R, ih = H-T-B;
+  const rows = D.forecast.arrival, mx = Math.max(10, ...rows.map(r => r.arrival));
+  const step = iw / rows.length, bw = Math.min(46, step * 0.58);
   const y = v => T + ih - (v/mx)*ih;
 
-  for (let i=0;i<=4;i++){ const v = mx*i/4;
-    s.appendChild(el('line',{x1:L,x2:W-R,y1:y(v),y2:y(v),stroke:tok('--line2'),'stroke-width':1}));
-    s.appendChild(Object.assign(el('text',{x:L-9,y:y(v)+4,'text-anchor':'end','font-size':11,fill:tok('--ink3')}),
-      {textContent: v.toFixed(0)})); }
+  [['Big push',30],['Decent',14],['A few',4]].forEach(([lab,v]) => {
+    if (v > mx) return;
+    s.appendChild(el('line',{x1:L,x2:W-R,y1:y(v),y2:y(v),stroke:tok('--line2'),'stroke-width':1,'stroke-dasharray':'3 4'}));
+    const t = el('text',{x:L+2,y:y(v)-5,'font-size':10,fill:tok('--ink3')}); t.textContent = lab; s.appendChild(t);
+  });
 
   rows.forEach((r,i) => {
-    const cx = L + step*i + step/2, isPeak = r.date === peak.date;
-    const h = Math.max(r.arrival > 0 ? 2 : 0, ih - (y(r.arrival)-T));
-    if (h > 0) s.appendChild(el('rect',{x:cx-bw/2, y:y(r.arrival), width:bw, height:h,
-      rx:3, fill: isPeak ? tok('--barPeak') : tok('--bar')}));
-    const lab = el('text',{x:cx, y:H-26, 'text-anchor':'middle','font-size':11,
+    const cx = L + step*i + step/2, isPeak = r.date === peak.date && r.arrival >= 4;
+    const h = r.arrival > 0 ? Math.max(2, ih - (y(r.arrival)-T)) : 0;
+    if (h > 0) s.appendChild(el('rect',{x:cx-bw/2, y:y(r.arrival), width:bw, height:h, rx:3,
+      fill: isPeak ? tok('--barPeak') : tok('--bar')}));
+    const a = el('text',{x:cx, y:H-26,'text-anchor':'middle','font-size':11.5,
       fill: isPeak ? tok('--ink') : tok('--ink3'), 'font-weight': isPeak ? 600 : 400});
-    lab.textContent = DOW[dt(r.date).getDay()]; s.appendChild(lab);
-    const lab2 = el('text',{x:cx, y:H-12,'text-anchor':'middle','font-size':10,fill:tok('--ink3')});
-    lab2.textContent = md(r.date); s.appendChild(lab2);
-    if (isPeak && r.arrival > 0){
-      const v = el('text',{x:cx, y:y(r.arrival)-8,'text-anchor':'middle','font-size':12,
-        'font-weight':600, fill:tok('--ink')}); v.textContent = r.arrival.toFixed(0); s.appendChild(v); }
+    a.textContent = DOW3[dt(r.date).getDay()]; s.appendChild(a);
+    const b = el('text',{x:cx, y:H-11,'text-anchor':'middle','font-size':10,fill:tok('--ink3')});
+    b.textContent = md(r.date); s.appendChild(b);
+    if (isPeak){ const v = el('text',{x:cx, y:y(r.arrival)-9,'text-anchor':'middle','font-size':11.5,
+      'font-weight':600, fill:tok('--ink')}); v.textContent = strength(r.arrival); s.appendChild(v); }
     const hit = el('rect',{x:L+step*i, y:T, width:step, height:ih, fill:'transparent'});
     hit.addEventListener('pointermove', e => show(e,
-      DOW[dt(r.date).getDay()] + ' ' + r.date + '\narrival index  ' + r.arrival.toFixed(1) +
-      (r.from_arcs.length ? '\n' + r.from_arcs.map(a => 'arc ' + a[0] + '   ' + a[1].toFixed(1)).join('\n') : '')));
+      DOW[dt(r.date).getDay()] + ', ' + nice(r.date) + '\n' + strength(r.arrival) +
+      (r.from_arcs.length ? '\n\ncoming from:\n' + r.from_arcs.map(a =>
+        '  ' + bandName(a[0])).join('\n') : '\nnothing headed this way')));
     hit.addEventListener('pointerleave', hide); s.appendChild(hit);
   });
   s.appendChild(el('line',{x1:L,x2:W-R,y1:T+ih,y2:T+ih,stroke:tok('--line'),'stroke-width':1}));
   document.getElementById('arrLeg').innerHTML =
-    '<span><i style="background:' + tok('--barPeak') + '"></i>peak morning</span>' +
-    '<span><i style="background:' + tok('--bar') + '"></i>expected arrival</span>';
+    '<span><i style="background:' + tok('--barPeak') + '"></i>best morning</span>' +
+    '<span><i style="background:' + tok('--bar') + '"></i>birds expected</span>' +
+    '<span style="color:var(--ink3)">taller means more birds</span>';
 })();
 
-/* ---------- arc heatmap ---------- */
+/* ---------- what's happening up north ---------- */
 (function(){
-  const s = document.getElementById('heat'), W = 1000, H = 230;
-  const L = 132, R = 14, T = 26, B = 40;
-  const arcs = [4,3,2,1], sc = D.forecast.arc_scores;
+  const s = document.getElementById('heat'), W = 1000, H = 250;
+  const L = 186, R = 14, T = 26, B = 42;
+  const bands = [4,3,2,1], sc = D.forecast.arc_scores;
   const days = Object.keys(sc['4']).sort();
-  const cw = (W-L-R)/days.length, rh = (H-T-B)/arcs.length;
-  const mx = Math.max(1, ...arcs.flatMap(a => days.map(d => (sc[String(a)][d]||{}).index || 0)));
+  const cw = (W-L-R)/days.length, rh = (H-T-B)/bands.length;
+  const mx = Math.max(1, ...bands.flatMap(a => days.map(d => (sc[String(a)][d]||{}).index || 0)));
 
-  arcs.forEach((a,ri) => {
-    const meta = D.forecast.arcs[String(a)];
-    const n1 = el('text',{x:0, y:T+rh*ri+rh/2-2,'font-size':12,fill:tok('--ink'),'font-weight':600});
-    n1.textContent = 'Arc ' + a + ' · ' + meta.dist_mi + ' mi'; s.appendChild(n1);
-    const n2 = el('text',{x:0, y:T+rh*ri+rh/2+13,'font-size':10.5,fill:tok('--ink3')});
-    n2.textContent = meta.label.replace(' / ',' / '); s.appendChild(n2);
+  bands.forEach((a,ri) => {
+    const meta = D.forecast.arcs[String(a)], b = BAND[a] || {};
+    const n1 = el('text',{x:0, y:T+rh*ri+rh/2-6,'font-size':13,fill:tok('--ink'),'font-weight':600});
+    n1.textContent = b.name || ('Band ' + a); s.appendChild(n1);
+    const n2 = el('text',{x:0, y:T+rh*ri+rh/2+9,'font-size':10.5,fill:tok('--ink3')});
+    n2.textContent = meta.dist_mi + ' mi away · ' + b.days + ' day flight'; s.appendChild(n2);
 
     days.forEach((d,ci) => {
-      const v = (sc[String(a)][d]||{}).index || 0, t = v/mx;
-      const idx = v <= 0 ? 0 : Math.min(6, Math.floor(t*6.999));
-      const c = el('rect',{x:L+cw*ci+1, y:T+rh*ri+1, width:Math.max(1,cw-2), height:Math.max(1,rh-2),
-        rx:2, fill:RAMP[idx]});
-      const o = sc[String(a)][d] || {};
+      const o = sc[String(a)][d] || {}, v = o.index || 0;
+      const idx = v <= 0 ? 0 : Math.min(6, Math.floor((v/mx)*6.999));
+      const c = el('rect',{x:L+cw*ci+1, y:T+rh*ri+1, width:Math.max(1,cw-2), height:Math.max(1,rh-2), rx:2, fill:RAMP[idx]});
       c.addEventListener('pointermove', e => show(e,
-        'Arc ' + a + '  ' + d + '\npush index  ' + v.toFixed(1) +
-        '\nraw ' + (o.raw!=null?o.raw.toFixed(1):'-') + '  × gate ' + (o.gate!=null?o.gate.toFixed(2):'-') +
-        '  × res ' + (o.reservoir!=null?o.reservoir.toFixed(2):'-')));
+        (b.name || 'Band '+a) + '  ' + nice(d) + '\n' +
+        (v < 2 ? 'quiet — nothing pushing' : strength(v) + ' out of here') +
+        (o.obs ? '\n\nwind pushing south ' + Math.round(o.obs.push_mph) + ' mph' +
+                 '\ntemp drop ' + Math.round(o.obs.temp_drop) + '°F' : '')));
       c.addEventListener('pointerleave', hide); s.appendChild(c);
     });
   });
   days.forEach((d,ci) => { if (ci % 2) return;
     const t = el('text',{x:L+cw*ci+cw/2, y:H-20,'text-anchor':'middle','font-size':10,fill:tok('--ink3')});
     t.textContent = md(d); s.appendChild(t); });
-  const lg = document.getElementById('heatLeg');
-  lg.innerHTML = '<span style="gap:3px">' + RAMP.map(c =>
-    '<i style="background:' + c + ';width:22px;border-radius:1px"></i>').join('') + '</span>' +
-    '<span>0 → ' + mx.toFixed(0) + ' push index</span>';
+  document.getElementById('heatLeg').innerHTML =
+    '<span style="gap:3px">' + RAMP.map(c => '<i style="background:' + c + ';width:22px;border-radius:1px"></i>').join('') + '</span>' +
+    '<span style="color:var(--ink3)">quiet &rarr; hard push</span>';
 })();
 
 /* ---------- fronts ---------- */
 (function(){
   const t = document.getElementById('fronts');
-  t.innerHTML = '<thead><tr><th>Front</th><th>Arcs swept</th><th>Speed</th>' +
-    '<th>Reaches Dallas</th><th>Passages</th></tr></thead><tbody>' +
-    D.forecast.fronts.map(f => '<tr>' +
-      '<td class="n">#' + f.id + '</td>' +
-      '<td>' + f.arcs.map(a => '<span class="chip">arc ' + a + '</span>').join(' ') + '</td>' +
-      '<td class="n">' + (f.speed_mph ? f.speed_mph + ' mph' : '&mdash;') + '</td>' +
-      '<td class="n">' + (f.reaches_home ? f.reaches_home.replace('T',' ') : 'not resolvable') + '</td>' +
-      '<td class="n">' + f.passages.map(p => 'arc' + p.arc + ' ' + p.when.slice(5).replace('T',' ') +
-          '  ' + p.points_firing + '/5').join('<br>') + '</td></tr>').join('') + '</tbody>';
+  const rows = D.forecast.fronts.map(f => {
+    const where = f.arcs.map(bandName).join(' → ');
+    const eta = f.reaches_home
+      ? DOW3[new Date(f.reaches_home).getDay()] + ' ' + new Date(f.reaches_home).toISOString().slice(5,16).replace('T',' ')
+      : 'didn’t make it this far';
+    return '<tr><td>' + where + '</td>' +
+      '<td class="n">' + (f.speed_mph ? f.speed_mph + ' mph' : '—') + '</td>' +
+      '<td class="n">' + eta + '</td>' +
+      '<td class="n">' + f.passages.map(p => bandName(p.arc) + ', ' +
+          nice(p.when.slice(0,10)) + ' ' + p.when.slice(11)).join('<br>') + '</td></tr>';
+  }).join('');
+  t.innerHTML = '<thead><tr><th>Swept through</th><th>Moving at</th><th>Reaches Dallas</th>' +
+    '<th>When it crossed each one</th></tr></thead><tbody>' +
+    (rows || '<tr><td colspan="4">No fronts moving right now.</td></tr>') + '</tbody>';
 })();
 
 /* ---------- ground truth ---------- */
 (function(){
   const s = document.getElementById('birds'), W = 1000, H = 300;
-  const L = 46, R = 92, T = 22, B = 44, iw = W-L-R, ih = H-T-B;
+  const L = 42, R = 108, T = 22, B = 44, iw = W-L-R, ih = H-T-B;
   const days = Object.keys(D.ebird).sort();
   if (!days.length) return;
-  const SER = [['moudov','Mourning','--s1'], ['whwdov','White-winged','--s2'], ['eucdov','Collared (control)','--s3']];
+  const SER = [['moudov','Mourning','--s1'], ['whwdov','White-wing','--s2'], ['eucdov','Collared','--s3']];
   const mx = Math.max(1, ...days.flatMap(d => SER.map(([k]) => D.ebird[d][k] || 0)));
   const x = i => L + (days.length === 1 ? iw/2 : iw*i/(days.length-1));
   const y = v => T + ih - (v/mx)*ih;
 
   for (let i=0;i<=4;i++){ const v = mx*i/4;
     s.appendChild(el('line',{x1:L,x2:W-R,y1:y(v),y2:y(v),stroke:tok('--line2'),'stroke-width':1}));
-    s.appendChild(Object.assign(el('text',{x:L-9,y:y(v)+4,'text-anchor':'end','font-size':11,fill:tok('--ink3')}),
-      {textContent: v.toFixed(1)})); }
+    const t = el('text',{x:L-8,y:y(v)+4,'text-anchor':'end','font-size':10.5,fill:tok('--ink3')});
+    t.textContent = v.toFixed(1); s.appendChild(t); }
 
   SER.forEach(([k,name,cv]) => {
-    const c = tok(cv);
-    const pts = days.map((d,i) => [x(i), y(D.ebird[d][k] || 0)]);
+    const c = tok(cv), pts = days.map((d,i) => [x(i), y(D.ebird[d][k] || 0)]);
     s.appendChild(el('path',{d:'M' + pts.map(p => p[0].toFixed(1)+','+p[1].toFixed(1)).join('L'),
       fill:'none', stroke:c, 'stroke-width':2, 'stroke-linejoin':'round','stroke-linecap':'round'}));
-    pts.forEach(p => s.appendChild(el('circle',{cx:p[0],cy:p[1],r:3,fill:c,
-      stroke:tok('--surface'),'stroke-width':2})));
+    pts.forEach(p => s.appendChild(el('circle',{cx:p[0],cy:p[1],r:3,fill:c,stroke:tok('--surface'),'stroke-width':2})));
     const last = pts[pts.length-1];
     const lb = el('text',{x:W-R+8, y:last[1]+4,'font-size':11.5,fill:tok('--ink2')});
-    lb.textContent = name; s.appendChild(lb);
+    lb.textContent = name + (k === 'eucdov' ? ' (check)' : ''); s.appendChild(lb);
   });
 
   days.forEach((d,i) => {
@@ -380,21 +408,19 @@ document.getElementById('why').innerHTML = why;
       t.textContent = md(d); s.appendChild(t); }
     const hw = iw/Math.max(1,days.length-1);
     const hit = el('rect',{x:x(i)-hw/2, y:T, width:hw, height:ih, fill:'transparent'});
-    hit.addEventListener('pointermove', e => show(e, d + '   ' + D.ebird[d].n + ' lists, ' +
-      D.ebird[d].h.toFixed(0) + 'h\n' + SER.map(([k,n]) =>
-      n.padEnd(19) + (D.ebird[d][k] ?? 0).toFixed(2) + '/hr').join('\n')));
+    hit.addEventListener('pointermove', e => show(e, nice(d) + '   ' + D.ebird[d].n + ' birders out\n' +
+      SER.map(([k,n]) => '  ' + n.padEnd(12) + (D.ebird[d][k] ?? 0).toFixed(2) + ' per hour').join('\n')));
     hit.addEventListener('pointerleave', hide); s.appendChild(hit);
   });
   s.appendChild(el('line',{x1:L,x2:W-R,y1:T+ih,y2:T+ih,stroke:tok('--line'),'stroke-width':1}));
   document.getElementById('birdLeg').innerHTML = SER.map(([k,n,cv]) =>
-    '<span><i style="background:' + tok(cv) + '"></i>' + n + '</span>').join('') +
-    '<span style="color:var(--ink3)">birds per observer-hour, complete checklists only</span>';
+    '<span><i style="background:' + tok(cv) + '"></i>' + n + (k==='eucdov' ? ' — doesn’t migrate' : '') + '</span>').join('') +
+    '<span style="color:var(--ink3)">doves seen per hour of birdwatching</span>';
 })();
 
-/* ---------- validated numbers ---------- */
 (function(){
   const sp = D.speeds;
   document.getElementById('spdN').textContent = sp.length;
-  document.getElementById('spdMed').textContent = sp.length ? sp[Math.floor(sp.length/2)].toFixed(1) + ' mph' : '—';
+  document.getElementById('spdMed').textContent = sp.length ? sp[Math.floor(sp.length/2)].toFixed(0) + ' mph' : '—';
 })();
 </script>
