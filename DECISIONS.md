@@ -656,3 +656,26 @@ Open-Meteo's free tier is non-commercial. One hunter's private dashboard sat
 comfortably inside that; a public multi-state site is a greyer area. Founder
 chose to coarsen and stay free for now. Revisit before this carries ads,
 signups, or money. D8 flagged this risk when the sources were chosen.
+
+## D18 — Publish for TX+OK; WATCH the whole system (2026-09-13)
+Founder: no monetization intent (settles the non-commercial licensing
+question), and happy to shrink scope - "for the most part I hunt in Texas" -
+but explicitly wants the wider system still modelled, because that is where
+the reservoir lives.
+
+That distinction is exactly right and costs nothing: bands reach 155-621 mi
+north of every site regardless, so shrinking the PUBLISH set does not shrink
+the WATCH set at all. 152 TX+OK sites still drive a lattice spanning
+26.25N to 45.75N - south Texas to South Dakota.
+
+COUNTER-INTUITIVE: shrinking does NOT buy finer resolution. Texas-only at
+0.5 deg longitude costs 12,528 location-days - WORSE than the full flyway at
+1.0 deg (9,378) - because the lattice dominates: a 420-mile corridor has to
+be sampled whether one hunter reads it or three hundred do. So the saving was
+taken as headroom instead.
+
+  152 sites, 371 nodes, 6,678 location-days/morning (26% under the limit)
+  nearest-site error 10-33 mi, far inside model resolution
+
+SITE_STATES in flyway.py is the single knob; adding a state extends coverage
+and nothing else changes.
