@@ -54,4 +54,6 @@ def main():
     print(f"  peak arrival {peak['arrival']} on {peak['date']}")
 
 
-main()
+# Guarded: importing this module must never start fetching weather.
+if __name__ == "__main__":
+    main()

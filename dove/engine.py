@@ -5,7 +5,8 @@ from statistics import mean
 from .geo import arc_points, HOME, HOME_NAME
 from .weather import OpenMeteo, ensemble_members
 from .push import daily_features, score_day, Reservoir
-from .front import (arc_passage, arc_passage_from, front_speed_mph, cluster_fronts,
+from .front import (arc_passage, arc_passage_from, arc_passages_from,
+                    front_speed_mph, cluster_fronts,
                     frontal_passages, arrival_forecast_wind, ensemble_confidence)
 from .local import conditions, _summarise
 
@@ -76,9 +77,12 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
         # window only, so a correct reservoir does not bloat the payload.
         arc_series[idx] = {d: daily[d] for d in sorted(daily)[-DISPLAY_DAYS:]}
 
-        ev = (arc_passage_from(band_passages) if band_passages is not None
-              else arc_passage(hourly))
-        if ev:
+        # ALL quorum-passing passages at this band, not just the strongest -
+        # otherwise a band drops out of a front's chain whenever its biggest
+        # event belongs to a different system, and the front appears to skip
+        # a latitude, which a southward boundary cannot do.
+        pp_in = band_passages if band_passages is not None else [frontal_passages(h) for h in hourly]
+        for ev in arc_passages_from(pp_in):
             win = [(ev["when"].date() + timedelta(days=k)).isoformat() for k in (0, 1)]
             ev.update(arc=idx, dist_mi=arc["dist_mi"], north_mi=arc["north_mi"],
                       mean_lat=arc["mean_lat"], label=arc["label"],
@@ -113,8 +117,14 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
         if spd:
             hrs = (fr[-1]["mean_lat"] - home[0]) * 69.0 / spd
             eta = (fr[-1]["when"] + timedelta(hours=hrs)).isoformat(timespec="minutes")
+        chain = [e["arc"] for e in fr]
+        # A southward boundary cannot cross band 4 then band 2 without
+        # crossing band 3. If it looks like it did, that band's passage was
+        # missed - say so rather than present a physically impossible chain.
+        skipped = [b for a, c in zip(chain, chain[1:]) for b in range(c + 1, a)]
         fronts.append({
-            "id": n, "arcs": [e["arc"] for e in fr], "speed_mph": spd, "reaches_home": eta,
+            "id": n, "arcs": chain, "skipped_bands": skipped,
+            "speed_mph": spd, "reaches_home": eta,
             "passages": [{"arc": e["arc"], "when": e["when"].isoformat(timespec="minutes"),
                           "strength": e["strength"], "points_firing": e["points_firing"],
                           "index": e["index"]} for e in fr],

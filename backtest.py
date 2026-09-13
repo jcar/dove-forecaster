@@ -89,4 +89,6 @@ def main():
               + (f", median {median(spds):.1f} mph" if spds else ""))
 
 
-main()
+# Guarded: importing this module must never start fetching weather.
+if __name__ == "__main__":
+    main()
