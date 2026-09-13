@@ -165,9 +165,56 @@ def export(cache, sites, dates, out=f"{OUT}/flow.json"):
                      round(abs(fit(lats[0], lons[0])[1] - fit(lats[1], lons[0])[1]), 1)]}
     payload = {"w": MAP_W, "h": MAP_H, "dates": dates, "grid": grid,
                "mask": mask, "wind": wind, "sites": site_out,
+               "traces": traces(cache, dates),
                "fronts": [{"date": d, "n": sorted(set(v))} for d, v in sorted(fronts.items())]}
     json.dump(payload, open(out, "w"), separators=(",", ":"))
     return out, os.path.getsize(out)
+
+
+TRACE_FROM = [(42.75, "Nebraska"), (40.5, "northern Kansas"), (38.25, "southern Kansas")]
+TRACE_TO = 33.75                       # north Texas, where most users are
+
+
+def lat_mean_field(cache, dates):
+    """Wind by date and LATITUDE, averaged across the lattice's longitudes.
+
+    Legitimate at flyway scale - this is one number for a whole latitude band,
+    which is exactly what the 1-D flight model consumes. It is built from the
+    real 2D lattice, not from engine.push_field, which collapses to a single
+    row on historical dates.
+    """
+    rows = {}
+    for (la, lo), feat in cache._feat.items():
+        for d, v in feat.items():
+            if d in dates:
+                rows.setdefault(d, {}).setdefault(la, []).append(v["wind_push"])
+    return {d: {la: sum(vs) / len(vs) for la, vs in by.items()} for d, by in rows.items()}
+
+
+def traces(cache, dates, to_lat=TRACE_TO):
+    """One cohort's real journey from each of a few northern latitudes.
+
+    simulate_arrival already computes this day by day and throws it away;
+    trace= just keeps it. Shows the stalls, which is the part of the model
+    that a bar chart cannot express.
+    """
+    from dove.front import simulate_arrival
+    pf = lat_mean_field(cache, set(dates))
+    if not pf:
+        return []
+    start = sorted(pf)[0]
+    out = []
+    for lat, label in TRACE_FROM:
+        north = round((lat - to_lat) * 69.0, 2)
+        if north <= 0:
+            continue
+        tr = []
+        lead = simulate_arrival(start, north, pf, to_lat, trace=tr)
+        if tr:
+            out.append({"from": label, "from_lat": lat, "depart": start,
+                        "lead_days": round(lead, 1) if lead is not None else None,
+                        "steps": tr})
+    return out
 
 
 class DiskField:

@@ -42,7 +42,7 @@ def main():
     table = {idx: arc_daily(arc) for idx, arc in arcs.items()}
     all_dates = sorted(set().union(*[set(r) for r in table.values()]))
 
-    print(f"\n  DOVE MIGRATION FORECASTER — Push Index by arc  (Dallas, {PAST}d back / {FUTURE}d fwd)")
+    print(f"\n  DOVE MIGRATION FORECASTER — Push Index by arc  ({PAST}d back / {FUTURE}d fwd)")
     print("  " + "-" * 74)
     print(f"  {'date':<12}" + "".join(f"{'Arc'+str(i):>9}" for i in arcs) + "     notes")
     print("  " + "-" * 74)
