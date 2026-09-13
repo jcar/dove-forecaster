@@ -15,6 +15,14 @@ from .grid import LAT_STEP, LON_STEP, snap_lat
 # band fetch instead of costing a second request for every site.
 LON_STEP_LOC = LON_STEP
 
+# Where we PUBLISH forecasts. Deliberately smaller than what we WATCH:
+# every band still reaches 155-621 mi north of each site, so the upstream
+# system - fronts crossing Kansas and Nebraska, and the reservoir draining
+# across the whole flyway - is modelled exactly as before. Shrinking this set
+# only shrinks how many places can look up a forecast, and buys quota headroom.
+# Add a state here to extend coverage; nothing else changes.
+SITE_STATES = {"TX", "OK"}
+
 # Central Management Unit states. Rough bounding boxes - good enough to decide
 # whether to forecast a grid point, which is all they are used for.
 STATE_BBOX = {
@@ -62,19 +70,20 @@ def site_id(lat, lon):
     return f"r{round(lat / LAT_STEP):03d}c{round(lon / LON_STEP_LOC):+04d}"
 
 
-def catalogue():
+def catalogue(states=None):
     """Every grid point we publish a forecast for."""
-    lo_lat = min(b[0] for b in STATE_BBOX.values())
-    hi_lat = max(b[1] for b in STATE_BBOX.values())
-    lo_lon = min(b[2] for b in STATE_BBOX.values())
-    hi_lon = max(b[3] for b in STATE_BBOX.values())
+    boxes = {k: v for k, v in STATE_BBOX.items() if k in (states or SITE_STATES)}
+    lo_lat = min(b[0] for b in boxes.values())
+    hi_lat = max(b[1] for b in boxes.values())
+    lo_lon = min(b[2] for b in boxes.values())
+    hi_lon = max(b[3] for b in boxes.values())
 
     out, lat = [], snap_lat(lo_lat)
     while lat <= hi_lat:
         lon = round(round(lo_lon / LON_STEP_LOC) * LON_STEP_LOC, 4)
         while lon <= hi_lon:
             st = state_of(lat, lon)
-            if st and not _on_water(lat, lon):
+            if st in boxes and not _on_water(lat, lon):
                 out.append({"id": site_id(lat, lon), "lat": round(lat, 4),
                             "lon": round(lon, 4), "state": st})
             lon = round(lon + LON_STEP_LOC, 4)
