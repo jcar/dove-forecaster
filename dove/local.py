@@ -1,7 +1,7 @@
 """Conditions at the fields themselves — what it's doing where you stand.
 
 The arrival forecast answers WHICH MORNING. This answers what you'll walk
-into once you get there: legal light, wind, temperature, rain.
+into once you get there: sunrise, wind, temperature, rain.
 
 Wind direction is the one that changes where you stand. Doves turn into the
 wind to land, so they come at you from downwind — set up with the wind at
