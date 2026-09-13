@@ -150,6 +150,11 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
     made up. It is replaced automatically by the next real build.
   </div>
 
+  <div style="margin-top:14px;padding:12px 16px;border:1px solid var(--bird);border-radius:3px;
+       background:color-mix(in oklab, var(--bird) 10%, transparent);font-size:13.5px;line-height:1.5">
+    <b style="color:var(--bird)">Design preview.</b> Weather is simulated until the real history builds tonight.
+  </div>
+
   <div class="top">
     <div class="brand"><span class="n">Dove Arrival Watch</span>
       <span class="dim mono" style="font-size:12px">Texas &amp; Oklahoma</span></div>
@@ -238,6 +243,7 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
       <h2>The front, then the birds</h2>
       <p class="sub">Dashed line is the weather. Bars are the birds. They are not the same day.</p>
       <figure class="scroll"><svg id="arrival" viewBox="0 0 1000 340" role="img" aria-label="Front arrival versus bird arrival"></svg></figure>
+      <figure class="scroll"><svg id="strip" viewBox="0 0 1000 78" role="img" aria-label="Morning wind and temperature at your fields, by day"></svg></figure>
       <div class="leg" id="arrLeg"></div>
     </section>
     <section>
@@ -572,7 +578,16 @@ function drawSite(){
   const D=SITE, ramp=RAMP();
   const peak=D.arrival.reduce((a,b)=>b.arrival>a.arrival?b:a);
   const bandName=a=>(D.arcs[a]||{}).label||('Band '+a);
-  const fr=D.fronts.find(f=>f.reaches_home)||null;
+  // The front that matters is the one that delivered THIS peak - not simply
+  // the first in the list, which is the oldest and is usually weeks before
+  // the chart even starts.
+  const inWin=D.fronts.filter(f=>f.reaches_home &&
+    f.reaches_home.slice(0,10)>=D.arrival[0].date &&
+    f.reaches_home.slice(0,10)<=D.arrival[D.arrival.length-1].date);
+  const fr=(inWin.length
+    ? inWin.reduce((a,b)=>Math.abs(new Date(b.reaches_home)-dt(peak.date))
+                        < Math.abs(new Date(a.reaches_home)-dt(peak.date))?b:a)
+    : null);
   let bestDate=peak.date, note='';
   if(fr&&peak.arrival>=4){
     const rh=new Date(fr.reaches_home), pm=dt(peak.date); pm.setHours(8,0,0,0);
@@ -710,6 +725,46 @@ function drawSite(){
   })();
 }
 
+let STRIP=null;
+function drawStrip(){
+  /* The weather itself, day by day at the fields. Arrows point the way the
+     wind is GOING, so a front shows up as the whole row swinging to point
+     south while the temperature drops. Not a second y-axis on the bird
+     chart - a separate row, read on its own terms. */
+  const s=$('#strip'); if(!s) return; s.innerHTML='';
+  if(!STRIP||!STRIP.length||!SITE) return;
+  const rows=SITE.arrival, W=1000,L=30,R=18,iw=W-L-R;
+  const step=iw/rows.length;
+  const by={}; STRIP.forEach(r=>by[r.date]=r);
+  const temps=STRIP.map(r=>r.t).filter(v=>v!=null);
+  if(!temps.length) return;
+  const tmin=Math.min(...temps), tmax=Math.max(...temps);
+  rows.forEach(function(r,i){
+    const w=by[r.date]; const cx=L+step*i+step/2;
+    if(!w){ return; }
+    const q=(tmax===tmin)?0.5:(w.t-tmin)/(tmax-tmin);
+    // warm days sit toward the headwind colour, cool days toward the cold air
+    s.appendChild(el('rect',{x:(cx-step*0.42).toFixed(1),y:8,width:(step*0.84).toFixed(1),height:34,rx:3,
+      fill:mix(tok('--wgo'),tok('--whold'),q), opacity:0.55}));
+    const n=northish(w.d);
+    const g=el('g',{transform:'translate('+cx.toFixed(1)+',25) rotate('+((w.d+180)%360).toFixed(0)+')'});
+    g.appendChild(el('path',{d:'M0,-9 L0,7 M0,-9 L-4,-4 M0,-9 L4,-4',fill:'none',
+      stroke:n?tok('--frontln'):tok('--ink2'),'stroke-width':n?2:1.4,
+      'stroke-linecap':'round','stroke-linejoin':'round'}));
+    s.appendChild(g);
+    const tt=el('text',{x:cx,y:56,'text-anchor':'middle','font-size':11,
+      fill:n?tok('--ink'):tok('--ink2'),'font-weight':n?600:400});
+    tt.textContent=Math.round(w.t)+'\u00B0'; s.appendChild(tt);
+    const ww=el('text',{x:cx,y:70,'text-anchor':'middle','font-size':10,fill:tok('--ink3')});
+    ww.textContent=compass(w.d)+' '+Math.round(w.w); s.appendChild(ww);
+    const hit=el('rect',{x:L+step*i,y:0,width:step,height:78,fill:'transparent'});
+    hit.addEventListener('pointermove',e=>show(e,nice(r.date)+'\nmorning '+Math.round(w.t)+
+      '\u00B0, wind from '+compass(w.d)+' at '+Math.round(w.w)+' mph'+
+      (n?'\n\npost-front air':'')));
+    hit.addEventListener('pointerleave',hide); s.appendChild(hit);
+  });
+}
+
 async function loadLocal(){
   const t=$('#cond');
   t.innerHTML='<tbody><tr><td class="dim">Loading conditions at your coordinates...</td></tr></tbody>';
@@ -733,7 +788,13 @@ async function loadLocal(){
       const n=northish(w.d);
       return '<td class="w">'+w.t+'&deg; &nbsp;'+(n?'<b>':'')+compass(w.d)+' '+w.w+(w.g&&w.g>w.w+5?'g'+w.g:'')+(n?'</b>':'')+
         (w.r>=20?' <span class="dim">'+w.r+'% rain</span>':'')+'</td>';};
-    let body='';
+    let body=''; STRIP=[];
+    r.daily.time.forEach((d,k)=>{
+      const sr0=r.daily.sunrise[k]; const j=idx[sr0.slice(0,14)+'00'];
+      const mm=j!=null?win(j,j+3):null;
+      if(mm) STRIP.push({date:d,t:mm.t,w:mm.w,d:mm.d});
+    });
+    drawStrip();
     r.daily.time.slice(0,9).forEach((d,k)=>{
       const sr=r.daily.sunrise[k], ss=r.daily.sunset[k];
       const i0=idx[sr.slice(0,14)+'00'], i1=idx[ss.slice(0,14)+'00'];
@@ -746,6 +807,7 @@ async function loadLocal(){
     t.innerHTML='<thead><tr><th>Day</th><th>Sunrise</th><th>Morning<br><span class="dim">first 3 hrs</span></th>'+
       '<th>Evening<br><span class="dim">last 3 hrs</span></th><th>Sunset</th><th>Birds</th></tr></thead><tbody>'+body+'</tbody>';
   }catch(e){
+    STRIP=null; drawStrip();
     t.innerHTML='<tbody><tr><td class="dim">Conditions are unavailable right now. The forecast above still stands.</td></tr></tbody>';
   }
 }
