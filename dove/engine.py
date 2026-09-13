@@ -6,7 +6,7 @@ from .geo import arc_points, HOME, HOME_NAME
 from .weather import OpenMeteo
 from .push import daily_features, score_day, Reservoir
 from .front import (arc_passage, front_speed_mph, arrival_forecast,
-                    cluster_fronts, frontal_passages)
+                    cluster_fronts, frontal_passages, arrival_forecast_wind)
 from .local import conditions
 
 ENGINE_VERSION = "0.1.0"
@@ -39,9 +39,21 @@ def run(past=5, future=10):
         ev = arc_passage(hourly)
         if ev:
             win = [(ev["when"].date() + timedelta(days=k)).isoformat() for k in (0, 1)]
-            ev.update(arc=idx, dist_mi=arc["dist_mi"], mean_lat=arc["mean_lat"], label=arc["label"],
+            ev.update(arc=idx, dist_mi=arc["dist_mi"], north_mi=arc["north_mi"],
+                      mean_lat=arc["mean_lat"], label=arc["label"],
                       index=max(daily.get(w, {}).get("index", 0.0) for w in win))
             events.append(ev)
+
+    local_days, local_fronts, home_push = _local_safe()
+
+    # Southward wind push by day and latitude: the four bands plus the
+    # fields. This is the wind field the birds actually fly through.
+    push_field = {}
+    for idx, arc in arcs.items():
+        for d, v in arc_series[idx].items():
+            push_field.setdefault(d, {})[arc["mean_lat"]] = v.get("obs", {}).get("push_mph", 0.0)
+    for d, v in home_push.items():
+        push_field.setdefault(d, {})[HOME[0]] = v
 
     fronts = []
     for n, fr in enumerate(cluster_fronts(events), 1):
@@ -56,8 +68,6 @@ def run(past=5, future=10):
                           "strength": e["strength"], "points_firing": e["points_firing"],
                           "index": e["index"]} for e in fr],
         })
-
-    local_days, local_fronts = _local_safe()
 
     # Replace the extrapolated ETA with the DETECTED arrival at the fields.
     # Match each tracked boundary to the strongest local passage that happens
@@ -88,7 +98,7 @@ def run(past=5, future=10):
                  for i, a in arcs.items()},
         "arc_scores": {str(i): v for i, v in arc_series.items()},
         "fronts": fronts,
-        "arrival": arrival_forecast(events),
+        "arrival": arrival_forecast_wind(events, push_field, HOME[0], days_out=future),
         # Conditions at the fields themselves. Never fatal — the arrival
         # forecast is the product; this is the useful extra beside it.
         "local": local_days,
@@ -108,7 +118,8 @@ def _local_safe():
         days, hourly = conditions(HOME, want_hourly=True)
         passes = [{"when": dtm.isoformat(timespec="minutes"), "strength": sc}
                   for dtm, sc in frontal_passages(hourly)]
-        return days, passes
+        push = {d: f["wind_push"] for d, f in daily_features(hourly).items()}
+        return days, passes, push
     except Exception as e:
         print(f"  local conditions skipped ({type(e).__name__})")
-        return [], []
+        return [], [], {}

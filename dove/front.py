@@ -6,7 +6,7 @@ Two separate questions, deliberately not conflated:
 A front is equally real in January; it just has no birds behind it.
 """
 import math
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, time, date
 from statistics import mean, median
 
 from .push import southward_push
@@ -177,6 +177,86 @@ def arrival_forecast(events, days_out=10, today=None, speed=BIRD_SPEED_MI_PER_DA
             dt_d = (target - center).total_seconds() / 86400.0
             w = math.exp(-0.5 * (dt_d / sigma) ** 2)
             c = e["index"] * w
+            total += c
+            if c > 1.0:
+                parts.append((e["arc"], round(c, 1)))
+        out.append({"date": d.isoformat(), "arrival": round(total, 1),
+                    "from_arcs": sorted(parts, key=lambda x: -x[1])})
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Wind-driven arrival. See DECISIONS.md F13.
+#
+# The old model flew birds a flat 150 mi/day regardless of what the weather
+# did en route, so they could outrun a dying front. They can't: a dove rides
+# a north wind, and when it quits the bird sits down and waits for the next
+# one. We have wind at five latitudes between Nebraska and the fields, so we
+# march them south a day at a time at the speed the sky actually gives them.
+BASE_MI_PER_DAY = 25.0      # drift with no help — staging, local shuffling
+PUSH_GAIN = 13.0            # extra miles per day per mph of southward wind
+MAX_MI_PER_DAY = 260.0      # a hard day's flight on a strong tailwind
+
+
+def daily_flight_mi(push_mph):
+    return max(0.0, min(MAX_MI_PER_DAY, BASE_MI_PER_DAY + PUSH_GAIN * push_mph))
+
+
+def push_at(push_field, day_iso, lat):
+    """Southward wind push at a latitude, linearly interpolated between the
+    latitudes we actually sample (the four bands plus the fields)."""
+    row = push_field.get(day_iso)
+    if not row:
+        return 0.0
+    lats = sorted(row)
+    if lat <= lats[0]:
+        return row[lats[0]]
+    if lat >= lats[-1]:
+        return row[lats[-1]]
+    for a, b in zip(lats, lats[1:]):
+        if a <= lat <= b:
+            f = 0.0 if b == a else (lat - a) / (b - a)
+            return row[a] * (1 - f) + row[b] * f
+    return 0.0
+
+
+def simulate_arrival(depart_day, north_mi, push_field, home_lat, max_days=16):
+    """March one departure south. Returns fractional days to the fields, or
+    None if they are still in the air past the horizon."""
+    remaining, day = float(north_mi), date.fromisoformat(depart_day)
+    for n in range(1, max_days + 1):
+        day += timedelta(days=1)
+        lat = home_lat + remaining / 69.0
+        flown = daily_flight_mi(push_at(push_field, day.isoformat(), lat))
+        if flown >= remaining:
+            # land partway through the day rather than snapping to midnight
+            return n - 1 + (remaining / flown if flown else 1.0)
+        remaining -= flown
+    return None
+
+
+def arrival_forecast_wind(events, push_field, home_lat, days_out=10,
+                          today=None, spread=0.6):
+    """Superpose per-band pulses, each timed by an actual simulated flight."""
+    today = today or datetime.now().date()
+    legs = []
+    for e in events:
+        lead = simulate_arrival(e["when"].date().isoformat(), e["north_mi"],
+                                push_field, home_lat)
+        if lead is None:
+            continue          # still airborne past the horizon
+        legs.append((e, e["when"] + timedelta(days=lead), lead))
+
+    out = []
+    for k in range(days_out):
+        d = today + timedelta(days=k)
+        target = datetime.combine(d, time(ARRIVAL_HOUR))
+        total, parts = 0.0, []
+        for e, centre, lead in legs:
+            # a longer, more interrupted flight arrives more smeared out
+            sigma = spread + 0.12 * lead
+            dt_d = (target - centre).total_seconds() / 86400.0
+            c = e["index"] * math.exp(-0.5 * (dt_d / sigma) ** 2)
             total += c
             if c > 1.0:
                 parts.append((e["arc"], round(c, 1)))
