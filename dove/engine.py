@@ -1,5 +1,5 @@
 """Pipeline runner shared by the CLI and the scheduled job."""
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from statistics import mean
 
 from .geo import arc_points, HOME, HOME_NAME
@@ -16,8 +16,27 @@ WIND_HORIZON = 16      # Open-Meteo max. The flight sim needs runway beyond
                        # the 10 days we display, or birds still in the air get
                        # written off as "not coming".
 
+SEASON_START = (8, 15)   # matches the backtest window
+DISPLAY_DAYS = 20        # how much band history the dashboard actually shows
 
-def run(home=HOME, home_name=HOME_NAME, past=5, future=14, grid=None):
+
+def season_past_days(today=None):
+    """Days of history needed to replay the season's depletion.
+
+    The reservoir is the whole point: a finite northern population that
+    drains as fronts push birds out and never refills. Starting it fresh in
+    a 19-day window - which is what we were doing - measures 'was there a
+    front this week', not 'how much of the fall has already happened'. In
+    November it would report the north as untouched.
+    """
+    today = today or datetime.now().date()
+    start = date(today.year, *SEASON_START)
+    if today < start:                       # pre-season: nothing has drained
+        return 5
+    return max(5, min(92, (today - start).days))
+
+
+def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None):
     """Forecast for one hunter's location.
 
     `home` is the only thing that makes this location-specific; everything
@@ -25,6 +44,7 @@ def run(home=HOME, home_name=HOME_NAME, past=5, future=14, grid=None):
     pre-fetched shared weather cache (see dove/grid.py) so a build covering
     hundreds of locations pays for the weather once rather than per location.
     """
+    past = season_past_days() if past is None else past
     arcs, events, arc_series = arc_points(home), [], {}
     for idx, arc in arcs.items():
         if grid is not None:
@@ -49,7 +69,9 @@ def run(home=HOME, home_name=HOME_NAME, past=5, future=14, grid=None):
                 "obs": {k: round(mean(s["obs"][k] for s in ss), 1) for k in ss[0]["obs"]},
             }
             res.debit(daily[d]["raw"] * daily[d]["gate"])
-        arc_series[idx] = daily
+        # Drained across the full season above; published for the display
+        # window only, so a correct reservoir does not bloat the payload.
+        arc_series[idx] = {d: daily[d] for d in sorted(daily)[-DISPLAY_DAYS:]}
 
         ev = arc_passage(hourly)
         if ev:

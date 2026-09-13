@@ -1,6 +1,25 @@
 {
  "arc_scores": {
   "1": {
+   "2026-09-08": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 4.7,
+     "sharp": 0.7,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 0.0,
+    "index": 0.0,
+    "obs": {
+     "cloud_am": 0.6,
+     "pres_rise": 2.4,
+     "push_mph": -5.9,
+     "temp_drop": -0.8
+    },
+    "raw": 5.4,
+    "reservoir": 1.0
+   },
    "2026-09-09": {
     "components": {
      "clearing": 0.0,
@@ -364,6 +383,25 @@
    }
   },
   "2": {
+   "2026-09-08": {
+    "components": {
+     "clearing": 0.1,
+     "pressure": 2.2,
+     "sharp": 0.8,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 0.032,
+    "index": 0.1,
+    "obs": {
+     "cloud_am": 11.1,
+     "pres_rise": 1.7,
+     "push_mph": -8.0,
+     "temp_drop": -2.4
+    },
+    "raw": 3.1,
+    "reservoir": 1.0
+   },
    "2026-09-09": {
     "components": {
      "clearing": 1.8,
@@ -400,7 +438,7 @@
      "temp_drop": 14.8
     },
     "raw": 15.3,
-    "reservoir": 0.997
+    "reservoir": 0.996
    },
    "2026-09-11": {
     "components": {
@@ -438,7 +476,7 @@
      "temp_drop": -2.5
     },
     "raw": 15.5,
-    "reservoir": 0.989
+    "reservoir": 0.988
    },
    "2026-09-13": {
     "components": {
@@ -495,7 +533,7 @@
      "temp_drop": 1.8
     },
     "raw": 13.2,
-    "reservoir": 0.964
+    "reservoir": 0.963
    },
    "2026-09-16": {
     "components": {
@@ -647,7 +685,7 @@
      "temp_drop": 2.9
     },
     "raw": 4.6,
-    "reservoir": 0.839
+    "reservoir": 0.838
    },
    "2026-09-24": {
     "components": {
@@ -704,7 +742,7 @@
      "temp_drop": -3.6
     },
     "raw": 2.0,
-    "reservoir": 0.805
+    "reservoir": 0.804
    },
    "2026-09-27": {
     "components": {
@@ -723,10 +761,29 @@
      "temp_drop": 5.1
     },
     "raw": 6.0,
-    "reservoir": 0.801
+    "reservoir": 0.8
    }
   },
   "3": {
+   "2026-09-08": {
+    "components": {
+     "clearing": 2.3,
+     "pressure": 1.9,
+     "sharp": 3.0,
+     "tempdrop": 1.5,
+     "wind": 1.6
+    },
+    "gate": 0.226,
+    "index": 2.3,
+    "obs": {
+     "cloud_am": 15.5,
+     "pres_rise": 0.8,
+     "push_mph": -5.4,
+     "temp_drop": -2.8
+    },
+    "raw": 10.2,
+    "reservoir": 0.994
+   },
    "2026-09-09": {
     "components": {
      "clearing": 0.0,
@@ -736,7 +793,7 @@
      "wind": 3.2
     },
     "gate": 0.281,
-    "index": 6.0,
+    "index": 5.9,
     "obs": {
      "cloud_am": 92.9,
      "pres_rise": 2.6,
@@ -744,7 +801,7 @@
      "temp_drop": 12.8
     },
     "raw": 21.2,
-    "reservoir": 1.0
+    "reservoir": 0.988
    },
    "2026-09-10": {
     "components": {
@@ -763,7 +820,7 @@
      "temp_drop": -0.6
     },
     "raw": 3.2,
-    "reservoir": 0.985
+    "reservoir": 0.973
    },
    "2026-09-11": {
     "components": {
@@ -774,7 +831,7 @@
      "wind": 0.0
     },
     "gate": 0.392,
-    "index": 2.5,
+    "index": 2.4,
     "obs": {
      "cloud_am": 42.1,
      "pres_rise": -4.8,
@@ -782,7 +839,7 @@
      "temp_drop": -2.2
     },
     "raw": 6.4,
-    "reservoir": 0.982
+    "reservoir": 0.971
    },
    "2026-09-12": {
     "components": {
@@ -793,7 +850,7 @@
      "wind": 14.7
     },
     "gate": 0.448,
-    "index": 13.7,
+    "index": 13.5,
     "obs": {
      "cloud_am": 36.9,
      "pres_rise": 2.3,
@@ -801,7 +858,7 @@
      "temp_drop": 8.5
     },
     "raw": 31.2,
-    "reservoir": 0.976
+    "reservoir": 0.964
    },
    "2026-09-13": {
     "components": {
@@ -812,7 +869,7 @@
      "wind": 1.5
     },
     "gate": 0.503,
-    "index": 5.3,
+    "index": 5.2,
     "obs": {
      "cloud_am": 60.6,
      "pres_rise": 3.1,
@@ -820,7 +877,7 @@
      "temp_drop": 1.9
     },
     "raw": 11.2,
-    "reservoir": 0.942
+    "reservoir": 0.931
    },
    "2026-09-14": {
     "components": {
@@ -831,7 +888,7 @@
      "wind": 0.0
     },
     "gate": 0.559,
-    "index": 5.9,
+    "index": 5.8,
     "obs": {
      "cloud_am": 18.3,
      "pres_rise": -4.8,
@@ -839,7 +896,7 @@
      "temp_drop": -16.6
     },
     "raw": 11.3,
-    "reservoir": 0.929
+    "reservoir": 0.918
    },
    "2026-09-15": {
     "components": {
@@ -850,7 +907,7 @@
      "wind": 11.7
     },
     "gate": 0.614,
-    "index": 23.1,
+    "index": 22.8,
     "obs": {
      "cloud_am": 83.3,
      "pres_rise": 4.7,
@@ -858,7 +915,7 @@
      "temp_drop": 13.2
     },
     "raw": 41.1,
-    "reservoir": 0.914
+    "reservoir": 0.903
    },
    "2026-09-16": {
     "components": {
@@ -869,7 +926,7 @@
      "wind": 0.0
     },
     "gate": 0.67,
-    "index": 4.4,
+    "index": 4.3,
     "obs": {
      "cloud_am": 92.9,
      "pres_rise": 3.3,
@@ -877,7 +934,7 @@
      "temp_drop": -5.2
     },
     "raw": 7.6,
-    "reservoir": 0.857
+    "reservoir": 0.846
    },
    "2026-09-17": {
     "components": {
@@ -888,7 +945,7 @@
      "wind": 1.5
     },
     "gate": 0.726,
-    "index": 5.8,
+    "index": 5.7,
     "obs": {
      "cloud_am": 71.8,
      "pres_rise": 1.7,
@@ -896,7 +953,7 @@
      "temp_drop": 3.2
     },
     "raw": 9.5,
-    "reservoir": 0.846
+    "reservoir": 0.835
    },
    "2026-09-18": {
     "components": {
@@ -907,7 +964,7 @@
      "wind": 0.0
     },
     "gate": 0.781,
-    "index": 3.4,
+    "index": 3.3,
     "obs": {
      "cloud_am": 56.9,
      "pres_rise": -3.6,
@@ -915,7 +972,7 @@
      "temp_drop": -7.0
     },
     "raw": 5.2,
-    "reservoir": 0.831
+    "reservoir": 0.821
    },
    "2026-09-19": {
     "components": {
@@ -926,7 +983,7 @@
      "wind": 1.1
     },
     "gate": 0.837,
-    "index": 6.0,
+    "index": 5.9,
     "obs": {
      "cloud_am": 27.7,
      "pres_rise": -7.0,
@@ -934,7 +991,7 @@
      "temp_drop": 3.1
     },
     "raw": 8.7,
-    "reservoir": 0.823
+    "reservoir": 0.813
    },
    "2026-09-20": {
     "components": {
@@ -953,7 +1010,7 @@
      "temp_drop": 6.7
     },
     "raw": 7.7,
-    "reservoir": 0.808
+    "reservoir": 0.798
    },
    "2026-09-21": {
     "components": {
@@ -964,7 +1021,7 @@
      "wind": 3.1
     },
     "gate": 0.948,
-    "index": 8.6,
+    "index": 8.5,
     "obs": {
      "cloud_am": 94.8,
      "pres_rise": 2.9,
@@ -972,7 +1029,7 @@
      "temp_drop": 3.2
     },
     "raw": 11.5,
-    "reservoir": 0.794
+    "reservoir": 0.784
    },
    "2026-09-22": {
     "components": {
@@ -983,7 +1040,7 @@
      "wind": 5.3
     },
     "gate": 1.0,
-    "index": 11.3,
+    "index": 11.2,
     "obs": {
      "cloud_am": 63.2,
      "pres_rise": 2.1,
@@ -991,7 +1048,7 @@
      "temp_drop": 2.4
     },
     "raw": 14.6,
-    "reservoir": 0.772
+    "reservoir": 0.763
    },
    "2026-09-23": {
     "components": {
@@ -1002,7 +1059,7 @@
      "wind": 0.3
     },
     "gate": 1.0,
-    "index": 1.0,
+    "index": 0.9,
     "obs": {
      "cloud_am": 84.1,
      "pres_rise": -0.1,
@@ -1010,7 +1067,7 @@
      "temp_drop": -0.0
     },
     "raw": 1.3,
-    "reservoir": 0.744
+    "reservoir": 0.735
    },
    "2026-09-24": {
     "components": {
@@ -1021,7 +1078,7 @@
      "wind": 0.0
     },
     "gate": 1.0,
-    "index": 6.5,
+    "index": 6.4,
     "obs": {
      "cloud_am": 23.7,
      "pres_rise": -1.2,
@@ -1029,7 +1086,7 @@
      "temp_drop": -0.9
     },
     "raw": 8.8,
-    "reservoir": 0.742
+    "reservoir": 0.733
    },
    "2026-09-25": {
     "components": {
@@ -1048,7 +1105,7 @@
      "temp_drop": -3.0
     },
     "raw": 3.1,
-    "reservoir": 0.725
+    "reservoir": 0.716
    },
    "2026-09-26": {
     "components": {
@@ -1067,7 +1124,7 @@
      "temp_drop": -2.1
     },
     "raw": 1.2,
-    "reservoir": 0.72
+    "reservoir": 0.711
    },
    "2026-09-27": {
     "components": {
@@ -1078,7 +1135,7 @@
      "wind": 4.3
     },
     "gate": 1.0,
-    "index": 10.5,
+    "index": 10.4,
     "obs": {
      "cloud_am": 27.7,
      "pres_rise": 0.5,
@@ -1086,10 +1143,29 @@
      "temp_drop": 3.3
     },
     "raw": 14.6,
-    "reservoir": 0.717
+    "reservoir": 0.709
    }
   },
   "4": {
+   "2026-09-08": {
+    "components": {
+     "clearing": 1.2,
+     "pressure": 2.7,
+     "sharp": 3.7,
+     "tempdrop": 3.4,
+     "wind": 4.1
+    },
+    "gate": 0.419,
+    "index": 6.2,
+    "obs": {
+     "cloud_am": 69.6,
+     "pres_rise": 0.8,
+     "push_mph": 2.0,
+     "temp_drop": 1.9
+    },
+    "raw": 15.1,
+    "reservoir": 0.975
+   },
    "2026-09-09": {
     "components": {
      "clearing": 4.8,
@@ -1099,7 +1175,7 @@
      "wind": 7.8
     },
     "gate": 0.474,
-    "index": 9.4,
+    "index": 9.0,
     "obs": {
      "cloud_am": 51.7,
      "pres_rise": 2.9,
@@ -1107,7 +1183,7 @@
      "temp_drop": 2.8
     },
     "raw": 19.7,
-    "reservoir": 1.0
+    "reservoir": 0.959
    },
    "2026-09-10": {
     "components": {
@@ -1126,7 +1202,7 @@
      "temp_drop": -1.7
     },
     "raw": 3.1,
-    "reservoir": 0.977
+    "reservoir": 0.937
    },
    "2026-09-11": {
     "components": {
@@ -1137,7 +1213,7 @@
      "wind": 0.0
     },
     "gate": 0.586,
-    "index": 2.6,
+    "index": 2.5,
     "obs": {
      "cloud_am": 38.0,
      "pres_rise": -5.9,
@@ -1145,7 +1221,7 @@
      "temp_drop": -3.5
     },
     "raw": 4.5,
-    "reservoir": 0.973
+    "reservoir": 0.933
    },
    "2026-09-12": {
     "components": {
@@ -1156,7 +1232,7 @@
      "wind": 17.6
     },
     "gate": 0.641,
-    "index": 28.7,
+    "index": 27.5,
     "obs": {
      "cloud_am": 19.8,
      "pres_rise": 4.5,
@@ -1164,7 +1240,7 @@
      "temp_drop": 12.2
     },
     "raw": 46.3,
-    "reservoir": 0.966
+    "reservoir": 0.927
    },
    "2026-09-13": {
     "components": {
@@ -1175,7 +1251,7 @@
      "wind": 0.6
     },
     "gate": 0.697,
-    "index": 10.4,
+    "index": 9.9,
     "obs": {
      "cloud_am": 89.5,
      "pres_rise": 3.6,
@@ -1183,7 +1259,7 @@
      "temp_drop": 8.5
     },
     "raw": 16.6,
-    "reservoir": 0.895
+    "reservoir": 0.858
    },
    "2026-09-14": {
     "components": {
@@ -1194,7 +1270,7 @@
      "wind": 0.0
     },
     "gate": 0.752,
-    "index": 4.7,
+    "index": 4.5,
     "obs": {
      "cloud_am": 65.1,
      "pres_rise": -6.5,
@@ -1202,7 +1278,7 @@
      "temp_drop": -21.2
     },
     "raw": 7.1,
-    "reservoir": 0.869
+    "reservoir": 0.833
    },
    "2026-09-15": {
     "components": {
@@ -1213,7 +1289,7 @@
      "wind": 8.3
     },
     "gate": 0.808,
-    "index": 27.4,
+    "index": 26.3,
     "obs": {
      "cloud_am": 62.7,
      "pres_rise": 6.4,
@@ -1221,7 +1297,7 @@
      "temp_drop": 13.7
     },
     "raw": 39.6,
-    "reservoir": 0.857
+    "reservoir": 0.822
    },
    "2026-09-16": {
     "components": {
@@ -1232,7 +1308,7 @@
      "wind": 0.0
     },
     "gate": 0.863,
-    "index": 7.0,
+    "index": 6.7,
     "obs": {
      "cloud_am": 99.5,
      "pres_rise": 3.4,
@@ -1240,7 +1316,7 @@
      "temp_drop": 4.0
     },
     "raw": 10.3,
-    "reservoir": 0.789
+    "reservoir": 0.756
    },
    "2026-09-17": {
     "components": {
@@ -1251,7 +1327,7 @@
      "wind": 1.2
     },
     "gate": 0.919,
-    "index": 3.2,
+    "index": 3.1,
     "obs": {
      "cloud_am": 92.7,
      "pres_rise": 1.4,
@@ -1259,7 +1335,7 @@
      "temp_drop": -6.8
     },
     "raw": 4.6,
-    "reservoir": 0.771
+    "reservoir": 0.74
    },
    "2026-09-18": {
     "components": {
@@ -1278,7 +1354,7 @@
      "temp_drop": -1.2
     },
     "raw": 0.4,
-    "reservoir": 0.763
+    "reservoir": 0.732
    },
    "2026-09-19": {
     "components": {
@@ -1289,7 +1365,7 @@
      "wind": 3.5
     },
     "gate": 1.0,
-    "index": 6.0,
+    "index": 5.8,
     "obs": {
      "cloud_am": 78.8,
      "pres_rise": -7.3,
@@ -1297,7 +1373,7 @@
      "temp_drop": -1.8
     },
     "raw": 7.9,
-    "reservoir": 0.762
+    "reservoir": 0.731
    },
    "2026-09-20": {
     "components": {
@@ -1308,7 +1384,7 @@
      "wind": 2.2
     },
     "gate": 1.0,
-    "index": 3.8,
+    "index": 3.7,
     "obs": {
      "cloud_am": 92.4,
      "pres_rise": 0.6,
@@ -1316,7 +1392,7 @@
      "temp_drop": 4.4
     },
     "raw": 5.1,
-    "reservoir": 0.747
+    "reservoir": 0.717
    },
    "2026-09-21": {
     "components": {
@@ -1327,7 +1403,7 @@
      "wind": 5.3
     },
     "gate": 1.0,
-    "index": 10.2,
+    "index": 9.8,
     "obs": {
      "cloud_am": 82.2,
      "pres_rise": 2.9,
@@ -1335,7 +1411,7 @@
      "temp_drop": 0.4
     },
     "raw": 13.9,
-    "reservoir": 0.738
+    "reservoir": 0.707
    },
    "2026-09-22": {
     "components": {
@@ -1346,7 +1422,7 @@
      "wind": 3.3
     },
     "gate": 1.0,
-    "index": 8.8,
+    "index": 8.5,
     "obs": {
      "cloud_am": 50.2,
      "pres_rise": 1.8,
@@ -1354,7 +1430,7 @@
      "temp_drop": 3.2
     },
     "raw": 12.4,
-    "reservoir": 0.712
+    "reservoir": 0.683
    },
    "2026-09-23": {
     "components": {
@@ -1373,7 +1449,7 @@
      "temp_drop": -0.3
     },
     "raw": 1.4,
-    "reservoir": 0.69
+    "reservoir": 0.662
    },
    "2026-09-24": {
     "components": {
@@ -1384,7 +1460,7 @@
      "wind": 0.0
     },
     "gate": 1.0,
-    "index": 4.8,
+    "index": 4.6,
     "obs": {
      "cloud_am": 31.7,
      "pres_rise": -1.3,
@@ -1392,7 +1468,7 @@
      "temp_drop": -1.5
     },
     "raw": 7.1,
-    "reservoir": 0.687
+    "reservoir": 0.659
    },
    "2026-09-25": {
     "components": {
@@ -1403,7 +1479,7 @@
      "wind": 0.0
     },
     "gate": 1.0,
-    "index": 2.2,
+    "index": 2.1,
     "obs": {
      "cloud_am": 38.4,
      "pres_rise": 1.3,
@@ -1411,7 +1487,7 @@
      "temp_drop": -2.8
     },
     "raw": 3.3,
-    "reservoir": 0.675
+    "reservoir": 0.648
    },
    "2026-09-26": {
     "components": {
@@ -1422,7 +1498,7 @@
      "wind": 1.6
     },
     "gate": 1.0,
-    "index": 2.0,
+    "index": 1.9,
     "obs": {
      "cloud_am": 93.7,
      "pres_rise": 0.4,
@@ -1430,7 +1506,7 @@
      "temp_drop": 2.0
     },
     "raw": 3.0,
-    "reservoir": 0.67
+    "reservoir": 0.642
    },
    "2026-09-27": {
     "components": {
@@ -1441,7 +1517,7 @@
      "wind": 2.6
     },
     "gate": 1.0,
-    "index": 8.5,
+    "index": 8.2,
     "obs": {
      "cloud_am": 38.5,
      "pres_rise": 0.2,
@@ -1449,7 +1525,7 @@
      "temp_drop": 3.2
     },
     "raw": 12.8,
-    "reservoir": 0.665
+    "reservoir": 0.638
    }
   }
  },
@@ -1515,17 +1591,17 @@
    "from_arcs": [
     [
      4,
-     1.7
+     1.6
     ]
    ]
   },
   {
-   "arrival": 7.7,
+   "arrival": 7.6,
    "date": "2026-09-19",
    "from_arcs": [
     [
      4,
-     5.2
+     5.0
     ],
     [
      3,
@@ -1534,144 +1610,124 @@
    ]
   },
   {
-   "arrival": 18.5,
+   "arrival": 18.3,
    "date": "2026-09-20",
    "from_arcs": [
     [
      4,
-     11.9
+     11.4
     ],
     [
      3,
-     5.3
-    ]
-   ]
-  },
-  {
-   "arrival": 34.2,
-   "date": "2026-09-21",
-   "from_arcs": [
-    [
-     4,
-     20.9
-    ],
-    [
-     3,
-     9.6
+     5.2
     ],
     [
      2,
-     2.4
-    ],
-    [
-     1,
      1.4
     ]
    ]
   },
   {
-   "arrival": 48.1,
+   "arrival": 33.5,
+   "date": "2026-09-21",
+   "from_arcs": [
+    [
+     4,
+     20.0
+    ],
+    [
+     3,
+     9.4
+    ],
+    [
+     2,
+     3.5
+    ]
+   ]
+  },
+  {
+   "arrival": 45.9,
    "date": "2026-09-22",
    "from_arcs": [
     [
      4,
-     27.7
+     26.5
     ],
     [
      3,
-     13.0
+     12.8
     ],
     [
      2,
-     4.8
-    ],
-    [
-     1,
-     2.6
+     5.8
     ]
    ]
   },
   {
-   "arrival": 50.6,
+   "arrival": 47.0,
    "date": "2026-09-23",
    "from_arcs": [
     [
      4,
-     27.8
+     26.6
     ],
     [
      3,
-     13.4
+     13.2
     ],
     [
      2,
-     6.4
-    ],
-    [
-     1,
-     3.1
+     6.3
     ]
    ]
   },
   {
-   "arrival": 39.3,
+   "arrival": 35.6,
    "date": "2026-09-24",
    "from_arcs": [
     [
      4,
-     21.1
+     20.2
     ],
     [
      3,
-     10.4
+     10.2
     ],
     [
      2,
-     5.5
-    ],
-    [
-     1,
-     2.3
+     4.4
     ]
    ]
   },
   {
-   "arrival": 22.4,
+   "arrival": 20.1,
    "date": "2026-09-25",
    "from_arcs": [
     [
      4,
-     12.1
+     11.6
     ],
     [
      3,
-     6.1
+     6.0
     ],
     [
      2,
-     3.0
-    ],
-    [
-     1,
-     1.1
+     2.0
     ]
    ]
   },
   {
-   "arrival": 9.4,
+   "arrival": 8.5,
    "date": "2026-09-26",
    "from_arcs": [
     [
      4,
-     5.3
+     5.1
     ],
     [
      3,
      2.7
-    ],
-    [
-     2,
-     1.1
     ]
    ]
   }
@@ -1679,10 +1735,11 @@
  "engine_version": "0.1.0",
  "fronts": [
   {
-   "actual_speed_mph": 5.1,
+   "actual_speed_mph": 2.1,
    "arcs": [
     4,
-    3
+    3,
+    1
    ],
    "confidence": {
     "agreeing": 31,
@@ -1692,66 +1749,65 @@
     "p90": "2026-09-16T21:00",
     "spread_h": 23
    },
-   "eta_extrapolated": "2026-09-12T17:00",
+   "eta_extrapolated": "2026-09-13T06:34",
    "id": 1,
    "passages": [
     {
      "arc": 4,
-     "index": 28.7,
+     "index": 27.5,
      "points_firing": 9,
      "strength": 42.6,
      "when": "2026-09-12T01:00"
     },
     {
      "arc": 3,
-     "index": 13.7,
+     "index": 13.5,
      "points_firing": 9,
      "strength": 37.6,
      "when": "2026-09-12T05:00"
+    },
+    {
+     "arc": 1,
+     "index": 0.9,
+     "points_firing": 9,
+     "strength": 23.4,
+     "when": "2026-09-12T23:00"
     }
    ],
    "reaches_home": "2026-09-15T21:00",
    "reaches_home_source": "detected",
-   "speed_mph": 37.5
+   "speed_mph": 19.8
   },
   {
-   "actual_speed_mph": 1.2,
+   "actual_speed_mph": 21.4,
    "arcs": [
-    2,
-    1
+    2
    ],
    "confidence": {
     "agreeing": 31,
-    "median": "2026-09-20T20:00",
+    "median": "2026-09-16T00:00",
     "members": 31,
-    "p10": "2026-09-19T21:00",
-    "p90": "2026-09-21T23:00",
-    "spread_h": 40
+    "p10": "2026-09-15T02:00",
+    "p90": "2026-09-16T21:00",
+    "spread_h": 23
    },
-   "eta_extrapolated": "2026-09-16T00:00",
+   "eta_extrapolated": null,
    "id": 2,
    "passages": [
     {
      "arc": 2,
      "index": 6.4,
      "points_firing": 9,
-     "strength": 28.6,
-     "when": "2026-09-15T18:00"
-    },
-    {
-     "arc": 1,
-     "index": 3.1,
-     "points_firing": 9,
-     "strength": 23.0,
-     "when": "2026-09-15T21:00"
+     "strength": 30.7,
+     "when": "2026-09-15T07:00"
     }
    ],
-   "reaches_home": "2026-09-20T23:00",
+   "reaches_home": "2026-09-15T21:00",
    "reaches_home_source": "detected",
-   "speed_mph": 50.0
+   "speed_mph": null
   }
  ],
- "generated_at": "2026-09-13T09:57:21-05:00",
+ "generated_at": "2026-09-13T10:01:26-05:00",
  "home": {
   "lat": 33.391,
   "lon": -96.579,
