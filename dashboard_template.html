@@ -97,6 +97,11 @@ th{
 td{padding:11px 14px 11px 0; border-bottom:1px solid var(--line2); vertical-align:top}
 td.n{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; white-space:nowrap}
 tr:last-child td{border-bottom:none}
+td.w{font-family:"IBM Plex Mono",monospace; white-space:nowrap}
+td.w b{color:var(--ink); font-weight:600}
+.dim{color:var(--ink3)}
+tr.best td{background:var(--raise)}
+tr.best td:first-child{box-shadow:inset 3px 0 0 var(--barPeak)}
 
 .ledger{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:0 34px; margin-top:4px}
 .ledger ul{list-style:none; margin:0; padding:0}
@@ -129,7 +134,7 @@ foot{display:block; margin-top:42px; padding-top:18px; border-top:1px solid var(
   </div>
 
   <div class="verdict">
-    <div><div class="k">Best morning</div><div class="v mono" id="vDay">&mdash;</div></div>
+    <div><div class="k">Go this morning</div><div class="v mono" id="vDay">&mdash;</div></div>
     <div><div class="k">How many</div><div class="v mono" id="vStr">&mdash;</div></div>
     <div><div class="k">Coming from</div><div class="v mono" id="vFrom">&mdash;</div></div>
     <div><div class="k">Days of notice</div><div class="v mono" id="vLead">&mdash;</div></div>
@@ -151,6 +156,16 @@ foot{display:block; margin-top:42px; padding-top:18px; border-top:1px solid var(
        The birds it kicked loose are still in the air. They land a day or two later. Don't confuse the two.</p>
     <figure class="scroll"><svg id="arrival" viewBox="0 0 1000 340" role="img" aria-label="When the front arrives versus when the birds arrive"></svg></figure>
     <div class="leg" id="arrLeg"></div>
+  </section>
+
+  <section>
+    <h2>Day by day at your fields</h2>
+    <p class="sub">What it's actually doing where you'll be standing. <b>North wind is shown in bold</b> &mdash;
+       that's post-front air, and it's what you want. Doves turn into the wind to land, so set up with it at
+       your back and they work toward you instead of flaring off behind you.</p>
+    <div class="scroll"><table id="cond"></table></div>
+    <p class="sub" style="margin-top:12px">Shooting hours shown are Texas dove &mdash; a half hour before sunrise to sunset.
+       Regulations change every year; confirm against the current TPWD Outdoor Annual before you rely on it.</p>
   </section>
 
   <section>
@@ -261,23 +276,37 @@ document.getElementById('gen').textContent = 'Last updated ' + stamp + '.';
 const peak = D.forecast.arrival.reduce((a,b) => b.arrival > a.arrival ? b : a);
 const today = new Date(); today.setHours(0,0,0,0);
 const lead = Math.round((dt(peak.date) - today) / 86400000);
-const fr1 = D.forecast.fronts.find(f => f.speed_mph) || null;
+const fr1 = D.forecast.fronts.find(f => f.reaches_home) || null;
 const froms = peak.from_arcs.slice(0,2).map(a => bandName(a[0]));
+const locBy = {}; (D.forecast.local || []).forEach(r => locBy[r.date] = r);
+
+/* The biggest bar is not automatically the best morning. If the front does
+   not clear until after that morning, you would be hunting the warm sector -
+   the morning AFTER is cooler and behind the wind shift. Say so rather than
+   quietly pointing at the tallest bar. */
+let bestDate = peak.date, afterNote = '';
+if (fr1 && fr1.reaches_home && peak.arrival >= 4) {
+  const rh = new Date(fr1.reaches_home);
+  const peakMorning = new Date(dt(peak.date).getTime()); peakMorning.setHours(8,0,0,0);
+  if (rh > peakMorning) {
+    const nxt = D.forecast.arrival.find(r => dt(r.date) > dt(peak.date) && r.arrival >= peak.arrival * 0.6);
+    const a = locBy[peak.date] && locBy[peak.date].morning;
+    const b = nxt && locBy[nxt.date] && locBy[nxt.date].morning;
+    if (nxt && a && b && b.temp_f < a.temp_f - 4) {
+      bestDate = nxt.date;
+      afterNote = ' Note the front does not clear until ' + DOW[rh.getDay()] +
+        ' evening, so ' + DOW[dt(peak.date).getDay()] + ' morning is still ' + a.temp_f +
+        '\u00B0 and muggy. ' + DOW[dt(nxt.date).getDay()] + ' morning is ' + b.temp_f +
+        '\u00B0 behind a ' + b.wind_from + ' wind, with nearly as many birds.';
+    }
+  }
+}
 
 if (peak.arrival >= 4) {
   document.getElementById('headline').textContent =
     'Birds should hit your fields ' + DOW[dt(peak.date).getDay()] + ' morning';
-  let p = 'That’s ' + nice(peak.date) + '. Most of them are coming out of ' +
-    (froms.length > 1 ? froms[0] + ' and ' + froms[1] : froms[0]) + '.';
-  if (fr1 && fr1.reaches_home) {
-    const rh = new Date(fr1.reaches_home);
-    const gap = Math.round((dt(peak.date) - rh) / 86400000);
-    const hh = rh.getHours();
-    const when = hh < 5 ? ' before dawn' : hh < 11 ? ' morning' : hh < 17 ? ' afternoon' : ' evening';
-    p += ' A cold front cleared them out, and it reaches your fields ' + DOW[rh.getDay()] + when +
-         ' — but the birds are slower than the weather, so give it ' +
-         (gap > 0 ? 'about ' + gap + ' more day' + (gap > 1 ? 's' : '') : 'a bit') + ' after the wind turns.';
-  }
+  let p = 'That\u2019s ' + nice(peak.date) + '. Most of them are coming out of ' +
+    (froms.length > 1 ? froms[0] + ' and ' + froms[1] : froms[0]) + '.' + afterNote;
   document.getElementById('plain').textContent = p;
 } else {
   document.getElementById('headline').textContent = 'No new birds headed your way yet';
@@ -285,7 +314,7 @@ if (peak.arrival >= 4) {
     'Nothing is pushing doves south right now. Whatever is on your fields is what was already there. ' +
     'Check back after the next cold front.';
 }
-document.getElementById('vDay').textContent  = peak.arrival >= 4 ? DOW3[dt(peak.date).getDay()] + ' ' + nice(peak.date) : '—';
+document.getElementById('vDay').textContent  = peak.arrival >= 4 ? DOW3[dt(bestDate).getDay()] + ' ' + nice(bestDate) : '—';
 document.getElementById('vStr').textContent  = strength(peak.arrival);
 document.getElementById('vFrom').textContent = peak.arrival >= 4 ? (froms[0] || '—') : '—';
 document.getElementById('vLead').textContent = peak.arrival >= 4 ? (lead <= 0 ? 'today' : lead + ' day' + (lead>1?'s':'')) : '—';
@@ -406,6 +435,36 @@ document.getElementById('vLead').textContent = peak.arrival >= 4 ? (lead <= 0 ? 
     '<span style="color:var(--ink3)">quiet &rarr; hard push</span>';
 })();
 
+/* ---------- day by day at the fields ---------- */
+(function(){
+  const t = document.getElementById('cond');
+  const loc = D.forecast.local || [];
+  if (!loc.length){ t.innerHTML = '<tbody><tr><td>Local conditions unavailable.</td></tr></tbody>'; return; }
+  const arr = {}; D.forecast.arrival.forEach(r => arr[r.date] = r.arrival);
+
+  /* A northerly component means post-frontal air. Worth calling out. */
+  const northish = d => d !== null && (d >= 300 || d <= 60);
+  const cell = w => {
+    if (!w) return '<td class="w dim">&mdash;</td>';
+    const n = northish(w.wind_dir);
+    const wind = (n ? '<b>' : '') + w.wind_from + ' ' + w.wind_mph +
+      (w.gust_mph && w.gust_mph > w.wind_mph + 5 ? 'g' + w.gust_mph : '') + (n ? '</b>' : '');
+    return '<td class="w">' + w.temp_f + '&deg; &nbsp;' + wind +
+      (w.rain_pct >= 20 ? ' <span class="dim">' + w.rain_pct + '% rain</span>' : '') + '</td>';
+  };
+
+  t.innerHTML = '<thead><tr><th>Day</th><th>Legal light</th><th>Morning<br><span class="dim">first 3 hrs</span></th>' +
+    '<th>Evening<br><span class="dim">last 3 hrs</span></th><th>Sunset</th><th>Birds</th></tr></thead><tbody>' +
+    loc.slice(0,9).map(r => {
+      const v = arr[r.date] ?? 0, best = r.date === peak.date && v >= 4;
+      return '<tr' + (best ? ' class="best"' : '') + '>' +
+        '<td><b>' + DOW3[dt(r.date).getDay()] + '</b> <span class="dim">' + md(r.date) + '</span></td>' +
+        '<td class="w">' + r.legal_start + '</td>' + cell(r.morning) + cell(r.evening) +
+        '<td class="w dim">' + r.sunset + '</td>' +
+        '<td>' + (v >= 4 ? strength(v) : '<span class="dim">&mdash;</span>') + '</td></tr>';
+    }).join('') + '</tbody>';
+})();
+
 /* ---------- fronts ---------- */
 (function(){
   const t = document.getElementById('fronts');
@@ -415,7 +474,9 @@ document.getElementById('vLead').textContent = peak.arrival >= 4 ? (lead <= 0 ? 
       ? DOW3[new Date(f.reaches_home).getDay()] + ' ' + new Date(f.reaches_home).toISOString().slice(5,16).replace('T',' ')
       : 'didn’t make it this far';
     return '<tr><td>' + where + '</td>' +
-      '<td class="n">' + (f.speed_mph ? f.speed_mph + ' mph' : '—') + '</td>' +
+      '<td class="n">' + (f.speed_mph ? f.speed_mph + ' mph' : '—') +
+        (f.actual_speed_mph ? '<br><span class="dim">slowed to ' + f.actual_speed_mph +
+         ' mph getting here</span>' : '') + '</td>' +
       '<td class="n">' + eta + '</td>' +
       '<td class="n">' + f.passages.map(p => bandName(p.arc) + ', ' +
           nice(p.when.slice(0,10)) + ' ' + p.when.slice(11)).join('<br>') + '</td></tr>';
