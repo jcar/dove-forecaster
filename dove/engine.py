@@ -59,7 +59,7 @@ def run(past=5, future=10):
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "home": {"name": HOME_NAME, "lat": HOME[0], "lon": HOME[1]},
         "engine_version": ENGINE_VERSION,
-        "arcs": {str(i): {k: a[k] for k in ("dist_mi", "label", "mean_lat", "half_angle")}
+        "arcs": {str(i): {k: a[k] for k in ("dist_mi", "north_mi", "label", "mean_lat", "half_width_mi")}
                  for i, a in arcs.items()},
         "arc_scores": {str(i): v for i, v in arc_series.items()},
         "fronts": fronts,

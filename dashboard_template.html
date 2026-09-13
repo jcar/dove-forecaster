@@ -139,7 +139,7 @@ foot{display:block; margin-top:42px; padding-top:18px; border-top:1px solid var(
     <div class="hd">How this works</div>
     <ol>
       <li>Doves don't leave on a schedule &mdash; they leave when a <b>cold front</b> pushes through and gives them a north wind to ride.</li>
-      <li>So we watch four stretches of country north of your fields: <b>central Oklahoma, southern Kansas, central Kansas, and Nebraska.</b></li>
+      <li>So we watch four stretches of country north of your fields: <b>Oklahoma, southern Kansas, northern Kansas, and Nebraska.</b> They stop at the edges of the Central Flyway &mdash; birds further east than that go down the Mississippi, not to Texas.</li>
       <li>When a front crosses one of them, the birds staged there take off with it. The farther north they were, the longer their flight &mdash; roughly <b>a day of flying per 150 miles.</b></li>
       <li>The front moves faster than the birds do. So the cool weather gets to you first, and the birds show up a day or two <b>behind</b> it. That gap is what this whole thing is for.</li>
     </ol>
@@ -181,7 +181,7 @@ foot{display:block; margin-top:42px; padding-top:18px; border-top:1px solid var(
       <div>
         <h3>Checked and working</h3>
         <ul class="ok">
-          <li>Front speeds &mdash; <span class="mono" id="spdMed"></span> typical, across <span class="mono" id="spdN"></span> fronts from 2015&ndash;2025</li>
+          <li>Front speeds &mdash; <span class="mono" id="spdMed"></span> typical, across <span class="mono" id="spdN"></span> fronts from 2015&ndash;2025. <b>Needs re-running</b> &mdash; that check used an older, sloppier map of the watch regions</li>
           <li>We find about <b>7 big continent-wide fronts</b> a season, which matches a real dove season</li>
           <li>Same answer on any machine &mdash; no randomness hiding in it</li>
         </ul>
@@ -193,6 +193,7 @@ foot{display:block; margin-top:42px; padding-top:18px; border-top:1px solid var(
           <li>How quickly birds up north run out over a season</li>
           <li>The strength numbers below aren't calibrated yet &mdash; treat them as bigger-vs-smaller, not as counts</li>
           <li>Whether any of this has ever correctly predicted a single bird</li>
+          <li>The old region shapes were biasing front speeds slow, so the eleven-year check has to be redone before those numbers mean anything</li>
         </ul>
       </div>
     </div>
@@ -229,11 +230,13 @@ const nice = s => MON[dt(s).getMonth()] + ' ' + dt(s).getDate();
 /* Plain-English names for the four watch regions, nearest to farthest. */
 /* Named from where the sample points actually land, given the anchor.
    Re-derive these if the anchor location moves. */
+/* Named from where the sample points actually land. Bands are
+   constant-latitude segments clipped to the Central Flyway. */
 const BAND = {
-  1: {name:'Central Oklahoma',  towns:'Oklahoma City · Shawnee · Muskogee', days:1},
-  2: {name:'Southern Kansas',   towns:'Wichita · Ponca City · Joplin',      days:2},
-  3: {name:'Central Kansas',    towns:'Salina · Hays · Topeka',             days:3},
-  4: {name:'Nebraska & Plains', towns:'North Platte · Norfolk · Omaha',     days:4}
+  1: {name:'Oklahoma',        towns:'Oklahoma City · Shawnee · Fort Smith',   days:1},
+  2: {name:'Southern Kansas', towns:'Dodge City · Wichita · Springfield',     days:2},
+  3: {name:'Northern Kansas', towns:'Norton · Marysville · north Missouri',   days:3},
+  4: {name:'Nebraska & Iowa', towns:'Valentine · Norfolk · Waterloo',         days:4}
 };
 const bandName = a => (BAND[a] || {name:'Band ' + a}).name;
 
@@ -338,7 +341,7 @@ document.getElementById('vLead').textContent = peak.arrival >= 4 ? (lead <= 0 ? 
     const n1 = el('text',{x:0, y:T+rh*ri+rh/2-6,'font-size':13,fill:tok('--ink'),'font-weight':600});
     n1.textContent = b.name || ('Band ' + a); s.appendChild(n1);
     const n2 = el('text',{x:0, y:T+rh*ri+rh/2+9,'font-size':10.5,fill:tok('--ink3')});
-    n2.textContent = meta.dist_mi + ' mi away · ' + b.days + ' day flight'; s.appendChild(n2);
+    n2.textContent = (meta.north_mi || meta.dist_mi) + ' mi north · ' + b.days + ' day flight'; s.appendChild(n2);
 
     days.forEach((d,ci) => {
       const o = sc[String(a)][d] || {}, v = o.index || 0;
