@@ -12,7 +12,7 @@
   --s1:#3987e5; --s2:#d95926; --s3:#199e70;
   --r0:#1a2130; --r1:#123055; --r2:#184f95; --r3:#256abf; --r4:#3987e5; --r5:#6da7ec; --r6:#9ec5f4;
   --bar:#3987e5; --barPeak:#d9a441;
-  --wcold:#6da7ec; --wmid:#222a36; --wwarm:#c2543f;
+  --wgo:#e0a93f; --wgo2:#ffe6a8; --whold:#44597a; --wmid:#141922;
 }
 @media (prefers-color-scheme: light){
   :root:not([data-theme="dark"]){
@@ -24,7 +24,7 @@
     --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
     --r0:#e9e5d9; --r1:#cde2fb; --r2:#9ec5f4; --r3:#6da7ec; --r4:#3987e5; --r5:#256abf; --r6:#104281;
     --bar:#2a78d6; --barPeak:#8d6011;
-    --wcold:#1f5fb0; --wmid:#dcd7c7; --wwarm:#c0402f;
+    --wgo:#b8801f; --wgo2:#e8c979; --whold:#7f93b3; --wmid:#e7e3d8;
   }
 }
 :root[data-theme="light"]{
@@ -36,7 +36,7 @@
   --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
   --r0:#e9e5d9; --r1:#cde2fb; --r2:#9ec5f4; --r3:#6da7ec; --r4:#3987e5; --r5:#256abf; --r6:#104281;
   --bar:#2a78d6; --barPeak:#8d6011;
-  --wcold:#1f5fb0; --wmid:#dcd7c7; --wwarm:#c0402f;
+  --wgo:#b8801f; --wgo2:#e8c979; --whold:#7f93b3; --wmid:#e7e3d8;
 }
 *{box-sizing:border-box}
 body{margin:0; background:var(--ground); color:var(--ink);
@@ -91,6 +91,9 @@ svg text{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-num
 #play{min-width:82px}
 .flyrow{display:flex; gap:22px; align-items:flex-start; flex-wrap:wrap}
 .flyrow figure{flex:1 1 340px; min-width:0}
+.flymap{position:relative; width:100%; max-width:480px; aspect-ratio:480/640; margin-inline:auto}
+.flymap canvas,.flymap svg{position:absolute; inset:0; width:100%; height:100%}
+.flymap canvas{border-radius:4px}
 .flykey{flex:0 1 260px; font-size:13px; color:var(--ink2)}
 .flykey h4{margin:0 0 6px; font-size:10.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink3); font-weight:600}
 .flykey p{margin:0 0 14px}
@@ -146,9 +149,9 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
   <div style="margin-top:22px;padding:14px 18px;border:1px solid var(--wheat);border-radius:3px;
        background:color-mix(in oklab, var(--wheat) 9%, transparent);font-size:13.5px;line-height:1.5">
     <b style="color:var(--wheat)">Design preview &mdash; partial data.</b>
-    65 south Texas locations and <b>2 days</b> of wind, because the weather quota ran out mid-build.
-    The real version covers 152 locations with ~30 days of movement and builds tonight &mdash; the
-    animation will actually sweep, and the flight lines will show the days birds sit down.
+    65 south Texas locations and only <b>2 days</b> of wind, so the animation barely moves.
+    The real build tonight has 152 locations and ~30 days &mdash; the field will actually drift south.
+    Judge the look and feel here, not the motion.
   </div>
 
   <div class="finder" id="finder">
@@ -169,7 +172,7 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
       <p class="sub">Cold fronts sweep south down the plains. Birds leave when one reaches them, ride the
          north wind while it holds, and sit down when it quits. Press play and watch it happen.</p>
       <div class="flyrow">
-        <figure><svg id="fly" viewBox="0 0 480 640" role="img" aria-label="Wind and expected dove arrivals across the Central Flyway, animated by day"></svg></figure>
+        <figure><div class="flymap"><canvas id="wind" width="480" height="640"></canvas><svg id="fly" viewBox="0 0 480 640" role="img" aria-label="Wind and expected dove arrivals across the Central Flyway, animated by day"></svg></div></figure>
         <div class="flykey">
           <h4>Background &mdash; the wind</h4>
           <p>Measured southward push, on a real grid from south Texas to the Canadian line.
@@ -352,7 +355,7 @@ async function selectSite(id,name,lat,lon){
    drawn AT those locations. Nothing is drawn in between, because the flight
    model has no east-west coordinate for a bird in transit. */
 let FLOW=null, GEO=null, FRAME=0, PLAYING=false, RAF=null, LAST=0;
-const MS_PER_DAY_FRAME=125;                 // ~8 fps: a daily field, so a sweep reads better than a blur
+const MS_PER_DAY=900;                       // ms of wall clock per day of weather
 const REDUCED=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function mix(a,b,t){                         // linear RGB blend between two hex colours
@@ -362,11 +365,65 @@ function mix(a,b,t){                         // linear RGB blend between two hex
   const A=p(a),B=p(b);
   return 'rgb('+A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(',')+')';
 }
-function windColour(v){                      // diverging: zero is the neutral midpoint
+function windColour(v){
+  /* Not weather-map red/blue. The story is whether birds can MOVE, so the
+     palette carries that: a tailwind glows, a headwind recedes into a cold
+     shadow, and calm air disappears into the page entirely. Both directions
+     are still encoded — the emphasis is chosen, the information is not. */
   if(v==null) return null;
-  const mid=tok('--wmid');
-  if(v>=0) return mix(mid, tok('--wcold'), Math.min(1, v/18));
-  return mix(mid, tok('--wwarm'), Math.min(1, -v/12));
+  if(v>=0){
+    const t=Math.min(1,v/18);
+    return {c:mix(tok('--wgo'),tok('--wgo2'),Math.max(0,(t-0.55)/0.45)), a:Math.min(0.92,t*1.25)};
+  }
+  return {c:tok('--whold'), a:Math.min(0.5,(-v/14)*0.5)};
+}
+
+/* One tiny sprite, drawn tinted per node. Cheaper than building 405 radial
+   gradients every frame, and the soft falloff is what turns a grid of cells
+   into weather. */
+let SPRITE=null;
+function sprite(){
+  if(SPRITE) return SPRITE;
+  const n=64, c=document.createElement('canvas'); c.width=c.height=n;
+  const x=c.getContext('2d'), g=x.createRadialGradient(n/2,n/2,0,n/2,n/2,n/2);
+  g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(0.45,'rgba(255,255,255,0.55)');
+  g.addColorStop(1,'rgba(255,255,255,0)');
+  x.fillStyle=g; x.fillRect(0,0,n,n);
+  SPRITE=c; return c;
+}
+
+const TINTS=new Map();
+function tinted(colour){
+  /* Tinted sprites are cached by colour. Allocating a canvas per node per
+     frame is 405 allocations at 60fps and will jank a phone. */
+  let c=TINTS.get(colour);
+  if(c) return c;
+  const sp=sprite();
+  c=document.createElement('canvas'); c.width=c.height=sp.width;
+  const o=c.getContext('2d');
+  o.drawImage(sp,0,0); o.globalCompositeOperation='source-in';
+  o.fillStyle=colour; o.fillRect(0,0,c.width,c.height);
+  TINTS.set(colour,c); return c;
+}
+
+function paintWind(frac){
+  const cv=$('#wind'); if(!cv||!FLOW) return;
+  const x=cv.getContext('2d');
+  x.clearRect(0,0,cv.width,cv.height);
+  const i0=Math.floor(frac), i1=Math.min(FLOW.dates.length-1,i0+1), t=frac-i0;
+  const a=FLOW.wind[i0], b=FLOW.wind[i1];
+  const [cw,ch]=FLOW.grid.cell, r=Math.max(cw,ch)*1.45;
+  const sp=sprite();
+  x.globalCompositeOperation='lighter';
+  FLOW.grid.xy.forEach(function(p,k){
+    const va=a[k], vb=b[k];
+    if(va==null&&vb==null) return;                 // a gap stays a gap, never calm
+    const v=(va==null?vb:vb==null?va:va+(vb-va)*t);
+    const col=windColour(v); if(!col||col.a<0.02) return;
+    x.globalAlpha=col.a;
+    x.drawImage(tinted(col.c),p[0]-r,p[1]-r,r*2,r*2);
+  });
+  x.globalAlpha=1; x.globalCompositeOperation='source-over';
 }
 
 async function loadFlow(){
@@ -380,129 +437,89 @@ async function loadFlow(){
   const today=new Date().toISOString().slice(0,10);
   const i=Math.max(0, FLOW.dates.findIndex(d=>d>=today));
   $('#scrub').max=FLOW.dates.length-1;
+  if(REDUCED()) $('#play').innerHTML='&#9654; Step a day';
   setFrame(i<0?FLOW.dates.length-1:i);
   drawFlights();
-  $('#windScale').innerHTML=[-12,-8,-4,0,5,10,15,18].map(v=>
-    '<i style="background:'+windColour(v)+'"></i>').join('');
+  $('#windScale').innerHTML=[-12,-8,-4,-1,3,7,11,15,18].map(function(v){
+    const c=windColour(v);
+    return '<i style="background:'+c.c+';opacity:'+Math.max(0.06,c.a).toFixed(2)+'"></i>';}).join('');
 }
 
-let CELLS=[], DOTS=[], RINGS=null;
+let DOTS=[], HALOS=[], RINGS=null;
 function buildFly(){
   const s=$('#fly'); if(!s||!FLOW) return;
   if(RAF){cancelAnimationFrame(RAF); RAF=null;}
-  s.innerHTML=''; CELLS=[]; DOTS=[];
-  s.setAttribute('viewBox', '0 0 '+FLOW.w+' '+FLOW.h);
-  const [cw,ch]=FLOW.grid.cell;
+  s.innerHTML=''; DOTS=[]; HALOS=[]; TINTS.clear();
+  s.setAttribute('viewBox','0 0 '+FLOW.w+' '+FLOW.h);
 
-  const gWind=el('g',{}); s.appendChild(gWind);
-  FLOW.grid.xy.forEach(function(p){
-    const r=el('rect',{x:(p[0]-cw/2).toFixed(1),y:(p[1]-ch/2).toFixed(1),
-      width:cw.toFixed(1),height:ch.toFixed(1),fill:'none'});
-    gWind.appendChild(r); CELLS.push(r);
-  });
-
-  if(GEO){                                   // state outlines, projected at build time
-    const gGeo=el('g',{}); s.appendChild(gGeo);
+  if(GEO){
+    const g=el('g',{}); s.appendChild(g);
     Object.values(GEO.paths).forEach(function(d){
-      gGeo.appendChild(el('path',{d:d,fill:'none',stroke:tok('--ink3'),
-        'stroke-width':0.7,'stroke-linejoin':'round','vector-effect':'non-scaling-stroke',opacity:0.55}));
+      g.appendChild(el('path',{d:d,fill:tok('--ink'),opacity:0.045}));          // faint land
+      g.appendChild(el('path',{d:d,fill:'none',stroke:tok('--ink2'),
+        'stroke-width':0.5,'stroke-linejoin':'round',opacity:0.35}));
     });
   }
-
   RINGS=el('g',{}); s.appendChild(RINGS);
 
-  const gDot=el('g',{}); s.appendChild(gDot);
+  const gd=el('g',{}); s.appendChild(gd);
   FLOW.sites.forEach(function(st){
-    const c=el('circle',{cx:st.xy[0],cy:st.xy[1],r:2,fill:'none',
-      stroke:tok('--ground'),'stroke-width':0.8});
+    const h=el('circle',{cx:st.xy[0],cy:st.xy[1],r:0,fill:tok('--wgo2'),opacity:0});
+    gd.appendChild(h); HALOS.push(h);
+    const c=el('circle',{cx:st.xy[0],cy:st.xy[1],r:1.6,fill:tok('--ink3'),opacity:0.4});
     c.style.cursor='pointer';
     c.addEventListener('click',()=>selectSite(st.id,null,null,null));
     c.addEventListener('pointermove',e=>show(e,
-      nice(FLOW.dates[FRAME])+'\n'+strength(st.a[FRAME])+'\nexpected arrivals here'));
+      nice(FLOW.dates[Math.round(FRAME)])+'\n'+strength(st.a[Math.round(FRAME)])+'\nexpected arrivals here'));
     c.addEventListener('pointerleave',hide);
-    gDot.appendChild(c); DOTS.push(c);
+    gd.appendChild(c); DOTS.push(c);
   });
 }
 
-function setFrame(i){
+function setFrame(f){
   if(!FLOW) return;
-  FRAME=Math.max(0,Math.min(FLOW.dates.length-1,i));
-  const d=FLOW.dates[FRAME], w=FLOW.wind[FRAME], ramp=RAMP();
-  CELLS.forEach(function(r,k){
-    const c=windColour(w[k]);
-    r.setAttribute('fill', c||'none');       // null stays a GAP, never calm
-    r.setAttribute('opacity', c?0.85:0);
-  });
+  FRAME=Math.max(0,Math.min(FLOW.dates.length-1,f));
+  paintWind(FRAME);
+  const i0=Math.floor(FRAME), i1=Math.min(FLOW.dates.length-1,i0+1), t=FRAME-i0;
+  const ramp=RAMP();
   const mx=Math.max(8,...FLOW.sites.map(s=>Math.max(...s.a)));
-  DOTS.forEach(function(c,k){
-    const v=FLOW.sites[k].a[FRAME]||0, t=Math.max(0,Math.min(1,v/mx));
-    c.setAttribute('r',(2+t*5).toFixed(1));
-    c.setAttribute('fill', v<1?tok('--ink3'):ramp[Math.min(6,Math.floor(t*6.999))]);
-    c.setAttribute('opacity', v<1?0.35:1);
+  FLOW.sites.forEach(function(st,k){
+    const v=(st.a[i0]||0)+((st.a[i1]||0)-(st.a[i0]||0))*t;
+    const q=Math.max(0,Math.min(1,v/mx));
+    DOTS[k].setAttribute('r',(1.6+q*3.4).toFixed(2));
+    DOTS[k].setAttribute('fill', v<1?tok('--ink3'):ramp[Math.min(6,Math.floor(q*6.999))]);
+    DOTS[k].setAttribute('opacity', v<1?0.35:1);
+    HALOS[k].setAttribute('r',(4+q*13).toFixed(2));          // bloom where birds are due
+    HALOS[k].setAttribute('opacity',(q*0.22).toFixed(3));
   });
   RINGS.innerHTML='';
-  const fr=(FLOW.fronts||[]).find(f=>f.date===d);
+  const fr=(FLOW.fronts||[]).find(x=>x.date===FLOW.dates[Math.round(FRAME)]);
   if(fr) fr.n.forEach(function(n){
     const p=FLOW.grid.xy[n];
-    RINGS.appendChild(el('circle',{cx:p[0],cy:p[1],r:5,fill:'none',
-      stroke:tok('--wheat'),'stroke-width':1.2,opacity:0.8}));
+    RINGS.appendChild(el('circle',{cx:p[0],cy:p[1],r:3.4,fill:'none',
+      stroke:tok('--wgo2'),'stroke-width':0.9,opacity:0.55}));
   });
-  $('#scrub').value=FRAME;
-  const dd=dt(d);
+  $('#scrub').value=Math.round(FRAME);
+  const d=FLOW.dates[Math.round(FRAME)], dd=dt(d);
   $('#flyDay').textContent=DOW3[dd.getDay()]+' '+nice(d);
-}
-
-/* ---------- one cohort's actual journey ----------
-   Latitude down the side, days across. A FLAT segment is a day the birds sat
-   down because the wind turned against them - the part of the model a bar
-   chart cannot express. */
-function drawFlights(){
-  const s=$('#flight'); if(!s||!FLOW) return; s.innerHTML='';
-  const tr=FLOW.traces||[];
-  if(!tr.length){ $('#flightNote').textContent=''; return; }
-  const W=1000,H=240,L=54,R=140,T=18,B=38,iw=W-L-R,ih=H-T-B;
-  const all=tr.flatMap(t=>t.steps);
-  const days=[...new Set(all.map(s=>s.date))].sort();
-  const la1=Math.max(...tr.map(t=>t.from_lat)), la0=Math.min(...all.map(s=>s.lat));
-  const X=d=>L+(days.length<2?iw/2:iw*days.indexOf(d)/(days.length-1));
-  const Y=la=>T+ih*(la1-la)/Math.max(0.001,(la1-la0));
-  [la1,(la1+la0)/2,la0].forEach(function(la){
-    s.appendChild(el('line',{x1:L,x2:W-R,y1:Y(la),y2:Y(la),stroke:tok('--line2'),'stroke-width':1}));
-    const t2=el('text',{x:L-8,y:Y(la)+4,'text-anchor':'end','font-size':10.5,fill:tok('--ink3')});
-    t2.textContent=la.toFixed(1)+'N'; s.appendChild(t2);});
-  days.forEach((d,i)=>{ if(i%3===0||i===days.length-1){
-    const t2=el('text',{x:X(d),y:H-16,'text-anchor':'middle','font-size':10,fill:tok('--ink3')});
-    t2.textContent=md(d); s.appendChild(t2);}});
-  const cols=[tok('--s1'),tok('--s2'),tok('--s3')];
-  tr.forEach(function(t2,k){
-    const c=cols[k%3];
-    const pts=[[X(t2.steps[0].date),Y(t2.from_lat)]].concat(t2.steps.map(s2=>[X(s2.date),Y(s2.lat)]));
-    s.appendChild(el('path',{d:'M'+pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join('L'),
-      fill:'none',stroke:c,'stroke-width':2.2,'stroke-linejoin':'round','stroke-linecap':'round'}));
-    t2.steps.forEach(function(s2,i){
-      if(s2.flown_mi!==0) return;                    // mark only the stalls
-      const x=X(s2.date),y=Y(s2.lat);
-      s.appendChild(el('circle',{cx:x,cy:y,r:4,fill:'none',stroke:tok('--wheat'),'stroke-width':1.6}));
-    });
-    const last=pts[pts.length-1];
-    const lb=el('text',{x:W-R+8,y:last[1]+4,'font-size':11.5,fill:tok('--ink2')});
-    lb.textContent=t2.from+(t2.lead_days?' · '+t2.lead_days+'d':' · still flying'); s.appendChild(lb);
-  });
-  const stalls=all.filter(s2=>s2.flown_mi===0).length;
-  $('#flightNote').innerHTML='One flight south from each latitude, using the wind each day actually brought. '+
-    (stalls?'<b>Ringed points are days they sat down</b> &mdash; the wind turned against them and they went nowhere. ':'')+
-    'Lines end where the birds reached north Texas, or where our wind data runs out.';
 }
 
 function tick(ts){
   if(!PLAYING) return;
-  if(ts-LAST>=MS_PER_DAY_FRAME){
-    LAST=ts;
-    setFrame(FRAME>=FLOW.dates.length-1?0:FRAME+1);
-  }
+  if(!LAST) LAST=ts;
+  const dt_=Math.min(120,ts-LAST); LAST=ts;
+  // advance FRACTIONALLY: the field is interpolated between days, so it
+  // drifts like weather instead of stepping like a slideshow
+  let f=FRAME+dt_/MS_PER_DAY;
+  if(f>=FLOW.dates.length-1) f=0;
+  setFrame(f);
   RAF=requestAnimationFrame(tick);
 }
 function setPlaying(on){
+  if(on && REDUCED()){                       // honour the OS setting: no motion,
+    setFrame(Math.min(FLOW.dates.length-1, Math.round(FRAME)+1));  // step a day instead
+    return;
+  }
   PLAYING=on; $('#play').innerHTML=on?'&#10073;&#10073; Pause':'&#9654; Play';
   if(RAF){cancelAnimationFrame(RAF); RAF=null;}
   if(on){LAST=0; RAF=requestAnimationFrame(tick);}
