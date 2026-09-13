@@ -8,7 +8,7 @@ wind to land, so they come at you from downwind — set up with the wind at
 your back and the birds work toward you instead of flaring off your back.
 """
 import math
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from .weather import OpenMeteo
 
@@ -20,10 +20,10 @@ LOCAL_HOURLY = ["temperature_2m", "wind_speed_10m", "wind_direction_10m",
                 "surface_pressure"]
 LOCAL_DAILY = ["sunrise", "sunset"]
 
-# Texas dove: one-half hour before sunrise to sunset. Regulations change
-# annually — this is surfaced as guidance, never as authority, and the page
-# says to confirm against the current TPWD Outdoor Annual.
-LEGAL_LIGHT_OFFSET_MIN = 30
+# Deliberately NO shooting-hours or season logic here. This is a bird
+# forecaster, not a regulations service: eight states, rules that change
+# every year, and being wrong is a citation for the user. Sunrise and sunset
+# are astronomy and always true; legal hours belong to the state agency.
 
 POINTS = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
           "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
@@ -79,7 +79,6 @@ def conditions(home, forecast_days=10, want_hourly=False):
         if not sr or not ss:
             continue
         sr_dt, ss_dt = datetime.fromisoformat(sr), datetime.fromisoformat(ss)
-        legal = sr_dt - timedelta(minutes=LEGAL_LIGHT_OFFSET_MIN)
 
         def hour_index(dt_):
             return index.get(dt_.replace(minute=0, second=0).isoformat(timespec="minutes"))
@@ -92,7 +91,6 @@ def conditions(home, forecast_days=10, want_hourly=False):
             "date": day,
             "sunrise": sr_dt.strftime("%H:%M"),
             "sunset": ss_dt.strftime("%H:%M"),
-            "legal_start": legal.strftime("%H:%M"),
             "morning": morning,
             "evening": evening,
         })
