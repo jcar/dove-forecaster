@@ -3,6 +3,8 @@
 Two adapters behind one interface so the live source (NWS, public domain)
 and the backtest source (ERA5 archive) can differ without the engine caring.
 """
+import time
+
 import requests
 
 HOURLY = ["temperature_2m", "wind_speed_10m", "wind_direction_10m",
@@ -55,10 +57,25 @@ class OpenMeteo(WeatherProvider):
                 params["past_days"] = past_days
             if forecast_days:
                 params["forecast_days"] = forecast_days
-        r = requests.get(url, params=params, timeout=self.timeout)
-        r.raise_for_status()
-        data = r.json()
+        data = _get_with_backoff(url, params, self.timeout)
         return data if isinstance(data, list) else [data]
+
+
+def _get_with_backoff(url, params, timeout, tries=5):
+    """Open-Meteo bills by location-days and rate-limits per minute as well as
+    per day. An unattended morning build must wait rather than die on the
+    first 429 - one throttled batch used to abort the whole run."""
+    last = None
+    for n in range(tries):
+        r = requests.get(url, params=params, timeout=timeout)
+        if r.status_code != 429:
+            r.raise_for_status()
+            return r.json()
+        last = r
+        wait = float(r.headers.get("Retry-After") or 0) or min(60.0, 5.0 * (2 ** n))
+        print(f"    rate limited, waiting {wait:.0f}s", flush=True)
+        time.sleep(wait)
+    last.raise_for_status()
 
 
 def ensemble_members(point, hourly=None, forecast_days=10, timeout=120):
