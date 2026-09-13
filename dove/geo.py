@@ -29,6 +29,13 @@ SAMPLES_PER_ARC = 9   # denser sampling across the corridor; same request count
 # -102/-92 window was one hunter's longitude baked in as if it were geography.
 CMU_W, CMU_E = -104.0, -90.0
 FLYWAY_W, FLYWAY_E = CMU_W, CMU_E      # legacy names, still imported by wave.py
+
+# A band narrower than this cannot hold independent weather. ECMWF ifs025
+# cells are 0.25 deg (~13 mi of longitude), so nine points in a 36-mile window
+# all resolve to the same 3-4 cells -- the quorum then reports "9/9 agree"
+# when it is one station counted nine times. Silent, and backwards: the
+# locations with the LEAST real data would claim the MOST agreement.
+MIN_WINDOW_MI = 115.0
 CORRIDOR_HALF_MI = 210.0        # half-width of the source corridor
 
 # (index, miles NORTH, label)
@@ -59,13 +66,19 @@ def arc_points(home=HOME, arcs=ARCS, n=SAMPLES_PER_ARC):
         lat = home[0] + north_mi / 69.0
         half_mi = min(CORRIDOR_HALF_MI, 0.7 * north_mi)
         half_deg = half_mi / (69.0 * math.cos(math.radians(lat)))
-        lo = max(home[1] - half_deg, CMU_W)
-        hi = min(home[1] + half_deg, CMU_E)
+        # Clamp the window's CENTRE into the flyway, never its edges. Clipping
+        # edges collapses (and past ~-89.8 inverts) the window for an eastern
+        # hunter. Sliding the whole corridor west keeps it full width, and is
+        # also where those birds actually come from.
+        centre = min(max(home[1], CMU_W + half_deg), CMU_E - half_deg)
+        lo, hi = centre - half_deg, centre + half_deg
         pts = [(round(lat, 4), round(lo + (hi - lo) * i / (n - 1), 4)) for i in range(n)]
         # true distance to the corridor edge, for the bird's flight time
         edge_mi = max(abs(p[1] - home[1]) for p in pts) * 69.0 * math.cos(math.radians(lat))
         mean_mi = (north_mi + math.hypot(north_mi, edge_mi)) / 2.0
+        width_mi = (hi - lo) * 69.0 * math.cos(math.radians(lat))
         out[idx] = {"dist_mi": round(mean_mi), "north_mi": north_mi, "label": label,
                     "half_width_mi": round(half_mi), "points": pts,
-                    "mean_lat": round(lat, 3)}
+                    "mean_lat": round(lat, 3), "width_mi": round(width_mi),
+                    "usable": width_mi >= MIN_WINDOW_MI}
     return out

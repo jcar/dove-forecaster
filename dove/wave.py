@@ -19,23 +19,23 @@ import os
 from collections import defaultdict
 
 from .ebird import SPECIES, _get
-from .geo import arc_points, HOME, FLYWAY_W, FLYWAY_E
 
 CACHE = "data/wave"
 RADIUS_KM = 50          # eBird's maximum for a geo query
-CIRCLES_PER_BAND = 3
 LOOKBACK_DAYS = 7       # overlap between runs, so a missed morning self-heals
+
+# ABSOLUTE coordinates, deliberately. These were once named band1_0, band2_1...
+# derived from one hunter's position — which meant that the day the anchor
+# moved, "band1_0" in an old file and a new file would be different ground and
+# the accumulated history would be silently unjoinable. The wave measures a
+# continental phenomenon; it must be pinned to the continent, not to a user.
+ROWS = [33.5, 36.0, 38.5, 41.0, 43.5]      # N Texas -> the Dakotas
+COLS = [-99.5, -96.5, -93.5]               # west / centre / east of the flyway
 
 
 def circles():
-    """Sample points: three across each band, plus the fields themselves."""
-    out = [("home", HOME[0], HOME[1])]
-    for idx, a in arc_points().items():
-        lat = a["mean_lat"]
-        for k, off in enumerate((-3.0, 0.0, 3.0)):
-            lon = min(max(HOME[1] + off, FLYWAY_W), FLYWAY_E)
-            out.append((f"band{idx}_{k}", round(lat, 4), round(lon, 4)))
-    return out
+    """Fixed lattice across the flyway, named by where it is on the ground."""
+    return [(f"r{lat}_c{lon}", lat, lon) for lat in ROWS for lon in COLS]
 
 
 def collect(back=LOOKBACK_DAYS):
