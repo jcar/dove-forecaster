@@ -431,3 +431,35 @@ Wind direction uses a CIRCULAR mean - averaging 350 and 10 arithmetically
 gives 180, due south, the exact opposite of the truth.
 North-component winds bolded on the dashboard: post-frontal air is what
 you want, and doves land into the wind, so set up with it at your back.
+
+## F13 — FIXED: birds now fly on the wind they actually get
+The flat 150 mi/day assumption let birds outrun a dying front. Replaced with
+a day-by-day march south:
+
+    daily_mi = clamp(25 + 13 * southward_push_mph, 0, 260)
+
+Each departure starts at its band's latitude and advances one day at a time.
+The tailwind is read from the wind field we already build - the four band
+latitudes plus the fields - linearly interpolated to wherever the bird has
+got to. Pulse width now scales with flight length (0.6 + 0.12*days), because
+a long interrupted flight arrives more smeared than a short clean one.
+
+Live example, Nebraska birds leaving after the Sep 14 front:
+  Sep 15  42.1N  +13.1 mph  flew 195 mi   riding the front
+  Sep 16  39.3N   +3.7 mph  flew  74 mi   front stalling
+  Sep 17  38.2N   -0.5 mph  flew  18 mi   HEADWIND - they sit down
+  Sep 18  37.9N  +10.9 mph  flew 167 mi   next push, airborne again
+  Sep 19  35.5N   +7.3 mph  flew 120 mi
+  Sep 20  33.8N   +4.1 mph  LANDS
+They stall over southern Kansas and catch the following push. That is dove
+behaviour, and the flat model could not produce it.
+
+EFFECT: peak moved Fri Sep 18 -> Sat Sep 19, and the curve spread out
+(old 20.5/57.5/52.0/11.9 -> new 6.9/32.3/46.2/27.4/8.9). The new peak also
+lands on the better morning independently: Sat is 71F behind a NNE wind,
+Fri was 80F pre-front. Two different parts of the model agreeing is weak
+evidence, but it is the first time they have.
+
+NEW GUESSES INTRODUCED (all uncalibrated, all set the arrival day):
+BASE_MI_PER_DAY 25, PUSH_GAIN 13, MAX_MI_PER_DAY 260, and the assumption
+that birds stop nearly dead on a headwind. Surfaced on the dashboard.
