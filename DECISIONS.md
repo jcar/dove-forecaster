@@ -539,3 +539,42 @@ has somewhere to go IF volume ever arrives.
 The real target is Dove Blasters' own reservation data: half a dozen
 properties, which fields filled, how hunts went. Field-level, hunter-
 observed, exactly on target. That is a relationship to build, not code.
+
+## F16 — FIXED: the reservoir never actually ran in the live forecast
+D5 claimed a finite northern population that depletes across the season and
+never refills - "first hard front of the fall >> the fourth identical one".
+It worked in the backtest (one pass over 92 days) and had NEVER worked live:
+engine.run() built a fresh Reservoir() at 1.0 on every run and drained it
+only across the ~19 day fetch window. So it measured "was there a front this
+week", not "how much of the fall has already happened". By November it would
+have reported the north as untouched and over-forecast every late front.
+
+Fix: `season_past_days()` - replay from Aug 15 each morning (Open-Meteo
+serves up to 92 past days in one request, verified). Drain across the full
+season; publish arc_scores for the last 20 days only, so a correct reservoir
+does not bloat the payload. No stored state, so it self-heals after any
+missed run.
+
+RESULT (2026-09-13), and the latitude ordering was NOT programmed in:
+  Nebraska & Iowa   0.975 -> 0.638     drains first and hardest
+  Northern Kansas   0.994 -> 0.709
+  Southern Kansas   1.000 -> 0.800
+  Oklahoma          1.000 -> 0.898     barely touched
+The gate opens earlier at northern latitudes, so northern fronts count and
+southern ones do not yet. The migration wave appears in the depletion by
+itself - an independent check that gate and reservoir compose correctly.
+
+Side effect: front speed re-measured 19.8 mph (was 37.5 on the short window),
+landing on the 19.9 historical median. Peak 50.6 -> 47.0, still Sep 23.
+
+## D16 — No hunting regulations, by decision
+Founder: "I do not want to bloat this and concern ourselves with hunting
+regulations. This is not what this app is about."
+Multi-state would have meant Texas shooting hours under a Kansas label, and
+a model recommending a morning where the season is closed. Texas alone has
+three zones. Sunrise/sunset stay (astronomy, always true); legal hours belong
+to the state agency. LEGAL_LIGHT_OFFSET_MIN deleted.
+
+## OPEN — front clustering still splits boundaries
+Today front 1 covers bands [4,3,1] and front 2 is band [2] alone. A boundary
+cannot skip a band. Known issue since the F7 gap analysis; not chased yet.
