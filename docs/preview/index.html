@@ -141,19 +141,21 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
 </style>
 
 <div class="wrap">
+  <div id="synthBanner" hidden style="margin-top:14px;padding:12px 16px;border:1px solid var(--bird);
+       border-radius:3px;background:color-mix(in oklab, var(--bird) 10%, transparent);font-size:13.5px;line-height:1.5">
+    <b style="color:var(--bird)">Simulated weather.</b>
+    Real wind history does not exist yet, so this page is running on an invented field &mdash; plausible
+    fronts marching south at real-world speeds. <b>Everything downstream is the real model</b>: the same
+    push index, front detection and flight simulation you would get from live data. Only the weather is
+    made up. It is replaced automatically by the next real build.
+  </div>
+
   <div class="top">
     <div class="brand"><span class="n">Dove Arrival Watch</span>
       <span class="dim mono" style="font-size:12px">Texas &amp; Oklahoma</span></div>
     <div class="where"><span class="cur" id="curLoc">&mdash;</span>
       <button id="change" hidden>Change location</button>
       <button id="theme" title="Light / dark">&#9681;</button></div>
-  </div>
-
-  <div style="margin-top:22px;padding:14px 18px;border:1px solid var(--wheat);border-radius:3px;
-       background:color-mix(in oklab, var(--wheat) 9%, transparent);font-size:13.5px;line-height:1.5">
-    <b style="color:var(--wheat)">Design preview &mdash; 2 days of wind only.</b>
-    The front line and the colours are final; the <b>motion</b> is not, because there is almost no
-    history cached yet. Tonight it reaches ~30 days, and a season backfill takes it to months.
   </div>
 
   <div class="finder" id="finder">
@@ -322,6 +324,7 @@ async function boot(){
   try{INDEX=await (await fetch('data/index.json')).json();}
   catch(e){$('#finderNote').textContent='Forecast data has not been published yet.';return;}
   $('#gen').textContent='Last updated '+INDEX.generated_at.replace('T',' ').slice(0,16)+'Z.';
+  if(INDEX.synthetic||(FLOW&&FLOW.synthetic)) $('#synthBanner').hidden=false;
   loadFlow(); loadBacktest(); loadBirds();
   const url=new URLSearchParams(location.search).get('loc');
   let saved=null; try{saved=JSON.parse(localStorage.getItem('dove.place')||'null')}catch(e){}
@@ -444,6 +447,7 @@ async function loadFlow(){
       fetch('data/flow.json').then(r=>r.json())]);
     GEO=g; FLOW=f;
   }catch(e){ $('#flyDay').textContent='unavailable'; return; }
+  if(FLOW.synthetic) $('#synthBanner').hidden=false;
   buildFly();
   const today=new Date().toISOString().slice(0,10);
   const i=Math.max(0, FLOW.dates.findIndex(d=>d>=today));
@@ -687,7 +691,10 @@ function drawSite(){
 
   (function(){
     const rows=D.fronts.map(f=>{
-      const where=f.arcs.map(bandName).join(' → ');
+      let where=f.arcs.map(bandName).join(' → ');
+      if(f.skipped_bands&&f.skipped_bands.length)
+        where+='<br><span class="dim">'+f.skipped_bands.map(bandName).join(', ')+
+               ' not detected &mdash; crossing assumed</span>';
       const eta=f.reaches_home?DOW3[new Date(f.reaches_home).getDay()]+' '+new Date(f.reaches_home).toISOString().slice(5,16).replace('T',' ')
         :'did not make it this far';
       const c=f.confidence;
