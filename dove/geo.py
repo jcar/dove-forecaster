@@ -20,7 +20,7 @@ LOCATIONS = {
 HOME_KEY = "doveblasters"
 HOME = LOCATIONS[HOME_KEY][:2]
 HOME_NAME = LOCATIONS[HOME_KEY][2]
-SAMPLES_PER_ARC = 5
+SAMPLES_PER_ARC = 9   # denser sampling across the corridor; same request count
 
 # Central Management Unit working bounds. Doves east of roughly the
 # Mississippi belong to the Eastern Management Unit and go down that flyway,

@@ -3,19 +3,25 @@ from datetime import datetime, timedelta
 from statistics import mean
 
 from .geo import arc_points, HOME, HOME_NAME
-from .weather import OpenMeteo
+from .weather import OpenMeteo, ensemble_members
 from .push import daily_features, score_day, Reservoir
 from .front import (arc_passage, front_speed_mph, arrival_forecast,
-                    cluster_fronts, frontal_passages, arrival_forecast_wind)
+                    cluster_fronts, frontal_passages, arrival_forecast_wind,
+                    ensemble_confidence)
 from .local import conditions
 
 ENGINE_VERSION = "0.1.0"
 
 
-def run(past=5, future=10):
+WIND_HORIZON = 16      # Open-Meteo max. The flight sim needs runway beyond
+                       # the 10 days we display, or birds still in the air get
+                       # written off as "not coming".
+
+
+def run(past=5, future=14):
     arcs, events, arc_series = arc_points(), [], {}
     for idx, arc in arcs.items():
-        series = OpenMeteo().hourly(arc["points"], past_days=past, forecast_days=future)
+        series = OpenMeteo().hourly(arc["points"], past_days=past, forecast_days=WIND_HORIZON)
         hourly = [s["hourly"] for s in series]
         pp = [daily_features(h) for h in hourly]
         dates = sorted(set.intersection(*[set(p) for p in pp]))
@@ -69,6 +75,14 @@ def run(past=5, future=10):
                           "index": e["index"]} for e in fr],
         })
 
+    try:
+        _members = ensemble_members(HOME)      # one call, reused by every front
+    except Exception as ex:
+        print(f"  ensemble skipped ({type(ex).__name__})")
+        _members = None
+
+    _arr = arrival_forecast_wind(events, push_field, HOME[0], days_out=future)
+
     # Replace the extrapolated ETA with the DETECTED arrival at the fields.
     # Match each tracked boundary to the strongest local passage that happens
     # after its last band crossing. Keep the extrapolation alongside so the
@@ -85,6 +99,8 @@ def run(past=5, future=10):
                    - datetime.fromisoformat(last)).total_seconds() / 3600.0
             north = max(a["north_mi"] for i, a in arcs.items() if i == min(f["arcs"]))
             f["actual_speed_mph"] = round(north / hrs, 1) if hrs > 0 else None
+            f["confidence"] = (ensemble_confidence(_members, datetime.fromisoformat(best["when"]))
+                               if _members else None)
         else:
             f["reaches_home"] = None
             f["reaches_home_source"] = "none detected"
@@ -98,7 +114,8 @@ def run(past=5, future=10):
                  for i, a in arcs.items()},
         "arc_scores": {str(i): v for i, v in arc_series.items()},
         "fronts": fronts,
-        "arrival": arrival_forecast_wind(events, push_field, HOME[0], days_out=future),
+        "arrival": _arr["days"],
+        "still_airborne": _arr["still_airborne"],
         # Conditions at the fields themselves. Never fatal — the arrival
         # forecast is the product; this is the useful extra beside it.
         "local": local_days,

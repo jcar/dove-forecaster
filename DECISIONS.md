@@ -463,3 +463,42 @@ evidence, but it is the first time they have.
 NEW GUESSES INTRODUCED (all uncalibrated, all set the arrival day):
 BASE_MI_PER_DAY 25, PUSH_GAIN 13, MAX_MI_PER_DAY 260, and the assumption
 that birds stop nearly dead on a headwind. Surfaced on the dashboard.
+
+## D13 — Weather precision (2026-09-13)
+1. MODEL PINNED. We were silently taking Open-Meteo's default blend. Now
+   ecmwf_ifs025 explicitly - strongest global model for frontal timing in
+   the 3-10 day window, which is the only thing this forecast rests on.
+   An unpinned blend means a forecast shift can be a model swap rather than
+   a weather change, and you cannot tell which.
+   NOTE: pinning MOVED THE ANSWER. ECMWF disagrees with the old blend about
+   when fronts cross Nebraska - band 4 went from Sep 14 23:00 to Sep 12
+   01:00. Every number produced before today came from an unknown blend.
+
+2. ENSEMBLE CONFIDENCE. 31 GFS members, frontal detector run on each.
+   Front 1: 31/31 agree, detected Sep 15 21:00, ensemble median Sep 16
+   00:00, spread 23h. Front 2: 31/31, detected Sep 20 23:00, median
+   Sep 20 20:00, spread 40h.
+   AGGREGATION TRAP (hit it first time): taking each member's STRONGEST
+   front compares unrelated weather systems between members and reported
+   an 8-day spread that was pure artefact. Must anchor on the deterministic
+   estimate and take each member's nearest passage within +/-48h.
+
+3. DENSER SAMPLING: 5 -> 9 points per band, quorum scales to 5-of-9. Same
+   request count (batched). Verified this is NOT what moved the answer -
+   5 and 9 points agree within a couple of hours on every band.
+
+## F14 — FIXED: the sim was inventing calm past the wind horizon
+push_at() returned 0.0 for dates outside the wind field, so birds that were
+still flying at the edge crawled in at 25 mi/day on fabricated weather -
+producing a confident arrival built on nothing. It now returns None and the
+flight returns None, counted as still_airborne rather than landed.
+Wind horizon raised to 16 days (Open-Meteo max) to give the sim runway, and
+the display window to 14 days.
+
+## F15 — ECMWF says the birds stall out
+Not a bug. The Oklahoma band shows SOUTHERLY headwinds nearly every day
+Sep 13-21. Birds released off the Sep 12 front reach southern Kansas and
+sit. Arrival now peaks Sep 23 (50.6) rather than Sep 19.
+The answer moved four days between yesterday and today. Causes: the model
+pin, and the wind-driven flight meeting real headwinds. That swing is
+itself information about how much to trust a 10-day dove forecast.
