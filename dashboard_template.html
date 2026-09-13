@@ -12,6 +12,7 @@
   --s1:#3987e5; --s2:#d95926; --s3:#199e70;
   --r0:#1a2130; --r1:#123055; --r2:#184f95; --r3:#256abf; --r4:#3987e5; --r5:#6da7ec; --r6:#9ec5f4;
   --bar:#3987e5; --barPeak:#d9a441;
+  --wcold:#6da7ec; --wmid:#222a36; --wwarm:#c2543f;
 }
 @media (prefers-color-scheme: light){
   :root:not([data-theme="dark"]){
@@ -23,6 +24,7 @@
     --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
     --r0:#e9e5d9; --r1:#cde2fb; --r2:#9ec5f4; --r3:#6da7ec; --r4:#3987e5; --r5:#256abf; --r6:#104281;
     --bar:#2a78d6; --barPeak:#8d6011;
+    --wcold:#1f5fb0; --wmid:#dcd7c7; --wwarm:#c0402f;
   }
 }
 :root[data-theme="light"]{
@@ -34,6 +36,7 @@
   --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
   --r0:#e9e5d9; --r1:#cde2fb; --r2:#9ec5f4; --r3:#6da7ec; --r4:#3987e5; --r5:#256abf; --r6:#104281;
   --bar:#2a78d6; --barPeak:#8d6011;
+  --wcold:#1f5fb0; --wmid:#dcd7c7; --wwarm:#c0402f;
 }
 *{box-sizing:border-box}
 body{margin:0; background:var(--ground); color:var(--ink);
@@ -82,6 +85,19 @@ figure{margin:0}
 .scroll{overflow-x:auto; overflow-y:hidden}
 svg{display:block; max-width:100%; height:auto}
 svg text{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+.transport{display:flex; align-items:center; gap:12px; margin-top:14px; flex-wrap:wrap}
+.transport input[type=range]{flex:1 1 220px; min-width:0; accent-color:var(--wheat)}
+.transport .day{font-family:"IBM Plex Mono",monospace; font-size:13px; min-width:12ch; color:var(--ink)}
+#play{min-width:82px}
+.flyrow{display:flex; gap:22px; align-items:flex-start; flex-wrap:wrap}
+.flyrow figure{flex:1 1 340px; min-width:0}
+.flykey{flex:0 1 260px; font-size:13px; color:var(--ink2)}
+.flykey h4{margin:0 0 6px; font-size:10.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink3); font-weight:600}
+.flykey p{margin:0 0 14px}
+.scale{display:flex; height:10px; border-radius:2px; overflow:hidden; margin:4px 0 3px}
+.scale i{flex:1}
+.scaleLab{display:flex; justify-content:space-between; font-size:11px; color:var(--ink3);
+  font-family:"IBM Plex Mono",monospace}
 .leg{display:flex; flex-wrap:wrap; gap:6px 20px; margin-top:12px; font-size:12.5px; color:var(--ink2)}
 .leg span{display:inline-flex; align-items:center; gap:7px}
 .leg i{width:11px; height:11px; border-radius:2px; display:inline-block; flex:none}
@@ -141,11 +157,32 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
 
   <div id="overview">
     <section>
-      <h2>Across the flyway this week</h2>
-      <p class="sub">Every place we forecast, coloured by how many birds should arrive on its best morning.
-         Tap any dot to open that ground.</p>
-      <figure class="scroll"><svg id="map" viewBox="0 0 1000 620" role="img" aria-label="Expected dove arrivals across Texas and Oklahoma"></svg></figure>
-      <div class="leg" id="mapLeg"></div>
+      <h2>The whole system, moving</h2>
+      <p class="sub">Cold fronts sweep south down the plains. Birds leave when one reaches them, ride the
+         north wind while it holds, and sit down when it quits. Press play and watch it happen.</p>
+      <div class="flyrow">
+        <figure><svg id="fly" viewBox="0 0 480 640" role="img" aria-label="Wind and expected dove arrivals across the Central Flyway, animated by day"></svg></figure>
+        <div class="flykey">
+          <h4>Background &mdash; the wind</h4>
+          <p>Measured southward push, on a real grid from south Texas to the Canadian line.
+            <span class="scale" id="windScale"></span>
+            <span class="scaleLab"><span>warm southerly<br>birds sit</span><span style="text-align:right">cold northerly<br>birds ride it</span></span>
+          </p>
+          <h4>Dots &mdash; expected arrivals</h4>
+          <p>One per place we forecast, brighter and bigger when more birds are due
+             <b>at that spot</b> that morning. Tap one to open it.</p>
+          <h4>Rings &mdash; a front crossing</h4>
+          <p>Where a cold front was detected passing that day.</p>
+          <p class="dim" style="font-size:12px">Nothing is drawn <i>between</i> locations. The flight model has
+             no east-west position for a bird, so we don't pretend to know one. Arrival numbers are relative,
+             not counts.</p>
+        </div>
+      </div>
+      <div class="transport">
+        <button id="play">&#9654; Play</button>
+        <input type="range" id="scrub" min="0" max="0" value="0" step="1" aria-label="Day">
+        <span class="day mono" id="flyDay">&mdash;</span>
+      </div>
     </section>
   </div>
 
@@ -253,14 +290,14 @@ $('#theme').onclick=()=>{
   const next=cur==='light'?'dark':cur==='dark'?'light':(matchMedia('(prefers-color-scheme: dark)').matches?'light':'dark');
   document.documentElement.setAttribute('data-theme',next);
   try{localStorage.setItem('dove.theme',next)}catch(e){}
-  drawMap(); drawBirds(); if(SITE) drawSite();
+  if(FLOW){buildFly(); setFrame(FRAME);} drawBirds(); if(SITE) drawSite();
 };
 
 async function boot(){
   try{INDEX=await (await fetch('data/index.json')).json();}
   catch(e){$('#finderNote').textContent='Forecast data has not been published yet.';return;}
   $('#gen').textContent='Last updated '+INDEX.generated_at.replace('T',' ').slice(0,16)+'Z.';
-  drawMap(); loadBacktest(); loadBirds();
+  loadFlow(); loadBacktest(); loadBirds();
   const url=new URLSearchParams(location.search).get('loc');
   let saved=null; try{saved=JSON.parse(localStorage.getItem('dove.place')||'null')}catch(e){}
   if(url&&INDEX.sites.some(s=>s.id===url)) selectSite(url,saved&&saved.id===url?saved.name:null,saved&&saved.lat,saved&&saved.lon);
@@ -299,34 +336,125 @@ async function selectSite(id,name,lat,lon){
   scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});
 }
 
-function drawMap(){
-  const s=$('#map'); if(!INDEX)return; s.innerHTML='';
-  const W=1000,H=620,L=24,R=24,T=20,B=34, ramp=RAMP();
-  const lats=INDEX.sites.map(x=>x.lat), lons=INDEX.sites.map(x=>x.lon);
-  const la0=Math.min(...lats)-.6,la1=Math.max(...lats)+.6,lo0=Math.min(...lons)-.6,lo1=Math.max(...lons)+.6;
-  const X=lo=>L+(W-L-R)*(lo-lo0)/(lo1-lo0), Y=la=>T+(H-T-B)*(1-(la-la0)/(la1-la0));
-  const mx=Math.max(8,...INDEX.sites.map(x=>x.peak));
-  INDEX.sites.forEach(p=>{
-    const t=Math.max(0,Math.min(1,p.peak/mx));
-    const c=el('circle',{cx:X(p.lon).toFixed(1),cy:Y(p.lat).toFixed(1),r:8,
-      fill:ramp[Math.min(6,Math.floor(t*6.999))],stroke:tok('--ground'),'stroke-width':1.5});
-    c.style.cursor='pointer';
-    c.addEventListener('pointermove',e=>show(e,p.lat+', '+p.lon+'\n'+strength(p.peak)+
-      '\nbest morning '+DOW3[dt(p.peak_date).getDay()]+' '+nice(p.peak_date)));
-    c.addEventListener('pointerleave',hide);
-    c.addEventListener('click',()=>selectSite(p.id,null,p.lat,p.lon));
-    s.appendChild(c);
-  });
-  [['Amarillo',35.22,-101.83],['Lubbock',33.58,-101.86],['Oklahoma City',35.47,-97.52],['Tulsa',36.15,-95.99],
-   ['Dallas',32.78,-96.80],['Austin',30.27,-97.74],['Houston',29.76,-95.37],['San Antonio',29.42,-98.49]].forEach(function(c){
-    var n=c[0],la=c[1],lo=c[2];
-    if(la<la0||la>la1||lo<lo0||lo>lo1)return;
-    s.appendChild(el('circle',{cx:X(lo),cy:Y(la),r:2.5,fill:tok('--ink2')}));
-    const t=el('text',{x:X(lo)+10,y:Y(la)+4,'font-size':11,fill:tok('--ink2')}); t.textContent=n; s.appendChild(t);
-  });
-  $('#mapLeg').innerHTML='<span style="gap:3px">'+ramp.map(c=>'<i style="background:'+c+';width:22px;border-radius:1px"></i>').join('')+
-    '</span><span class="dim">quiet &rarr; big push</span><span class="dim">tap any dot for that ground</span>';
+/* ---------- the flyway, animated ----------
+   Wind is measured on a real 2D lattice. Dots are per-location forecasts,
+   drawn AT those locations. Nothing is drawn in between, because the flight
+   model has no east-west coordinate for a bird in transit. */
+let FLOW=null, GEO=null, FRAME=0, PLAYING=false, RAF=null, LAST=0;
+const MS_PER_DAY_FRAME=125;                 // ~8 fps: a daily field, so a sweep reads better than a blur
+const REDUCED=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mix(a,b,t){                         // linear RGB blend between two hex colours
+  const p=h=>{h=h.trim(); if(h[0]==='#')h=h.slice(1);
+    if(h.length===3)h=h.split('').map(c=>c+c).join('');
+    return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];};
+  const A=p(a),B=p(b);
+  return 'rgb('+A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(',')+')';
 }
+function windColour(v){                      // diverging: zero is the neutral midpoint
+  if(v==null) return null;
+  const mid=tok('--wmid');
+  if(v>=0) return mix(mid, tok('--wcold'), Math.min(1, v/18));
+  return mix(mid, tok('--wwarm'), Math.min(1, -v/12));
+}
+
+async function loadFlow(){
+  try{
+    const [g,f]=await Promise.all([
+      fetch('data/geo.json').then(r=>r.json()),
+      fetch('data/flow.json').then(r=>r.json())]);
+    GEO=g; FLOW=f;
+  }catch(e){ $('#flyDay').textContent='unavailable'; return; }
+  buildFly();
+  const today=new Date().toISOString().slice(0,10);
+  const i=Math.max(0, FLOW.dates.findIndex(d=>d>=today));
+  $('#scrub').max=FLOW.dates.length-1;
+  setFrame(i<0?FLOW.dates.length-1:i);
+  $('#windScale').innerHTML=[-12,-8,-4,0,5,10,15,18].map(v=>
+    '<i style="background:'+windColour(v)+'"></i>').join('');
+}
+
+let CELLS=[], DOTS=[], RINGS=null;
+function buildFly(){
+  const s=$('#fly'); if(!s||!FLOW) return;
+  if(RAF){cancelAnimationFrame(RAF); RAF=null;}
+  s.innerHTML=''; CELLS=[]; DOTS=[];
+  s.setAttribute('viewBox', '0 0 '+FLOW.w+' '+FLOW.h);
+  const [cw,ch]=FLOW.grid.cell;
+
+  const gWind=el('g',{}); s.appendChild(gWind);
+  FLOW.grid.xy.forEach(function(p){
+    const r=el('rect',{x:(p[0]-cw/2).toFixed(1),y:(p[1]-ch/2).toFixed(1),
+      width:cw.toFixed(1),height:ch.toFixed(1),fill:'none'});
+    gWind.appendChild(r); CELLS.push(r);
+  });
+
+  if(GEO){                                   // state outlines, projected at build time
+    const gGeo=el('g',{}); s.appendChild(gGeo);
+    Object.values(GEO.paths).forEach(function(d){
+      gGeo.appendChild(el('path',{d:d,fill:'none',stroke:tok('--ink3'),
+        'stroke-width':0.7,'stroke-linejoin':'round','vector-effect':'non-scaling-stroke',opacity:0.55}));
+    });
+  }
+
+  RINGS=el('g',{}); s.appendChild(RINGS);
+
+  const gDot=el('g',{}); s.appendChild(gDot);
+  FLOW.sites.forEach(function(st){
+    const c=el('circle',{cx:st.xy[0],cy:st.xy[1],r:2,fill:'none',
+      stroke:tok('--ground'),'stroke-width':0.8});
+    c.style.cursor='pointer';
+    c.addEventListener('click',()=>selectSite(st.id,null,null,null));
+    c.addEventListener('pointermove',e=>show(e,
+      nice(FLOW.dates[FRAME])+'\n'+strength(st.a[FRAME])+'\nexpected arrivals here'));
+    c.addEventListener('pointerleave',hide);
+    gDot.appendChild(c); DOTS.push(c);
+  });
+}
+
+function setFrame(i){
+  if(!FLOW) return;
+  FRAME=Math.max(0,Math.min(FLOW.dates.length-1,i));
+  const d=FLOW.dates[FRAME], w=FLOW.wind[FRAME], ramp=RAMP();
+  CELLS.forEach(function(r,k){
+    const c=windColour(w[k]);
+    r.setAttribute('fill', c||'none');       // null stays a GAP, never calm
+    r.setAttribute('opacity', c?0.85:0);
+  });
+  const mx=Math.max(8,...FLOW.sites.map(s=>Math.max(...s.a)));
+  DOTS.forEach(function(c,k){
+    const v=FLOW.sites[k].a[FRAME]||0, t=Math.max(0,Math.min(1,v/mx));
+    c.setAttribute('r',(2+t*5).toFixed(1));
+    c.setAttribute('fill', v<1?tok('--ink3'):ramp[Math.min(6,Math.floor(t*6.999))]);
+    c.setAttribute('opacity', v<1?0.35:1);
+  });
+  RINGS.innerHTML='';
+  const fr=(FLOW.fronts||[]).find(f=>f.date===d);
+  if(fr) fr.n.forEach(function(n){
+    const p=FLOW.grid.xy[n];
+    RINGS.appendChild(el('circle',{cx:p[0],cy:p[1],r:5,fill:'none',
+      stroke:tok('--wheat'),'stroke-width':1.2,opacity:0.8}));
+  });
+  $('#scrub').value=FRAME;
+  const dd=dt(d);
+  $('#flyDay').textContent=DOW3[dd.getDay()]+' '+nice(d);
+}
+
+function tick(ts){
+  if(!PLAYING) return;
+  if(ts-LAST>=MS_PER_DAY_FRAME){
+    LAST=ts;
+    setFrame(FRAME>=FLOW.dates.length-1?0:FRAME+1);
+  }
+  RAF=requestAnimationFrame(tick);
+}
+function setPlaying(on){
+  PLAYING=on; $('#play').innerHTML=on?'&#10073;&#10073; Pause':'&#9654; Play';
+  if(RAF){cancelAnimationFrame(RAF); RAF=null;}
+  if(on){LAST=0; RAF=requestAnimationFrame(tick);}
+}
+$('#play').onclick=()=>setPlaying(!PLAYING);
+$('#scrub').addEventListener('input',e=>{setPlaying(false); setFrame(+e.target.value);});
 
 function drawSite(){
   const D=SITE, ramp=RAMP();
