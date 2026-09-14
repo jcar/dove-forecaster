@@ -306,7 +306,9 @@ const tip=$('#tip');
 const show=(e,t)=>{tip.textContent=t;tip.style.opacity=1;const p=14,w=tip.offsetWidth,h=tip.offsetHeight;
   tip.style.left=Math.min(Math.max(8,e.clientX+p),innerWidth-w-8)+'px';tip.style.top=Math.max(e.clientY-h-p,8)+'px';};
 const hide=()=>tip.style.opacity=0;
-const strength=v=>v<4?'Nothing moving':v<14?'A few birds':v<30?'Decent push':'Big push';
+let SCALE={few:4,decent:14,big:30};       // replaced by data-derived quartiles
+const strength=v=>v<SCALE.few?'Nothing moving':v<SCALE.decent?'A few birds'
+                 :v<SCALE.big?'Decent push':'Big push';
 const northish=d=>d!=null&&(d>=300||d<=60);
 const PT=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
 const compass=d=>PT[Math.round((d%360)/22.5)%16];
@@ -324,6 +326,7 @@ $('#theme').onclick=()=>{
 async function boot(){
   try{INDEX=await (await fetch('data/index.json')).json();}
   catch(e){$('#finderNote').textContent='Forecast data has not been published yet.';return;}
+  if(INDEX.scale) SCALE=INDEX.scale;
   $('#gen').textContent='Last updated '+INDEX.generated_at.replace('T',' ').slice(0,16)+'Z.';
   if(INDEX.synthetic||(FLOW&&FLOW.synthetic)) $('#synthBanner').hidden=false;
   loadFlow(); loadBacktest(); loadBirds();
