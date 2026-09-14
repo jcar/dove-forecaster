@@ -76,8 +76,7 @@ def main():
     # completing front detection pushed the median to 76, so every location
     # read "Big push" and the label stopped discriminating. Quartiles of the
     # live distribution keep it meaningful as the model changes.
-    vals = sorted(v for s in built for v in
-                  [max(r["arrival"] for r in s["arrival"])] if v > 0.5)
+    vals = sorted(e["peak"] for e in index if e["peak"] > 0.5)
     q = (lambda p: round(vals[int(len(vals) * p)], 1)) if vals else (lambda p: 0)
     scale = {"few": q(0.25), "decent": q(0.55), "big": q(0.82)} if vals else None
 
