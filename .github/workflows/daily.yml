@@ -23,14 +23,30 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
-      - run: python daily.py
+      # daily.py is the AUDIT TRAIL - the tracked forecast, committed before
+      # anyone knows how it turned out. It must never be discarded because a
+      # later step failed, which is exactly what happened on 2026-09-14.
+      - name: Forecast (audit trail)
+        id: daily
+        run: python daily.py
         env:
           EBIRD_API_KEY: ${{ secrets.EBIRD_API_KEY }}
-      - run: python build_sites.py
+
+      # The public fan-out is best-effort. If the weather API is slow or
+      # throttled, yesterday's site data stays up and the record is still kept.
+      - name: Build all locations
+        id: sites
+        continue-on-error: true
+        run: python build_sites.py
         env:
           EBIRD_API_KEY: ${{ secrets.EBIRD_API_KEY }}
-      - run: python dashboard.py
+
+      - name: Render page
+        continue-on-error: true
+        run: python dashboard.py
+
       - name: Commit forecast
+        if: always() && steps.daily.outcome == 'success'
         run: |
           git config user.name  "dove-forecaster"
           git config user.email "actions@users.noreply.github.com"
@@ -42,3 +58,11 @@ jobs:
           # another run may have landed while we were fetching weather
           git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
           git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      # Surface a partial build loudly rather than letting a green tick imply
+      # the whole thing ran.
+      - name: Flag partial build
+        if: steps.sites.outcome == 'failure'
+        run: |
+          echo "::warning::Location fan-out failed; the audit-trail forecast was still committed."
+          exit 1
