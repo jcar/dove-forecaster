@@ -1,0 +1,666 @@
+{
+ "circles": {
+  "r33.5_c-93.5": {
+   "lat": 33.5,
+   "lon": -93.5
+  },
+  "r33.5_c-96.5": {
+   "lat": 33.5,
+   "lon": -96.5
+  },
+  "r33.5_c-99.5": {
+   "lat": 33.5,
+   "lon": -99.5
+  },
+  "r36.0_c-93.5": {
+   "lat": 36.0,
+   "lon": -93.5
+  },
+  "r36.0_c-96.5": {
+   "lat": 36.0,
+   "lon": -96.5
+  },
+  "r36.0_c-99.5": {
+   "lat": 36.0,
+   "lon": -99.5
+  },
+  "r38.5_c-93.5": {
+   "lat": 38.5,
+   "lon": -93.5
+  },
+  "r38.5_c-96.5": {
+   "lat": 38.5,
+   "lon": -96.5
+  },
+  "r38.5_c-99.5": {
+   "lat": 38.5,
+   "lon": -99.5
+  },
+  "r41.0_c-93.5": {
+   "lat": 41.0,
+   "lon": -93.5
+  },
+  "r41.0_c-96.5": {
+   "lat": 41.0,
+   "lon": -96.5
+  },
+  "r41.0_c-99.5": {
+   "lat": 41.0,
+   "lon": -99.5
+  },
+  "r43.5_c-93.5": {
+   "lat": 43.5,
+   "lon": -93.5
+  },
+  "r43.5_c-96.5": {
+   "lat": 43.5,
+   "lon": -96.5
+  },
+  "r43.5_c-99.5": {
+   "lat": 43.5,
+   "lon": -99.5
+  }
+ },
+ "counts": {
+  "r33.5_c-96.5": {
+   "eucdov": {
+    "2026-09-08": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-11": {
+     "birds": 3,
+     "counted": 2,
+     "locations": 2
+    },
+    "2026-09-12": {
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-13": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    }
+   },
+   "moudov": {
+    "2026-09-07": {
+     "birds": 5,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-08": {
+     "birds": 15,
+     "counted": 3,
+     "locations": 3
+    },
+    "2026-09-09": {
+     "birds": 25,
+     "counted": 5,
+     "locations": 5
+    },
+    "2026-09-10": {
+     "birds": 14,
+     "counted": 2,
+     "locations": 2
+    },
+    "2026-09-11": {
+     "birds": 24,
+     "counted": 5,
+     "locations": 5
+    },
+    "2026-09-12": {
+     "birds": 22,
+     "counted": 5,
+     "locations": 5
+    },
+    "2026-09-13": {
+     "birds": 29,
+     "counted": 5,
+     "locations": 5
+    },
+    "2026-09-14": {
+     "birds": 15,
+     "counted": 2,
+     "locations": 2
+    }
+   },
+   "whwdov": {
+    "2026-09-08": {
+     "birds": 9,
+     "counted": 2,
+     "locations": 2
+    },
+    "2026-09-09": {
+     "birds": 10,
+     "counted": 3,
+     "locations": 3
+    },
+    "2026-09-10": {
+     "birds": 58,
+     "counted": 4,
+     "locations": 4
+    },
+    "2026-09-11": {
+     "birds": 7,
+     "counted": 2,
+     "locations": 2
+    },
+    "2026-09-12": {
+     "birds": 27,
+     "counted": 7,
+     "locations": 7
+    },
+    "2026-09-13": {
+     "birds": 10,
+     "counted": 2,
+     "locations": 2
+    },
+    "2026-09-14": {
+     "birds": 5,
+     "counted": 1,
+     "locations": 1
+    }
+   }
+  },
+  "r33.5_c-99.5": {
+   "eucdov": {
+    "2026-09-12": {
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    }
+   },
+   "moudov": {
+    "2026-09-12": {
+     "birds": 8,
+     "counted": 4,
+     "locations": 4
+    }
+   },
+   "whwdov": {
+    "2026-09-12": {
+     "birds": 5,
+     "counted": 3,
+     "locations": 3
+    }
+   }
+  },
+  "r36.0_c-93.5": {
+   "eucdov": {
+    "2026-09-11": {
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    }
+   },
+   "moudov": {
+    "2026-09-10": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-12": {
+     "birds": 4,
+     "counted": 2,
+     "locations": 2
+    },
+    "2026-09-14": {
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    }
+   }
+  },
+  "r36.0_c-96.5": {
+   "eucdov": {
+    "2026-09-09": {
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-10": {
+     "birds": 3,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-13": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    }
+   },
+   "moudov": {
+    "2026-09-09": {
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-10": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-11": {
+     "birds": 3,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-12": {
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-13": {
+     "birds": 21,
+     "counted": 2,
+     "locations": 2
+    },
+    "2026-09-14": {
+     "birds": 11,
+     "counted": 4,
+     "locations": 4
+    }
+   }
+  },
+  "r36.0_c-99.5": {
+   "eucdov": {
+    "2026-09-08": {
+     "birds": 4,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-13": {
+     "birds": 3,
+     "counted": 1,
+     "locations": 1
+    }
+   },
+   "moudov": {
+    "2026-09-11": {
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-12": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    }
+   },
+   "whwdov": {
+    "2026-09-13": {
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    }
+   }
+  },
+  "r38.5_c-93.5": {
+   "eucdov": {
+    "2026-09-08": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-11": {
+     "birds": 8,
+     "counted": 3,
+     "locations": 3
+    }
+   },
+   "moudov": {
+    "2026-09-08": {
+     "birds": 20,
+     "counted": 4,
+     "locations": 4
+    },
+    "2026-09-10": {
+     "birds": 9,
+     "counted": 3,
+     "locations": 3
+    },
+    "2026-09-11": {
+     "birds": 29,
+     "counted": 3,
+     "locations": 3
+    },
+    "2026-09-12": {
+     "birds": 11,
+     "counted": 4,
+     "locations": 4
+    },
+    "2026-09-13": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    }
+   }
+  },
+  "r38.5_c-96.5": {
+   "eucdov": {
+    "2026-09-09": {
+     "birds": 0,
+     "counted": 0,
+     "locations": 1
+    }
+   }
+  },
+  "r38.5_c-99.5": {
+   "eucdov": {
+    "2026-09-08": {
+     "birds": 10,
+     "counted": 2,
+     "locations": 2
+    },
+    "2026-09-09": {
+     "birds": 9,
+     "counted": 2,
+     "locations": 2
+    },
+    "2026-09-10": {
+     "birds": 6,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-13": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-14": {
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    }
+   },
+   "moudov": {
+    "2026-09-08": {
+     "birds": 5,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-09": {
+     "birds": 6,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-10": {
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-11": {
+     "birds": 3,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-13": {
+     "birds": 4,
+     "counted": 2,
+     "locations": 2
+    },
+    "2026-09-14": {
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    }
+   },
+   "whwdov": {
+    "2026-09-12": {
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    }
+   }
+  },
+  "r41.0_c-93.5": {
+   "moudov": {
+    "2026-09-09": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-10": {
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    }
+   }
+  },
+  "r41.0_c-96.5": {
+   "eucdov": {
+    "2026-09-08": {
+     "birds": 10,
+     "counted": 6,
+     "locations": 6
+    },
+    "2026-09-09": {
+     "birds": 10,
+     "counted": 7,
+     "locations": 7
+    },
+    "2026-09-10": {
+     "birds": 22,
+     "counted": 7,
+     "locations": 7
+    },
+    "2026-09-11": {
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-12": {
+     "birds": 10,
+     "counted": 6,
+     "locations": 6
+    },
+    "2026-09-13": {
+     "birds": 13,
+     "counted": 6,
+     "locations": 6
+    },
+    "2026-09-14": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    }
+   },
+   "moudov": {
+    "2026-09-07": {
+     "birds": 2,
+     "counted": 2,
+     "locations": 2
+    },
+    "2026-09-08": {
+     "birds": 59,
+     "counted": 12,
+     "locations": 12
+    },
+    "2026-09-09": {
+     "birds": 29,
+     "counted": 12,
+     "locations": 12
+    },
+    "2026-09-10": {
+     "birds": 98,
+     "counted": 13,
+     "locations": 13
+    },
+    "2026-09-11": {
+     "birds": 49,
+     "counted": 9,
+     "locations": 9
+    },
+    "2026-09-12": {
+     "birds": 30,
+     "counted": 8,
+     "locations": 8
+    },
+    "2026-09-13": {
+     "birds": 54,
+     "counted": 16,
+     "locations": 17
+    },
+    "2026-09-14": {
+     "birds": 26,
+     "counted": 10,
+     "locations": 10
+    }
+   }
+  },
+  "r41.0_c-99.5": {
+   "eucdov": {
+    "2026-09-08": {
+     "birds": 4,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-10": {
+     "birds": 6,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-11": {
+     "birds": 52,
+     "counted": 2,
+     "locations": 2
+    },
+    "2026-09-12": {
+     "birds": 30,
+     "counted": 7,
+     "locations": 7
+    },
+    "2026-09-13": {
+     "birds": 74,
+     "counted": 16,
+     "locations": 16
+    },
+    "2026-09-14": {
+     "birds": 5,
+     "counted": 2,
+     "locations": 2
+    }
+   },
+   "moudov": {
+    "2026-09-11": {
+     "birds": 20,
+     "counted": 2,
+     "locations": 2
+    },
+    "2026-09-12": {
+     "birds": 152,
+     "counted": 8,
+     "locations": 8
+    },
+    "2026-09-13": {
+     "birds": 304,
+     "counted": 24,
+     "locations": 25
+    },
+    "2026-09-14": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    }
+   }
+  },
+  "r43.5_c-93.5": {
+   "eucdov": {
+    "2026-09-11": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    }
+   },
+   "moudov": {
+    "2026-09-09": {
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-11": {
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-13": {
+     "birds": 22,
+     "counted": 3,
+     "locations": 3
+    }
+   }
+  },
+  "r43.5_c-96.5": {
+   "eucdov": {
+    "2026-09-10": {
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-11": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-12": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    }
+   },
+   "moudov": {
+    "2026-09-07": {
+     "birds": 6,
+     "counted": 3,
+     "locations": 3
+    },
+    "2026-09-09": {
+     "birds": 5,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-10": {
+     "birds": 3,
+     "counted": 3,
+     "locations": 3
+    },
+    "2026-09-11": {
+     "birds": 10,
+     "counted": 3,
+     "locations": 3
+    },
+    "2026-09-12": {
+     "birds": 12,
+     "counted": 4,
+     "locations": 4
+    },
+    "2026-09-13": {
+     "birds": 3,
+     "counted": 1,
+     "locations": 1
+    }
+   }
+  },
+  "r43.5_c-99.5": {
+   "eucdov": {
+    "2026-09-08": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    }
+   },
+   "moudov": {
+    "2026-09-08": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    }
+   }
+  }
+ },
+ "radius_km": 50,
+ "run_date": "2026-09-14"
+}
