@@ -32,7 +32,7 @@ class OpenMeteo(WeatherProvider):
        mode='forecast' -> forecast endpoint, supports past_days for recent obs.
     """
 
-    def __init__(self, mode="forecast", timeout=90, model=MODEL):
+    def __init__(self, mode="forecast", timeout=180, model=MODEL):
         self.mode, self.timeout, self.model = mode, timeout, model
 
     def hourly(self, points, start=None, end=None, past_days=None, forecast_days=None,
@@ -62,20 +62,30 @@ class OpenMeteo(WeatherProvider):
 
 
 def _get_with_backoff(url, params, timeout, tries=5):
-    """Open-Meteo bills by location-days and rate-limits per minute as well as
-    per day. An unattended morning build must wait rather than die on the
-    first 429 - one throttled batch used to abort the whole run."""
-    last = None
+    """Survive the two ways a morning build dies unattended: a rate limit, and
+    a slow response.
+
+    The 2026-09-14 scheduled run failed on a bare ReadTimeout - a single slow
+    batch, retried zero times, took down the whole build. Transient network
+    faults must be retried exactly like a 429.
+    """
+    last_exc = None
     for n in range(tries):
-        r = requests.get(url, params=params, timeout=timeout)
+        try:
+            r = requests.get(url, params=params, timeout=timeout)
+        except (requests.Timeout, requests.ConnectionError) as ex:
+            last_exc = ex
+            wait = min(45.0, 4.0 * (2 ** n))
+            print(f"    {type(ex).__name__}, retrying in {wait:.0f}s", flush=True)
+            time.sleep(wait)
+            continue
         if r.status_code != 429:
             r.raise_for_status()
             return r.json()
-        last = r
         wait = float(r.headers.get("Retry-After") or 0) or min(60.0, 5.0 * (2 ** n))
         print(f"    rate limited, waiting {wait:.0f}s", flush=True)
         time.sleep(wait)
-    last.raise_for_status()
+    raise last_exc or requests.HTTPError(f"gave up after {tries} tries: {url}")
 
 
 def ensemble_members(point, hourly=None, forecast_days=10, timeout=120):

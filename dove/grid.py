@@ -99,10 +99,20 @@ class PointCache:
         """
         todo = sorted({snap(*p) for p in points} - set(self._feat))
         api = OpenMeteo() if self.model is None else OpenMeteo(model=self.model)
+        self.failed = 0
         for i in range(0, len(todo), BATCH):
             chunk = todo[i:i + BATCH]
-            series = api.hourly(chunk, past_days=self.past_days,
-                                forecast_days=self.forecast_days)
+            try:
+                series = api.hourly(chunk, past_days=self.past_days,
+                                    forecast_days=self.forecast_days)
+            except Exception as ex:
+                # Partial data beats no data for a daily job. Nodes that fail
+                # keep yesterday's cached history and are simply absent from
+                # today's field; the next run picks them up.
+                self.failed += len(chunk)
+                print(f"    batch failed ({type(ex).__name__}), skipping "
+                      f"{len(chunk)} nodes", flush=True)
+                continue
             self.requests += 1
             for pt, s in zip(chunk, series):
                 h = s["hourly"]
