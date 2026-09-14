@@ -71,8 +71,19 @@ def main():
                       "peak_date": peak["date"], "peak": peak["arrival"],
                       "bands": [res["arcs"][k]["label"] for k in sorted(res["arcs"])]})
         built += 1
+    # Strength labels derived FROM THE DATA, not from constants I guessed.
+    # The old cut-offs (4/14/30) were set when the index topped out near 50;
+    # completing front detection pushed the median to 76, so every location
+    # read "Big push" and the label stopped discriminating. Quartiles of the
+    # live distribution keep it meaningful as the model changes.
+    vals = sorted(v for s in built for v in
+                  [max(r["arrival"] for r in s["arrival"])] if v > 0.5)
+    q = (lambda p: round(vals[int(len(vals) * p)], 1)) if vals else (lambda p: 0)
+    scale = {"few": q(0.25), "decent": q(0.55), "big": q(0.82)} if vals else None
+
     json.dump({"generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-               "sites": index}, open(f"{OUT}/index.json", "w"), separators=(",", ":"))
+               "scale": scale, "sites": index},
+              open(f"{OUT}/index.json", "w"), separators=(",", ":"))
 
     # the moving picture: ~30 days of the real 2D wind field plus each
     # location's arrivals, read from the cache we already loaded
