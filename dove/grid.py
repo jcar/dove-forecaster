@@ -26,7 +26,7 @@ answer is bit-for-bit what per-location fetching would have produced.
 import json
 import math
 import os
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 from .weather import OpenMeteo
 from .push import daily_features
@@ -42,6 +42,10 @@ LON_STEP = 1.00      # ~57 mi. Coarsened from 0.50 to fit Open-Meteo's free
                      # independent stations per 420-mile band.
 BAND_OFFSETS_DEG = (2.25, 4.50, 6.75, 9.00)     # = 155/310/466/621 mi
 BATCH = 200                                      # Open-Meteo takes 200 coords/request
+CACHE_KEEP_DAYS = 40    # enough for the 30-day animation with margin. The cache
+                        # is COMMITTED so history survives between CI runs -
+                        # without that, every run starts empty and the timeline
+                        # can never grow past the window it just fetched.
 
 
 def snap_lat(lat):
@@ -86,8 +90,10 @@ class PointCache:
 
     def _save_disk(self, pt, feat, passes):
         today = date.today().isoformat()
-        past_feat = {k: v for k, v in feat.items() if k < today}
-        past_pass = [(t.isoformat(), s) for t, s in passes if t.date().isoformat() < today]
+        cutoff = (date.today() - timedelta(days=CACHE_KEEP_DAYS)).isoformat()
+        past_feat = {k: v for k, v in feat.items() if cutoff <= k < today}
+        past_pass = [(t.isoformat(), s) for t, s in passes
+                     if cutoff <= t.date().isoformat() < today]
         json.dump({"features": past_feat, "passages": past_pass},
                   open(self._path(pt), "w"), separators=(",", ":"))
 
