@@ -70,16 +70,21 @@
      "locations": 1
     },
     "2026-09-17": {
-     "birds": 3,
-     "counted": 2,
-     "locations": 2
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-20": {
+     "birds": 5,
+     "counted": 1,
+     "locations": 1
     }
    },
    "moudov": {
     "2026-09-14": {
-     "birds": 16,
-     "counted": 3,
-     "locations": 3
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
     },
     "2026-09-15": {
      "birds": 23,
@@ -92,41 +97,46 @@
      "locations": 2
     },
     "2026-09-17": {
-     "birds": 22,
-     "counted": 3,
-     "locations": 3
+     "birds": 14,
+     "counted": 2,
+     "locations": 2
     },
     "2026-09-18": {
-     "birds": 30,
-     "counted": 7,
-     "locations": 7
-    },
-    "2026-09-19": {
-     "birds": 15,
+     "birds": 27,
      "counted": 6,
      "locations": 6
+    },
+    "2026-09-19": {
+     "birds": 10,
+     "counted": 4,
+     "locations": 4
+    },
+    "2026-09-20": {
+     "birds": 9,
+     "counted": 5,
+     "locations": 5
+    },
+    "2026-09-21": {
+     "birds": 5,
+     "counted": 2,
+     "locations": 2
     }
    },
    "whwdov": {
-    "2026-09-14": {
-     "birds": 5,
-     "counted": 1,
-     "locations": 1
-    },
     "2026-09-15": {
      "birds": 18,
      "counted": 2,
      "locations": 2
     },
     "2026-09-16": {
-     "birds": 6,
-     "counted": 2,
-     "locations": 2
+     "birds": 4,
+     "counted": 1,
+     "locations": 1
     },
     "2026-09-17": {
-     "birds": 31,
-     "counted": 5,
-     "locations": 5
+     "birds": 5,
+     "counted": 3,
+     "locations": 3
     },
     "2026-09-18": {
      "birds": 15,
@@ -137,6 +147,11 @@
      "birds": 1,
      "counted": 1,
      "locations": 1
+    },
+    "2026-09-20": {
+     "birds": 31,
+     "counted": 3,
+     "locations": 3
     }
    }
   },
@@ -165,11 +180,6 @@
     }
    },
    "moudov": {
-    "2026-09-14": {
-     "birds": 2,
-     "counted": 1,
-     "locations": 1
-    },
     "2026-09-16": {
      "birds": 1,
      "counted": 1,
@@ -217,9 +227,19 @@
      "locations": 1
     },
     "2026-09-19": {
-     "birds": 6,
-     "counted": 3,
-     "locations": 3
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
+    },
+    "2026-09-20": {
+     "birds": 16,
+     "counted": 7,
+     "locations": 7
+    },
+    "2026-09-21": {
+     "birds": 3,
+     "counted": 1,
+     "locations": 1
     }
    }
   },
@@ -232,7 +252,7 @@
     }
    },
    "moudov": {
-    "2026-09-18": {
+    "2026-09-20": {
      "birds": 1,
      "counted": 1,
      "locations": 1
@@ -244,8 +264,8 @@
      "counted": 1,
      "locations": 1
     },
-    "2026-09-19": {
-     "birds": 1,
+    "2026-09-20": {
+     "birds": 4,
      "counted": 1,
      "locations": 1
     }
@@ -265,11 +285,6 @@
     }
    },
    "moudov": {
-    "2026-09-14": {
-     "birds": 1,
-     "counted": 1,
-     "locations": 1
-    },
     "2026-09-15": {
      "birds": 10,
      "counted": 2,
@@ -284,6 +299,11 @@
      "birds": 2,
      "counted": 1,
      "locations": 1
+    },
+    "2026-09-20": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
     }
    }
   },
@@ -296,6 +316,11 @@
     }
    },
    "moudov": {
+    "2026-09-15": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
+    },
     "2026-09-17": {
      "birds": 6,
      "counted": 3,
@@ -321,16 +346,21 @@
      "locations": 2
     },
     "2026-09-19": {
-     "birds": 6,
-     "counted": 3,
-     "locations": 3
+     "birds": 2,
+     "counted": 2,
+     "locations": 2
+    },
+    "2026-09-20": {
+     "birds": 13,
+     "counted": 2,
+     "locations": 2
     }
    },
    "moudov": {
     "2026-09-15": {
-     "birds": 4,
-     "counted": 2,
-     "locations": 2
+     "birds": 3,
+     "counted": 1,
+     "locations": 1
     },
     "2026-09-16": {
      "birds": 1,
@@ -343,7 +373,12 @@
      "locations": 6
     },
     "2026-09-19": {
-     "birds": 11,
+     "birds": 9,
+     "counted": 3,
+     "locations": 3
+    },
+    "2026-09-20": {
+     "birds": 8,
      "counted": 4,
      "locations": 4
     }
@@ -375,24 +410,24 @@
      "counted": 0,
      "locations": 3
     },
-    "2026-09-15": {
-     "birds": 3,
-     "counted": 1,
-     "locations": 1
-    },
     "2026-09-18": {
      "birds": 4,
      "counted": 1,
      "locations": 1
+    },
+    "2026-09-20": {
+     "birds": 3,
+     "counted": 2,
+     "locations": 2
     }
    }
   },
   "r41.0_c-96.5": {
    "eucdov": {
     "2026-09-14": {
-     "birds": 6,
-     "counted": 3,
-     "locations": 3
+     "birds": 5,
+     "counted": 2,
+     "locations": 2
     },
     "2026-09-15": {
      "birds": 8,
@@ -415,16 +450,21 @@
      "locations": 2
     },
     "2026-09-19": {
-     "birds": 14,
-     "counted": 7,
-     "locations": 7
+     "birds": 12,
+     "counted": 6,
+     "locations": 6
+    },
+    "2026-09-20": {
+     "birds": 27,
+     "counted": 5,
+     "locations": 5
     }
    },
    "moudov": {
     "2026-09-14": {
-     "birds": 34,
-     "counted": 11,
-     "locations": 11
+     "birds": 7,
+     "counted": 4,
+     "locations": 4
     },
     "2026-09-15": {
      "birds": 30,
@@ -437,33 +477,43 @@
      "locations": 8
     },
     "2026-09-17": {
-     "birds": 36,
-     "counted": 9,
-     "locations": 9
+     "birds": 31,
+     "counted": 7,
+     "locations": 7
     },
     "2026-09-18": {
-     "birds": 40,
-     "counted": 13,
-     "locations": 13
+     "birds": 21,
+     "counted": 10,
+     "locations": 10
     },
     "2026-09-19": {
-     "birds": 84,
-     "counted": 13,
-     "locations": 13
+     "birds": 61,
+     "counted": 10,
+     "locations": 10
+    },
+    "2026-09-20": {
+     "birds": 65,
+     "counted": 16,
+     "locations": 19
+    },
+    "2026-09-21": {
+     "birds": 7,
+     "counted": 1,
+     "locations": 1
     }
    }
   },
   "r41.0_c-99.5": {
    "eucdov": {
     "2026-09-14": {
-     "birds": 36,
-     "counted": 6,
-     "locations": 6
+     "birds": 6,
+     "counted": 1,
+     "locations": 1
     },
     "2026-09-15": {
-     "birds": 7,
-     "counted": 3,
-     "locations": 3
+     "birds": 5,
+     "counted": 2,
+     "locations": 2
     },
     "2026-09-16": {
      "birds": 25,
@@ -474,14 +524,14 @@
      "birds": 24,
      "counted": 2,
      "locations": 2
+    },
+    "2026-09-20": {
+     "birds": 1,
+     "counted": 1,
+     "locations": 2
     }
    },
    "moudov": {
-    "2026-09-14": {
-     "birds": 19,
-     "counted": 4,
-     "locations": 4
-    },
     "2026-09-15": {
      "birds": 6,
      "counted": 2,
@@ -491,6 +541,11 @@
      "birds": 4,
      "counted": 1,
      "locations": 1
+    },
+    "2026-09-20": {
+     "birds": 3,
+     "counted": 1,
+     "locations": 3
     }
    },
    "whwdov": {
@@ -506,7 +561,7 @@
     "2026-09-14": {
      "birds": 0,
      "counted": 0,
-     "locations": 2
+     "locations": 1
     },
     "2026-09-15": {
      "birds": 2,
