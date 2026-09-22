@@ -66,8 +66,10 @@ def daily_features(h, daylight=(6, 14)):
     days = {}
     for i, ts in enumerate(h["time"]):
         d, hr = ts[:10], int(ts[11:13])
-        t, ws = h["temperature_2m"][i], h["wind_speed_10m"][i]
-        wd, sp, cc = h["wind_direction_10m"][i], h["surface_pressure"][i], h["cloud_cover"][i]
+        t, sp, cc = h["temperature_2m"][i], h["surface_pressure"][i], h["cloud_cover"][i]
+        # flight level if we have it, surface as a fallback
+        ws = (h.get("wind_speed_925hPa") or h["wind_speed_10m"])[i]
+        wd = (h.get("wind_direction_925hPa") or h["wind_direction_10m"])[i]
         if None in (t, ws, wd, sp, cc):
             continue
         f = days.setdefault(d, {"temps": [], "push": [], "pres": [], "cloud_am": [], "day_t": []})

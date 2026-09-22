@@ -7,7 +7,13 @@ import time
 
 import requests
 
+# Wind at 925hPa (~2,750 ft), not 10 m. Migrating doves fly a few hundred to
+# ~1,500 ft up; 10 m wind is surface friction — trees, terrain, buildings —
+# and runs roughly HALF the speed of the air a bird is actually flying in.
+# Surface wind is still fetched, because that is what the hunter feels at the
+# field and it is what the conditions table shows.
 HOURLY = ["temperature_2m", "wind_speed_10m", "wind_direction_10m",
+          "wind_speed_925hPa", "wind_direction_925hPa",
           "surface_pressure", "cloud_cover"]
 
 ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"
