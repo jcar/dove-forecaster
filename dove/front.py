@@ -217,13 +217,38 @@ def front_speed_mph(events):
 # a north wind, and when it quits the bird sits down and waits for the next
 # one. We have wind at five latitudes between Nebraska and the fields, so we
 # march them south a day at a time at the speed the sky actually gives them.
-BASE_MI_PER_DAY = 25.0      # drift with no help — staging, local shuffling
-PUSH_GAIN = 13.0            # extra miles per day per mph of southward wind
-MAX_MI_PER_DAY = 260.0      # a hard day's flight on a strong tailwind
+# Flight physics rather than a fitted slope. A migrating dove makes ground
+# speed = its own airspeed + whatever tailwind it has, for as long as it stays
+# up. Both numbers are things you can look up and argue with, which the old
+# intercept-and-gain pair never was.
+#
+# This replaced a linear law the moment the wind moved to flight level: at
+# 925hPa a front routinely gives 20-30 mph of tailwind, and the old formula
+# capped at 20, so it could not tell a good front from a great one.
+AIRSPEED_MPH = 32.0         # mourning dove cruising airspeed
+FLIGHT_HOURS = 5.5          # a morning migration leg
+GO_THRESHOLD_MPH = 3.0      # below this they stay put rather than burn fat
+FULL_GO_MPH = 11.0          # by here essentially the whole cohort is moving
+DRIFT_MI = 15.0             # local shuffling on a day they do not migrate
+MAX_MI_PER_DAY = 420.0      # a hard day on a strong tailwind
 
 
 def daily_flight_mi(push_mph):
-    return max(0.0, min(MAX_MI_PER_DAY, BASE_MI_PER_DAY + PUSH_GAIN * push_mph))
+    """Miles south in one day, given the tailwind at flight level.
+
+    Migration is a decision before it is a distance: a bird will not spend
+    itself flying into dead air, so below the threshold it simply stages.
+    """
+    if push_mph <= -2.0:
+        return 0.0                                   # headwind: they sit down
+    if push_mph < GO_THRESHOLD_MPH:
+        return DRIFT_MI                              # staging, not migrating
+    # Not every bird leaves at once, so the FRACTION departing ramps with the
+    # wind. A hard switch here put a cliff between 3 and 5 mph that moved an
+    # arrival by days on a 2 mph difference.
+    frac = min(1.0, (push_mph - GO_THRESHOLD_MPH) / (FULL_GO_MPH - GO_THRESHOLD_MPH))
+    full = min(MAX_MI_PER_DAY, FLIGHT_HOURS * (AIRSPEED_MPH + push_mph))
+    return DRIFT_MI + frac * (full - DRIFT_MI)
 
 
 def push_at(push_field, day_iso, lat):

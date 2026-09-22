@@ -679,3 +679,36 @@ taken as headroom instead.
 
 SITE_STATES in flyway.py is the single knob; adding a state extends coverage
 and nothing else changes.
+
+## D19 — Wind at flight level, and a flight law made of physics (2026-09-21)
+The flight model was fed 10 m wind. Migrating doves fly a few hundred to
+~1,500 ft up; 10 m wind is surface friction - trees, terrain, buildings.
+Measured across the lattice, 925hPa (~2,750 ft) runs 1.3x to 2.8x the surface
+speed, averaging about double. Every arrival date was therefore biased LATE.
+925hPa comes from the same request at no extra cost. Surface wind is still
+fetched and is still what the conditions table shows, because that is what a
+hunter feels standing in the field.
+
+That change FORCED retuning the flight law: at flight level a front routinely
+gives 20-30 mph of tailwind, and the old linear law
+(25 + 13*push, capped 260) saturated at 20 - it could not tell a good front
+from a great one.
+
+Replaced with flight physics rather than a fitted line:
+    ground speed = AIRSPEED_MPH (32) + tailwind
+    distance     = FLIGHT_HOURS (5.5) x ground speed
+with a departure ramp: below 3 mph they stage (15 mi of local drift), by
+11 mph essentially the whole cohort is moving, and on a headwind under
+-2 mph they sit down entirely.
+
+A hard go/no-go threshold was tried first and rejected: it put a cliff
+between 3 and 5 mph tailwind that moved an arrival by days on a 2 mph
+difference. Not every bird leaves at once, so the FRACTION departing ramps.
+
+STILL GUESSES - but better guesses. 32 mph airspeed and 5.5 hours aloft are
+quantities someone can look up and argue with; an intercept and a gain were
+not. Both remain uncalibrated against real birds.
+
+EFFECT at the tracked location: peak Sep 22 (92.6) -> Sep 21 (100.7), and
+birds still airborne past the window fell 94.4 -> 67.4 because they now
+actually complete the flight.
