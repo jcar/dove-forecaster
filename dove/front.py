@@ -251,6 +251,13 @@ def daily_flight_mi(push_mph):
     return DRIFT_MI + frac * (full - DRIFT_MI)
 
 
+def linear_flight_mi(push_mph):
+    """The pre-2026-09-21 law, kept as the CHALLENGER. It is published beside
+    the live forecast every day so the season's eBird counts - not one event
+    and a gut call - decide which law is right. See DECISIONS D21."""
+    return max(0.0, min(260.0, 25.0 + 13.0 * push_mph))
+
+
 def push_at(push_field, day_iso, lat):
     """Southward wind push at a latitude, linearly interpolated between the
     latitudes we actually sample (the four bands plus the fields)."""
@@ -270,7 +277,7 @@ def push_at(push_field, day_iso, lat):
 
 
 def simulate_arrival(depart_day, north_mi, push_field, home_lat, max_days=16,
-                    trace=None):
+                    trace=None, law=None):
     """March one departure south. Returns fractional days to the fields, or
     None if they are still in the air past the horizon.
 
@@ -289,7 +296,7 @@ def simulate_arrival(depart_day, north_mi, push_field, home_lat, max_days=16,
             # invent weather and crawl the birds in at 25 mi/day, producing
             # a confident-looking arrival built on nothing.
             return None
-        flown = daily_flight_mi(push)
+        flown = (law or daily_flight_mi)(push)
         if trace is not None:
             trace.append({"date": day.isoformat(), "lat": round(lat, 3),
                           "remaining_mi": round(remaining), "push_mph": round(push, 1),
@@ -302,15 +309,19 @@ def simulate_arrival(depart_day, north_mi, push_field, home_lat, max_days=16,
 
 
 def arrival_forecast_wind(events, push_field, home_lat, days_out=10,
-                          today=None, spread=0.6):
+                          today=None, spread=0.6, law=None, max_days=16):
     """Superpose per-band pulses, each timed by an actual simulated flight."""
     today = today or datetime.now().date()
     legs, airborne = [], 0.0
     for e in events:
         lead = simulate_arrival(e["when"].date().isoformat(), e["north_mi"],
-                                push_field, home_lat)
+                                push_field, home_lat, max_days=max_days, law=law)
         if lead is None:
-            airborne += e["index"]      # released, but not landed inside the window
+            # Only a departure recent enough to still be flying counts as
+            # airborne. An August front that never "landed" inside its 16-day
+            # simulation is not in the air in late September - it is gone.
+            if e["when"].date() + timedelta(days=max_days) >= today:
+                airborne += e["index"]
             continue
         legs.append((e, e["when"] + timedelta(days=lead), lead))
 

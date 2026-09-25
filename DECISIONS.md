@@ -743,3 +743,34 @@ suggestive, not as a wave.
 
 Ladder extended to 48.5N (7 rows, 63 calls/morning); the new rows render as
 "no history yet", never as zero birds.
+
+## D21 — The flight sim had ~4 days of wind; both laws now graded daily (2026-09-25)
+
+TRIGGER: forecasts from Sep 18-21 all called a Sep 22 arrival; from Sep 22 the
+near term went to ~0 and the peak slid to Oct 5 while growing (111 -> 231).
+
+HINDCAST on observed weather (Sep 10-25, no forecast error), home = Dove Blasters:
+
+    peak       surface + linear law   Sep 22 (148)
+               925hPa + airspeed law  Sep 21 (148)
+               925hPa + linear law    Sep 21/22 split (131/135)
+
+eBird, Collin Co.: mourning dove 2.06/hr Sep 21 -> 5.40/hr Sep 22; north Texas
+wave row +3.1 on Sep 22, back to 0.0 / -0.1 on Sep 23-24. Collared-dove control
+flat. So the Sep 22 call looks right, and the quiet week after it looks real.
+The old law was a day closer - ONE event, not grounds to revert.
+
+BUG FOUND: push_field was built from the 20-day DISPLAY window, which starts
+only ~4 days before today. A flock leaving a band earlier had no wind to fly
+on and was written off as "still airborne" (104 index points on Sep 25; 14
+after the fix). push_field now uses the whole season.
+
+ALSO: fronts whose last band crossing is > 10 days old leave the table, and a
+local passage only counts as a front's arrival within 6 days of its last band
+crossing - every August front had been "reaching home Sep 30". A departure
+only counts as airborne if it could still be inside its 16-day flight.
+
+DECISION: keep 925hPa + airspeed law live. Publish `arrival_challenger` (same
+birds, same wind, old linear law) in every audit-trail forecast, so the
+season's counts decide between them. After the fix both laws agree on the
+Oct 5 peak (231 vs 216): that peak comes from the weather, not the law.
