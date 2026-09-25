@@ -1,3 +1,7 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <title>Dove Arrival Watch</title>
 <style>
@@ -268,6 +272,13 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
        Texas. Each row is compared only to <b>its own</b> last week &mdash; a quiet Nebraska county isn't judged
        against busy Dallas. Glowing means more doves than usual there; dark means fewer.
        <b>A migration shows up as a glow that slides down the rows over days.</b></p>
+    <div id="nearWrap" hidden>
+      <h3 style="margin:18px 0 4px">Doves near you</h3>
+      <p class="sub" id="nearSub"></p>
+      <figure class="scroll"><svg id="near" viewBox="0 0 1000 280" role="img" aria-label="Dove counts at the latitude nearest you, by day"></svg></figure>
+      <div class="leg" id="nearLeg" style="margin-bottom:22px"></div>
+      <h3 style="margin:0 0 8px">The whole flyway</h3>
+    </div>
     <div class="row" style="margin-bottom:12px" id="birdSpp" role="group" aria-label="Species">
       <button data-sp="moudov" aria-pressed="true">Mourning dove</button>
       <button data-sp="whwdov" aria-pressed="false">White-winged</button>
@@ -329,7 +340,7 @@ $('#theme').onclick=()=>{
   const next=cur==='light'?'dark':cur==='dark'?'light':(matchMedia('(prefers-color-scheme: dark)').matches?'light':'dark');
   document.documentElement.setAttribute('data-theme',next);
   try{localStorage.setItem('dove.theme',next)}catch(e){}
-  if(FLOW){buildFly(); setFrame(FRAME); drawFlights();} drawBirds(); if(SITE) drawSite();
+  if(FLOW){buildFly(); setFrame(FRAME); drawFlights();} drawBirds(); drawNear(); if(SITE) drawSite();
 };
 
 async function boot(){
@@ -373,7 +384,7 @@ async function selectSite(id,name,lat,lon){
   history.replaceState(null,'','?loc='+id);
   $('#curLoc').textContent=PLACE.name||(SITE.lat+', '+SITE.lon);
   $('#finder').hidden=true;$('#overview').hidden=true;$('#site').hidden=false;$('#change').hidden=false;
-  drawSite(); loadLocal();
+  drawSite(); drawNear(); loadLocal();
   scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});
 }
 
@@ -724,7 +735,7 @@ function drawSite(){
         DOW3[new Date(c.p10).getDay()]+' '+md(c.p10.slice(0,10))+' – '+DOW3[new Date(c.p90).getDay()]+' '+md(c.p90.slice(0,10))+'</span>'
         :'<span class="dim">—</span>';
       return '<tr><td>'+where+'</td><td class="n">'+(f.speed_mph?f.speed_mph+' mph':'—')+
-        (f.actual_speed_mph?'<br><span class="dim">slowed to '+f.actual_speed_mph+' getting here</span>':'')+
+        (f.actual_speed_mph?'<br><span class="dim">'+(f.speed_mph&&f.actual_speed_mph>f.speed_mph?'sped up to ':'slowed to ')+f.actual_speed_mph+' getting here</span>':'')+
         '</td><td class="n">'+eta+'</td><td class="n">'+sure+'</td></tr>';
     }).join('');
     $('#fronts').innerHTML='<thead><tr><th>Swept through</th><th>Speed up north</th><th>Reaches your fields</th><th>How sure</th></tr></thead><tbody>'+
@@ -819,7 +830,69 @@ async function loadLocal(){
   }
 }
 
-async function loadBirds(){try{WAVE=await (await fetch('data/wave.json')).json();drawBirds();}catch(e){}}
+async function loadBirds(){try{WAVE=await (await fetch('data/wave.json')).json();drawBirds();drawNear();}catch(e){}}
+
+function drawNear(){
+  /* The trend line for ONE latitude - the counted row nearest the hunter. A
+     line only compares a place with itself over time, which is the one
+     comparison these counts support. The old version of this chart pooled
+     every latitude into one number and double-counted overlapping days. */
+  const wrap=$('#nearWrap'); if(!WAVE||!WAVE.rows||!PLACE){wrap.hidden=true;return;}
+  wrap.hidden=false;
+  const ri=WAVE.rows.reduce((b,r,i)=>Math.abs(r-PLACE.lat)<Math.abs(WAVE.rows[b]-PLACE.lat)?i:b,0);
+  const lat=WAVE.rows[ri], miles=Math.round(Math.abs(lat-PLACE.lat)*69);
+  const days=WAVE.days, n=days.length, s=$('#near'); s.innerHTML='';
+  const where=ROW_NAME[lat]||(lat+'\u00B0N');
+  $('#nearSub').innerHTML='eBird counts across <b>'+where+'</b> ('+lat.toFixed(1)+'\u00B0N)'+
+    (miles<40?', your latitude':', the closest latitude we count &mdash; about <b>'+miles+' miles '+(lat>PLACE.lat?'north':'south')+'</b> of you')+
+    '. Dots are single days, which are noisy; the line is a 3-day average, so read the line. '+
+    'The shaded band is mourning doves\u2019 own normal for that latitude.';
+  const SER=[['moudov','Mourning','--s1',2.6],['whwdov','White-wing','--s2',2],['eucdov','Collared (the check)','--s3',1.4]];
+  const get=k=>WAVE.series[k][ri];
+  const smooth=a=>a.map((v,i)=>{const w=a.slice(Math.max(0,i-1),i+2).filter(x=>x!=null);return w.length?w.reduce((p,q)=>p+q,0)/w.length:null;});
+  const norm=get('moudov').map((v,i)=>{const z=WAVE.anomaly.moudov[ri][i];return v!=null&&z!=null?v-z:null;});
+  const all=SER.flatMap(q=>smooth(get(q[0]))).concat(norm).filter(v=>v!=null);
+  if(all.length<3){s.innerHTML='';$('#nearLeg').innerHTML='<span class="dim">Not enough counts at this latitude yet.</span>';return;}
+  const W=1000,H=280,L=44,R=150,T=16,B=36,iw=W-L-R,ih=H-T-B;
+  const mx=Math.max(1,...all)*1.1;
+  const X=i=>L+(n===1?iw/2:iw*i/(n-1)), Y=v=>T+ih-(v/mx)*ih;
+  for(let i=0;i<=4;i++){const v=mx*i/4;
+    s.appendChild(el('line',{x1:L,x2:L+iw,y1:Y(v),y2:Y(v),stroke:tok('--line2'),'stroke-width':1}));
+    const t=el('text',{x:L-8,y:Y(v)+4,'text-anchor':'end','font-size':10.5,fill:tok('--ink3')});t.textContent=v.toFixed(0);s.appendChild(t);}
+  // normal band: +-25% around mourning doves' rolling median
+  const nb=norm.map((v,i)=>v==null?null:[X(i),Y(v*1.25),Y(v*0.75)]).filter(Boolean);
+  if(nb.length>1) s.appendChild(el('path',{d:'M'+nb.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join('L')+
+    'L'+nb.slice().reverse().map(p=>p[0].toFixed(1)+','+p[2].toFixed(1)).join('L')+'Z',
+    fill:tok('--s1'),'fill-opacity':0.10,stroke:'none'}));
+  const ends=[];
+  SER.forEach(function(q){
+    const k=q[0],c=tok(q[2]),raw=get(k),sm=smooth(raw);
+    raw.forEach((v,i)=>{ if(v==null) return;
+      const dot=el('circle',{cx:X(i),cy:Y(Math.min(v,mx)),r:k==='moudov'?3.2:2.4,fill:c,'fill-opacity':0.35});
+      dot.addEventListener('pointermove',e=>show(e,q[1]+'  '+nice(days[i])+'\n'+v.toFixed(1)+' doves per counting stop'+
+        (k==='moudov'&&norm[i]!=null?'\nnormal here: '+norm[i].toFixed(1):'')));
+      dot.addEventListener('pointerleave',hide); s.appendChild(dot);});
+    let d='',pen=false,last=null;
+    sm.forEach((v,i)=>{ if(v==null){pen=false;return;} d+=(pen?'L':'M')+X(i).toFixed(1)+','+Y(v).toFixed(1); pen=true; last=[X(i),Y(v)];});
+    if(d) s.appendChild(el('path',{d:d,fill:'none',stroke:c,'stroke-width':q[3],'stroke-linejoin':'round','stroke-linecap':'round',
+      'stroke-dasharray':k==='eucdov'?'5 4':'none'}));
+    if(last) ends.push([last[1],q[1]]);
+  });
+  // end labels: keep them in line order, but never on top of each other
+  ends.sort((a,b)=>a[0]-b[0]);
+  for(let i=1;i<ends.length;i++) ends[i][0]=Math.max(ends[i][0],ends[i-1][0]+15);
+  ends.forEach(function(e){const lb=el('text',{x:L+iw+8,y:e[0]+4,'font-size':11.5,fill:tok('--ink2')});lb.textContent=e[1];s.appendChild(lb);});
+  days.forEach((d,i)=>{if(i%3===0||i===n-1){const t=el('text',{x:X(i),y:H-12,'text-anchor':'middle','font-size':10,fill:tok('--ink3')});
+    t.textContent=md(d);s.appendChild(t);}});
+  s.appendChild(el('line',{x1:L,x2:L+iw,y1:T+ih,y2:T+ih,stroke:tok('--line'),'stroke-width':1}));
+  let fc='';
+  if(SITE&&SITE.arrival&&SITE.arrival.length){
+    const pk=SITE.arrival.reduce((a,b)=>b.arrival>a.arrival?b:a);
+    if(pk.arrival>0) fc='<span class="dim">Counts end yesterday. Next forecast push at your fields: <b>'+nice(pk.date)+'</b> &mdash; watch for the line to climb then.</span>';
+  }
+  $('#nearLeg').innerHTML='<span><i style="background:'+tok('--s1')+';opacity:.25"></i>mourning doves\u2019 normal here</span>'+
+    '<span><i style="background:'+tok('--s3')+'"></i>collared doves don\u2019t migrate &mdash; if they rise with the others, it\u2019s more birders, not more birds</span>'+fc;
+}
 let BIRD_SP='moudov';
 const ROW_NAME={33.5:'North Texas',36.0:'Oklahoma',38.5:'Kansas',41.0:'Nebraska',
                 43.5:'South Dakota',46.0:'North Dakota',48.5:'Canadian line'};
