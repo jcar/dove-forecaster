@@ -3143,7 +3143,7 @@
    "speed_mph": null
   }
  ],
- "generated_at": "2026-09-25T14:27:50+00:00",
+ "generated_at": "2026-09-25T17:19:18+00:00",
  "home": {
   "lat": 33.391,
   "lon": -96.579,
@@ -3178,7 +3178,7 @@
    "evening": {
     "cloud_pct": 16,
     "gust_mph": 17,
-    "rain_pct": 2,
+    "rain_pct": 0,
     "temp_f": 89,
     "wind_dir": 159,
     "wind_from": "SSE",
@@ -3201,7 +3201,7 @@
    "evening": {
     "cloud_pct": 30,
     "gust_mph": 18,
-    "rain_pct": 9,
+    "rain_pct": 8,
     "temp_f": 89,
     "wind_dir": 173,
     "wind_from": "S",
@@ -3210,7 +3210,7 @@
    "morning": {
     "cloud_pct": 41,
     "gust_mph": 18,
-    "rain_pct": 48,
+    "rain_pct": 62,
     "temp_f": 73,
     "wind_dir": 185,
     "wind_from": "S",
@@ -3224,7 +3224,7 @@
    "evening": {
     "cloud_pct": 1,
     "gust_mph": 15,
-    "rain_pct": 40,
+    "rain_pct": 27,
     "temp_f": 90,
     "wind_dir": 170,
     "wind_from": "S",
@@ -3233,7 +3233,7 @@
    "morning": {
     "cloud_pct": 9,
     "gust_mph": 13,
-    "rain_pct": 15,
+    "rain_pct": 27,
     "temp_f": 75,
     "wind_dir": 119,
     "wind_from": "ESE",
@@ -3247,7 +3247,7 @@
    "evening": {
     "cloud_pct": 100,
     "gust_mph": 29,
-    "rain_pct": 32,
+    "rain_pct": 14,
     "temp_f": 90,
     "wind_dir": 169,
     "wind_from": "S",
@@ -3256,7 +3256,7 @@
    "morning": {
     "cloud_pct": 63,
     "gust_mph": 26,
-    "rain_pct": 5,
+    "rain_pct": 4,
     "temp_f": 78,
     "wind_dir": 180,
     "wind_from": "S",
@@ -3270,7 +3270,7 @@
    "evening": {
     "cloud_pct": 80,
     "gust_mph": 42,
-    "rain_pct": 48,
+    "rain_pct": 38,
     "temp_f": 91,
     "wind_dir": 164,
     "wind_from": "SSE",
@@ -3279,7 +3279,7 @@
    "morning": {
     "cloud_pct": 85,
     "gust_mph": 34,
-    "rain_pct": 30,
+    "rain_pct": 22,
     "temp_f": 78,
     "wind_dir": 173,
     "wind_from": "S",
