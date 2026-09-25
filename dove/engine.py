@@ -7,7 +7,8 @@ from .weather import OpenMeteo, ensemble_members
 from .push import daily_features, score_day, Reservoir
 from .front import (arc_passage, arc_passage_from, arc_passages_from,
                     front_speed_mph, cluster_fronts,
-                    frontal_passages, arrival_forecast_wind, ensemble_confidence)
+                    frontal_passages, arrival_forecast_wind, ensemble_confidence,
+                    linear_flight_mi)
 from .local import conditions, _summarise
 
 ENGINE_VERSION = "0.1.0"
@@ -19,6 +20,11 @@ WIND_HORIZON = 16      # Open-Meteo max. The flight sim needs runway beyond
 
 SEASON_START = (8, 15)   # matches the backtest window
 DISPLAY_DAYS = 20        # how much band history the dashboard actually shows
+FRONT_KEEP_DAYS = 10     # fronts whose last band crossing is older than this
+                         # are history, not forecast, and leave the table
+MAX_FRONT_TRANSIT_DAYS = 6   # a boundary 620 mi north reaches the fields in
+                             # well under a week; a "match" later than this is
+                             # a different front
 
 
 def season_past_days(today=None):
@@ -47,7 +53,7 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
     hundreds of locations pays for the weather once rather than per location.
     """
     past = season_past_days() if past is None else past
-    arcs, events, arc_series = arc_points(home), [], {}
+    arcs, events, arc_series, band_daily = arc_points(home), [], {}, {}
     for idx, arc in arcs.items():
         if grid is not None:
             pp = [grid.features(*p) for p in arc["points"]]
@@ -76,6 +82,7 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
         # Drained across the full season above; published for the display
         # window only, so a correct reservoir does not bloat the payload.
         arc_series[idx] = {d: daily[d] for d in sorted(daily)[-DISPLAY_DAYS:]}
+        band_daily[idx] = daily
 
         # ALL quorum-passing passages at this band, not just the strongest -
         # otherwise a band drops out of a front's chain whenever its biggest
@@ -103,15 +110,22 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
 
     # Southward wind push by day and latitude: the four bands plus the
     # fields. This is the wind field the birds actually fly through.
+    # Built from the WHOLE season, not the display window. Built from the
+    # 20-day window it began only ~4 days before today, so any flock that left
+    # a band earlier than that had no wind to fly on and was written off as
+    # "still airborne" - 104 index points of real birds on 2026-09-25.
     push_field = {}
     for idx, arc in arcs.items():
-        for d, v in arc_series[idx].items():
+        for d, v in band_daily[idx].items():
             push_field.setdefault(d, {})[arc["mean_lat"]] = v.get("obs", {}).get("push_mph", 0.0)
     for d, v in home_push.items():
         push_field.setdefault(d, {})[home[0]] = v
 
     fronts = []
-    for n, fr in enumerate(cluster_fronts(events), 1):
+    keep_from = datetime.now() - timedelta(days=FRONT_KEEP_DAYS)
+    live = [fr for fr in cluster_fronts(events)
+            if max(e["when"] for e in fr) >= keep_from]
+    for n, fr in enumerate(live, 1):
         spd = front_speed_mph(fr)
         eta = None
         if spd:
@@ -140,6 +154,10 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
         _members = ensemble                    # fan-out supplies it (or None)
 
     _arr = arrival_forecast_wind(events, push_field, home[0], days_out=future)
+    # Same birds, same wind, the old flight law. Recorded every day so the
+    # season's counts can grade the two against each other (DECISIONS D21).
+    _alt = arrival_forecast_wind(events, push_field, home[0], days_out=future,
+                                 law=linear_flight_mi)
 
     # Replace the extrapolated ETA with the DETECTED arrival at the fields.
     # Match each tracked boundary to the strongest local passage that happens
@@ -147,7 +165,9 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
     # deceleration is visible rather than hidden.
     for f in fronts:
         last = max(p["when"] for p in f["passages"])
-        cand = [p for p in local_fronts if p["when"] > last]
+        latest = (datetime.fromisoformat(last)
+                  + timedelta(days=MAX_FRONT_TRANSIT_DAYS)).isoformat(timespec="minutes")
+        cand = [p for p in local_fronts if last < p["when"] <= latest]
         f["eta_extrapolated"] = f.pop("reaches_home")
         if cand:
             best = max(cand, key=lambda p: p["strength"])
@@ -174,6 +194,10 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
         "fronts": fronts,
         "arrival": _arr["days"],
         "still_airborne": _arr["still_airborne"],
+        "arrival_challenger": {"law": "linear (pre-2026-09-21)",
+                               "days": [{"date": d["date"], "arrival": d["arrival"]}
+                                        for d in _alt["days"]],
+                               "still_airborne": _alt["still_airborne"]},
         # Conditions at the fields themselves. Never fatal — the arrival
         # forecast is the product; this is the useful extra beside it.
         "local": local_days,
