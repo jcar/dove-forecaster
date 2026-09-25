@@ -105,11 +105,6 @@
     }
    },
    "moudov": {
-    "2026-09-18": {
-     "birds": 4,
-     "counted": 2,
-     "locations": 2
-    },
     "2026-09-19": {
      "birds": 6,
      "counted": 2,
@@ -454,9 +449,9 @@
    },
    "moudov": {
     "2026-09-18": {
-     "birds": 7,
-     "counted": 2,
-     "locations": 2
+     "birds": 2,
+     "counted": 1,
+     "locations": 1
     },
     "2026-09-19": {
      "birds": 8,
@@ -619,9 +614,9 @@
    },
    "moudov": {
     "2026-09-18": {
-     "birds": 2,
-     "counted": 2,
-     "locations": 2
+     "birds": 1,
+     "counted": 1,
+     "locations": 1
     },
     "2026-09-21": {
      "birds": 10,
