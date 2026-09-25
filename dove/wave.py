@@ -29,7 +29,9 @@ LOOKBACK_DAYS = 7       # overlap between runs, so a missed morning self-heals
 # moved, "band1_0" in an old file and a new file would be different ground and
 # the accumulated history would be silently unjoinable. The wave measures a
 # continental phenomenon; it must be pinned to the continent, not to a user.
-ROWS = [33.5, 36.0, 38.5, 41.0, 43.5]      # N Texas -> the Dakotas
+ROWS = [33.5, 36.0, 38.5, 41.0, 43.5, 46.0, 48.5]   # N Texas -> the Canadian line.
+# The top two were added 2026-09-25 so a push starting in North Dakota and
+# Minnesota is visible before it is halfway down. Their history starts that day.
 COLS = [-99.5, -96.5, -93.5]               # west / centre / east of the flyway
 
 

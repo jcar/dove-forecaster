@@ -61,6 +61,7 @@ h1{font-family:Bitter,Georgia,serif; margin:0; font-weight:700; letter-spacing:-
 button{font:inherit; font-size:13px; padding:7px 13px; border-radius:2px; cursor:pointer;
   background:var(--raise); color:var(--ink); border:1px solid var(--line)}
 button:hover{border-color:var(--wheat)}
+button[aria-pressed="true"]{border-color:var(--wheat); color:var(--wheat)}
 button:focus-visible,input:focus-visible{outline:2px solid var(--wheat); outline-offset:2px}
 .finder{margin-top:34px; background:var(--surface); border:1px solid var(--line); border-radius:3px; padding:22px}
 .finder h2{font-family:Bitter,serif; font-size:19px; font-weight:600; margin:0 0 4px; letter-spacing:-.01em;
@@ -263,9 +264,17 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
 
   <section>
     <h2>Are the birds actually moving?</h2>
-    <p class="sub">Doves counted per birdwatching stop across the whole flyway. Collared-doves are the check:
-       they don't migrate, so their line should stay flat when the others jump. If all three move together, we're watching people, not birds.</p>
-    <figure class="scroll"><svg id="birds" viewBox="0 0 1000 300" role="img" aria-label="Dove counts across the flyway"></svg></figure>
+    <p class="sub">Real dove counts from Cornell's eBird, at seven latitudes from the Canadian line down to north
+       Texas. Each row is compared only to <b>its own</b> last week &mdash; a quiet Nebraska county isn't judged
+       against busy Dallas. Glowing means more doves than usual there; dark means fewer.
+       <b>A migration shows up as a glow that slides down the rows over days.</b></p>
+    <div class="row" style="margin-bottom:12px" id="birdSpp" role="group" aria-label="Species">
+      <button data-sp="moudov" aria-pressed="true">Mourning dove</button>
+      <button data-sp="whwdov" aria-pressed="false">White-winged</button>
+      <button data-sp="eucdov" aria-pressed="false">Collared (the check)</button>
+    </div>
+    <figure class="scroll"><svg id="birds" viewBox="0 0 1000 330" role="img" aria-label="Dove counts by latitude and day, against each latitude's own normal"></svg></figure>
+    <p class="sub" id="birdVerdict" style="margin-top:12px"></p>
     <div class="leg" id="birdLeg"></div>
   </section>
 
@@ -811,32 +820,73 @@ async function loadLocal(){
 }
 
 async function loadBirds(){try{WAVE=await (await fetch('data/wave.json')).json();drawBirds();}catch(e){}}
+let BIRD_SP='moudov';
+const ROW_NAME={33.5:'North Texas',36.0:'Oklahoma',38.5:'Kansas',41.0:'Nebraska',
+                43.5:'South Dakota',46.0:'North Dakota',48.5:'Canadian line'};
 function drawBirds(){
-  const s=$('#birds'); if(!WAVE)return; s.innerHTML='';
-  const days=Object.keys(WAVE.days).sort().slice(-30);
-  if(days.length<3){$('#birdLeg').innerHTML='<span class="dim">Only '+days.length+' day(s) collected so far — this needs a few weeks before it says anything.</span>';return;}
-  const W=1000,H=300,L=44,R=110,T=22,B=44,iw=W-L-R,ih=H-T-B;
-  const SER=[['moudov','Mourning','--s1'],['whwdov','White-wing','--s2'],['eucdov','Collared','--s3']];
-  const val=(d,k)=>{const c=WAVE.days[d][k];return c&&c.locations?c.birds/c.locations:0;};
-  const mx=Math.max(0.5,...days.map(d=>Math.max(...SER.map(q=>val(d,q[0])))));
-  const X=i=>L+(days.length===1?iw/2:iw*i/(days.length-1)), Y=v=>T+ih-(v/mx)*ih;
-  for(let i=0;i<=4;i++){const v=mx*i/4;
-    s.appendChild(el('line',{x1:L,x2:W-R,y1:Y(v),y2:Y(v),stroke:tok('--line2'),'stroke-width':1}));
-    const t=el('text',{x:L-8,y:Y(v)+4,'text-anchor':'end','font-size':10.5,fill:tok('--ink3')});t.textContent=v.toFixed(1);s.appendChild(t);}
-  SER.forEach(function(q){
-    const k=q[0],n=q[1],c=tok(q[2]), pts=days.map((d,i)=>[X(i),Y(val(d,k))]);
-    s.appendChild(el('path',{d:'M'+pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join('L'),fill:'none',stroke:c,
-      'stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'}));
-    pts.forEach(p=>s.appendChild(el('circle',{cx:p[0],cy:p[1],r:3,fill:c,stroke:tok('--ground'),'stroke-width':2})));
-    const lb=el('text',{x:W-R+8,y:pts[pts.length-1][1]+4,'font-size':11.5,fill:tok('--ink2')});
-    lb.textContent=n+(k==='eucdov'?' (check)':''); s.appendChild(lb);});
-  days.forEach((d,i)=>{if(i%4===0){const t=el('text',{x:X(i),y:H-26,'text-anchor':'middle','font-size':10,fill:tok('--ink3')});
-    t.textContent=md(d);s.appendChild(t);}});
-  s.appendChild(el('line',{x1:L,x2:W-R,y1:T+ih,y2:T+ih,stroke:tok('--line'),'stroke-width':1}));
-  $('#birdLeg').innerHTML=SER.map(function(q){return '<span><i style="background:'+tok(q[2])+'"></i>'+q[1]+
-    (q[0]==='eucdov'?' — does not migrate':'')+'</span>';}).join('')+
-    '<span class="dim">doves per birdwatching stop, whole flyway</span>';
+  /* Latitude down the side, north on top - same orientation as the upstream
+     heatmap, so the two read alike. Each cell is that latitude's count minus
+     its OWN rolling median; rows are never compared with each other. */
+  const s=$('#birds'); if(!WAVE||!WAVE.rows) return; s.innerHTML='';
+  const rows=WAVE.rows.slice().reverse();                  // north first
+  const A=WAVE.anomaly[BIRD_SP].slice().reverse();
+  const days=WAVE.days, W=1000,H=330,L=150,R=14,T=14,B=40;
+  const cw=(W-L-R)/days.length, rh=(H-T-B)/rows.length;
+  const vals=A.flat().filter(v=>v!=null).map(Math.abs);
+  const mx=Math.max(0.5, vals.length?vals.sort((a,b)=>a-b)[Math.floor(vals.length*0.95)]:1);
+  rows.forEach(function(lat,ri){
+    const y=T+rh*ri;
+    const n1=el('text',{x:0,y:y+rh/2-3,'font-size':12.5,fill:tok('--ink'),'font-weight':600});
+    n1.textContent=ROW_NAME[lat]||(lat+'N'); s.appendChild(n1);
+    const n2=el('text',{x:0,y:y+rh/2+11,'font-size':10,fill:tok('--ink3')});
+    n2.textContent=lat.toFixed(1)+'\u00B0N'; s.appendChild(n2);
+    const hasAny=A[ri].some(v=>v!=null);
+    days.forEach(function(d,ci){
+      const v=A[ri][ci], x=L+cw*ci;
+      if(v==null){                                          // no data is NOT zero birds
+        s.appendChild(el('rect',{x:x+1,y:y+1,width:Math.max(1,cw-2),height:Math.max(1,rh-2),rx:2,
+          fill:'none',stroke:tok('--line'),'stroke-width':0.6,'stroke-dasharray':'2 2'}));
+        return;
+      }
+      const q=Math.max(-1,Math.min(1,v/mx));
+      const fill=q>=0?mix(tok('--wmid'),tok('--bird'),q):mix(tok('--wmid'),tok('--whold'),-q);
+      const c=el('rect',{x:x+1,y:y+1,width:Math.max(1,cw-2),height:Math.max(1,rh-2),rx:2,fill:fill});
+      const raw=WAVE.series[BIRD_SP][WAVE.rows.length-1-ri][ci];
+      c.addEventListener('pointermove',e=>show(e,(ROW_NAME[lat]||lat)+'  '+nice(d)+'\n'+
+        (raw!=null?raw.toFixed(1)+' doves per counting stop':'no counts')+'\n'+
+        (v>=0?'+':'')+v.toFixed(1)+' vs its own normal'));
+      c.addEventListener('pointerleave',hide); s.appendChild(c);
+    });
+    if(!hasAny){
+      const t2=el('text',{x:L+8,y:y+rh/2+4,'font-size':10.5,fill:tok('--ink3')});
+      t2.textContent='no history yet \u2014 added recently'; s.appendChild(t2);
+    }
+  });
+  days.forEach((d,ci)=>{ if(ci%3) return;
+    const t2=el('text',{x:L+cw*ci+cw/2,y:H-18,'text-anchor':'middle','font-size':10,fill:tok('--ink3')});
+    t2.textContent=md(d); s.appendChild(t2);});
+
+  const P=WAVE.propagation[BIRD_SP]||{}, v=$('#birdVerdict');
+  const pass=(P.pairs||[]).filter(p=>p.passes);
+  const nm=i=>ROW_NAME[rows[i]]||rows[i];
+  if(P.status==='thin') v.innerHTML='<b>Not enough history yet.</b> '+P.days+' days collected; a speed needs at least '+P.need+'.';
+  else if(P.status==='control_fails') v.innerHTML='<b>Can\u2019t trust this right now.</b> The collared doves &mdash; which don\u2019t migrate &mdash; show the same pattern, so this is birders moving, not birds.';
+  else if(P.status==='wave') v.innerHTML='<b>The birds are moving south</b> at about <b>'+P.mi_per_day+' miles a day</b>, measured from the counts alone &mdash; '+
+    P.agreeing_pairs+' of '+P.of_pairs+' latitude steps agree. The weather model assumes roughly 150\u2013300 on a good tailwind.';
+  else if(BIRD_SP==='eucdov') v.innerHTML='<b>No wave, which is what we want.</b> These birds don\u2019t migrate. If a southward pattern ever shows up here, it means we\u2019re measuring birdwatchers, not doves.';
+  else v.innerHTML='<b>No clear wave yet</b> across '+P.days+' days.'+(pass.length?' One step stands out: <b>'+nm(pass[0].pair)+'</b> counts lead <b>'+nm(pass[0].pair+1)+'</b> by '+
+    pass[0].lag_days+' day'+(pass[0].lag_days>1?'s':'')+' &mdash; suggestive, but one step isn\u2019t a wave.':'')+
+    ' The bar for calling one drops as history builds, so this sharpens every morning.';
+
+  $('#birdLeg').innerHTML='<span><i style="background:'+tok('--bird')+'"></i>more doves than usual</span>'+
+    '<span><i style="background:'+tok('--whold')+'"></i>fewer</span>'+
+    '<span><i style="background:none;border:1px dashed '+tok('--line')+'"></i>no counts that day</span>';
 }
+document.querySelectorAll('#birdSpp button').forEach(function(b){
+  b.onclick=function(){ BIRD_SP=b.dataset.sp;
+    document.querySelectorAll('#birdSpp button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    drawBirds(); };
+});
 async function loadBacktest(){try{const b=await (await fetch('data/backtest.json')).json();
   $('#spdN').textContent=b.speeds.length;
   $('#spdMed').textContent=b.speeds.length?b.speeds[Math.floor(b.speeds.length/2)].toFixed(0)+' mph':'—';}catch(e){}}

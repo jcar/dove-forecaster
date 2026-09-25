@@ -712,3 +712,34 @@ not. Both remain uncalibrated against real birds.
 EFFECT at the tracked location: peak Sep 22 (92.6) -> Sep 21 (100.7), and
 birds still airborne past the window fell 94.4 -> 67.4 because they now
 actually complete the flight.
+
+## D20 — The wave panel had no latitude in it (2026-09-25)
+wave.py collected 15 circles across 5 latitudes. dashboard.py then summed every
+circle into one bucket - it loaded each circle's coordinates and never keyed on
+them - so the panel titled "Are the birds actually moving?" could not show
+movement. It also broke the project's own rule that rows are read only against
+their own history. Nothing needed re-fetching; the data was on disk all along.
+
+Same block, two more bugs: snapshots overlap by 7 days and were summed without
+dedup, so Sep 21 read 93 birds when the truth was 51, with the recent edge
+counted fewer times than the middle; and `counted` was dropped, so "X"-only
+reports diluted the ratio. Now: newest snapshot wins per (circle, species,
+day), density = birds / counted.
+
+dove/wavetrend.py: each row minus its OWN rolling median, then lagged
+cross-correlation between adjacent rows, north to south.
+
+FIRST RESULT WAS WRONG, AND WHY. A fixed r >= 0.35 bar reported a mourning dove
+"wave" at 2.4 mph - and the non-migratory collared-dove control showed equal
+structure (r = 0.83, 0.56). Taking the best of 7 lags on ~14 days finds strong
+correlations by chance. Replaced with a Bonferroni-over-lags, one-sided Fisher-z
+threshold (r >= 0.63 at 14 days, 0.37 at 42), plus a CONTROL GATE: if collared
+doves pass the same test, the result is void.
+
+Under the corrected test (18 days): no wave for any species; control quiet.
+One pair passes genuinely - Oklahoma leads north Texas by 2 days, r = 0.88
+against 0.63, ~86 mi/day, inside the flight model's range. Reported as
+suggestive, not as a wave.
+
+Ladder extended to 48.5N (7 rows, 63 calls/morning); the new rows render as
+"no history yet", never as zero birds.
