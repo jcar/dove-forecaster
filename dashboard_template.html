@@ -284,6 +284,32 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
       <button data-sp="whwdov" aria-pressed="false">White-winged</button>
       <button data-sp="eucdov" aria-pressed="false">Collared (the check)</button>
     </div>
+    <div class="flyrow">
+      <figure><div class="flymap"><svg id="bmap" viewBox="0 0 480 640" role="img" aria-label="Dove counts at 21 eBird circles across the flyway, against each circle's own normal, by day"></svg></div></figure>
+      <div class="flykey">
+        <h4 id="bmapDay">&nbsp;</h4>
+        <svg viewBox="0 0 240 96" style="width:100%;max-width:240px;margin:2px 0 10px">
+          <circle cx="14" cy="14" r="15" fill="var(--bird2)" opacity="0.22"/>
+          <circle cx="14" cy="14" r="9" fill="var(--bird)"/>
+          <text x="36" y="12" font-size="11" fill="var(--ink)" font-family="Archivo">More doves than usual</text>
+          <text x="36" y="24" font-size="10" fill="var(--ink3)" font-family="Archivo">for that spot</text>
+          <circle cx="14" cy="52" r="9" fill="var(--whold)"/>
+          <text x="36" y="50" font-size="11" fill="var(--ink)" font-family="Archivo">Fewer than usual</text>
+          <circle cx="14" cy="84" r="8" fill="none" stroke="var(--ink3)" stroke-dasharray="2 2"/>
+          <text x="36" y="88" font-size="11" fill="var(--ink)" font-family="Archivo">No counts that day</text>
+        </svg>
+        <p><b>Watch for the glow to slide south.</b> A real push lights up Nebraska or Kansas first, then
+           Oklahoma, then north Texas a few days later.</p>
+        <p class="dim" style="font-size:12px">Each circle is a 50 km eBird search area drawn at true size,
+           compared only with <b>its own</b> last week. One circle has few birders, so single spots flicker;
+           each day shown is a 3-day average. Trust a pattern across several circles, never one circle.</p>
+      </div>
+    </div>
+    <div class="transport">
+      <button id="bplay">&#9654; Play</button>
+      <input type="range" id="bscrub" min="0" max="0" value="0" step="1" aria-label="Day">
+    </div>
+    <h4 style="margin:26px 0 8px">Same counts, by latitude</h4>
     <figure class="scroll"><svg id="birds" viewBox="0 0 1000 330" role="img" aria-label="Dove counts by latitude and day, against each latitude's own normal"></svg></figure>
     <p class="sub" id="birdVerdict" style="margin-top:12px"></p>
     <div class="leg" id="birdLeg"></div>
@@ -340,7 +366,7 @@ $('#theme').onclick=()=>{
   const next=cur==='light'?'dark':cur==='dark'?'light':(matchMedia('(prefers-color-scheme: dark)').matches?'light':'dark');
   document.documentElement.setAttribute('data-theme',next);
   try{localStorage.setItem('dove.theme',next)}catch(e){}
-  if(FLOW){buildFly(); setFrame(FRAME); drawFlights();} drawBirds(); drawNear(); if(SITE) drawSite();
+  if(FLOW){buildFly(); setFrame(FRAME); drawFlights();} drawBirds(); drawNear(); drawBmap(); if(SITE) drawSite();
 };
 
 async function boot(){
@@ -384,7 +410,7 @@ async function selectSite(id,name,lat,lon){
   history.replaceState(null,'','?loc='+id);
   $('#curLoc').textContent=PLACE.name||(SITE.lat+', '+SITE.lon);
   $('#finder').hidden=true;$('#overview').hidden=true;$('#site').hidden=false;$('#change').hidden=false;
-  drawSite(); drawNear(); loadLocal();
+  drawSite(); drawNear(); drawBmap(); loadLocal();
   scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});
 }
 
@@ -469,7 +495,7 @@ async function loadFlow(){
     const [g,f]=await Promise.all([
       fetch('data/geo.json').then(r=>r.json()),
       fetch('data/flow.json').then(r=>r.json())]);
-    GEO=g; FLOW=f;
+    GEO=g; FLOW=f; drawBmap();
   }catch(e){ $('#flyDay').textContent='unavailable'; return; }
   if(FLOW.synthetic) $('#synthBanner').hidden=false;
   buildFly();
@@ -830,7 +856,102 @@ async function loadLocal(){
   }
 }
 
-async function loadBirds(){try{WAVE=await (await fetch('data/wave.json')).json();drawBirds();drawNear();}catch(e){}}
+async function loadBirds(){try{WAVE=await (await fetch('data/wave.json')).json();drawBirds();drawNear();drawBmap();}catch(e){}}
+
+/* Restored 2026-09-27: deleted by accident in 0c5ec76 while its callers stayed,
+   which left this panel blank and threw on every theme change. */
+function drawFlights(){
+  const s=$('#flight'); if(!s||!FLOW) return; s.innerHTML='';
+  const tr=FLOW.traces||[];
+  if(!tr.length){ $('#flightNote').textContent=''; return; }
+  const W=1000,H=240,L=54,R=175,T=18,B=38,iw=W-L-R,ih=H-T-B;
+  const all=tr.flatMap(t=>t.steps);
+  const days=[...new Set(all.map(s=>s.date))].sort();
+  const la1=Math.max(...tr.map(t=>t.from_lat)), la0=Math.min(...all.map(s=>s.lat));
+  const X=d=>L+(days.length<2?iw/2:iw*days.indexOf(d)/(days.length-1));
+  const Y=la=>T+ih*(la1-la)/Math.max(0.001,(la1-la0));
+  [la1,(la1+la0)/2,la0].forEach(function(la){
+    s.appendChild(el('line',{x1:L,x2:W-R,y1:Y(la),y2:Y(la),stroke:tok('--line2'),'stroke-width':1}));
+    const t2=el('text',{x:L-8,y:Y(la)+4,'text-anchor':'end','font-size':10.5,fill:tok('--ink3')});
+    t2.textContent=la.toFixed(1)+'N'; s.appendChild(t2);});
+  days.forEach((d,i)=>{ if(i%3===0||i===days.length-1){
+    const t2=el('text',{x:X(d),y:H-16,'text-anchor':'middle','font-size':10,fill:tok('--ink3')});
+    t2.textContent=md(d); s.appendChild(t2);}});
+  const cols=[tok('--s1'),tok('--s2'),tok('--s3')];
+  const ends=[];
+  tr.forEach(function(t2,k){
+    const c=cols[k%3];
+    const pts=[[X(t2.steps[0].date),Y(t2.from_lat)]].concat(t2.steps.map(s2=>[X(s2.date),Y(s2.lat)]));
+    s.appendChild(el('path',{d:'M'+pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join('L'),
+      fill:'none',stroke:c,'stroke-width':2.2,'stroke-linejoin':'round','stroke-linecap':'round'}));
+    t2.steps.forEach(function(s2,i){
+      if(s2.flown_mi>15) return;                     // mark only the stalls (<=15 mi is local drift)
+      const x=X(s2.date),y=Y(s2.lat);
+      s.appendChild(el('circle',{cx:x,cy:y,r:4,fill:'none',stroke:tok('--wheat'),'stroke-width':1.6}));
+    });
+    ends.push([pts[pts.length-1][1], t2.from+(t2.lead_days?' \u00B7 '+t2.lead_days+'d':' \u00B7 still flying')]);
+  });
+  ends.sort((a,b)=>a[0]-b[0]);
+  for(let i=1;i<ends.length;i++) ends[i][0]=Math.max(ends[i][0],ends[i-1][0]+15);
+  ends.forEach(function(e){const lb=el('text',{x:W-R+8,y:e[0]+4,'font-size':11.5,fill:tok('--ink2')});lb.textContent=e[1];s.appendChild(lb);});
+  const stalls=all.filter(s2=>s2.flown_mi<=15).length;
+  $('#flightNote').innerHTML='One flight south from each latitude, using the wind each day actually brought. '+
+    (stalls?'<b>Ringed points are days they sat down</b> &mdash; no tailwind, so they stayed put and fed. ':'')+
+    'Lines end where the birds reached north Texas, or where our wind data runs out.';
+}
+
+
+let BFRAME=null, BTIMER=null;
+function drawBmap(){
+  /* The circles where they really are. Same data as the latitude heatmap,
+     without pooling the three longitude columns - so it is noisier, and
+     smoothed over 3 days to keep one birder's outing from flashing a spot. */
+  const s=$('#bmap'); if(!s||!WAVE||!WAVE.map) return;
+  const M=WAVE.map, days=WAVE.days, n=days.length;
+  if(BFRAME==null||BFRAME>n-1) BFRAME=n-1;
+  const sc=$('#bscrub'); sc.max=n-1; sc.value=BFRAME;
+  s.setAttribute('viewBox','0 0 '+M.w+' '+M.h); s.innerHTML='';
+  if(GEO){ const g=el('g',{}); s.appendChild(g);
+    Object.values(GEO.paths).forEach(function(d){
+      g.appendChild(el('path',{d:d,fill:tok('--ink'),opacity:0.045}));
+      g.appendChild(el('path',{d:d,fill:'none',stroke:tok('--ink2'),'stroke-width':0.5,'stroke-linejoin':'round',opacity:0.35}));});}
+  const sm=a=>a.map((v,i)=>{const w=a.slice(Math.max(0,i-1),i+2).filter(x=>x!=null);return w.length?w.reduce((p,q)=>p+q,0)/w.length:null;});
+  const A=M.circles.map(c=>sm(c.anomaly[BIRD_SP]));
+  const vals=A.flat().filter(v=>v!=null).map(Math.abs).sort((a,b)=>a-b);
+  const mx=Math.max(0.5, vals.length?vals[Math.floor(vals.length*0.95)]:1);
+  M.circles.forEach(function(c,i){
+    const v=A[i][BFRAME], raw=c.series[BIRD_SP][BFRAME], x=c.xy[0], y=c.xy[1], r=c.r;
+    if(v==null){
+      s.appendChild(el('circle',{cx:x,cy:y,r:r,fill:'none',stroke:tok('--ink3'),'stroke-width':0.8,'stroke-dasharray':'2 2',opacity:0.7}));
+    } else {
+      const q=Math.max(-1,Math.min(1,v/mx));
+      if(q>0.15) s.appendChild(el('circle',{cx:x,cy:y,r:r*(1.3+0.9*q),fill:tok('--bird2'),opacity:0.12+0.2*q}));
+      s.appendChild(el('circle',{cx:x,cy:y,r:r,fill:q>=0?mix(tok('--wmid'),tok('--bird'),q):mix(tok('--wmid'),tok('--whold'),-q),
+        stroke:tok('--ground'),'stroke-width':1}));
+    }
+    const hit=el('circle',{cx:x,cy:y,r:r+4,fill:'transparent'});
+    hit.addEventListener('pointermove',e=>show(e,(ROW_NAME[c.lat]||c.lat+'\u00B0N')+', '+Math.abs(c.lon)+'\u00B0W  '+nice(days[BFRAME])+'\n'+
+      (raw!=null?raw.toFixed(1)+' doves per counting stop':'no counts that day')+
+      (v!=null?'\n'+(v>=0?'+':'')+v.toFixed(1)+' vs its own normal (3-day)':'')));
+    hit.addEventListener('pointerleave',hide); s.appendChild(hit);
+  });
+  if(PLACE&&FLOW){ const st=FLOW.sites.find(z=>z.id===PLACE.id);
+    if(st){ s.appendChild(el('circle',{cx:st.xy[0],cy:st.xy[1],r:4.5,fill:'none',stroke:tok('--ink'),'stroke-width':1.6}));
+      s.appendChild(el('circle',{cx:st.xy[0],cy:st.xy[1],r:1.6,fill:tok('--ink')}));
+      const t=el('text',{x:st.xy[0]+8,y:st.xy[1]+4,'font-size':11,fill:tok('--ink'),'font-weight':600});
+      t.textContent='you'; s.appendChild(t);}}
+  $('#bmapDay').textContent=nice(days[BFRAME])+(BIRD_SP==='eucdov'?' \u2014 collared (the check)':BIRD_SP==='whwdov'?' \u2014 white-winged':' \u2014 mourning doves');
+}
+function setBplay(on){
+  if(BTIMER){clearInterval(BTIMER);BTIMER=null;}
+  $('#bplay').innerHTML=on?'&#10073;&#10073; Pause':(REDUCED()?'&#9654; Step a day':'&#9654; Play');
+  if(!on||!WAVE) return;
+  if(REDUCED()){ BFRAME=(BFRAME+1)%WAVE.days.length; drawBmap(); $('#bplay').innerHTML='&#9654; Step a day'; return; }
+  if(BFRAME>=WAVE.days.length-1) BFRAME=0;
+  BTIMER=setInterval(function(){ BFRAME++; if(BFRAME>=WAVE.days.length-1){BFRAME=WAVE.days.length-1; drawBmap(); setBplay(false); return;} drawBmap(); },650);
+}
+$('#bplay').onclick=()=>setBplay(!BTIMER);
+$('#bscrub').oninput=e=>{ setBplay(false); BFRAME=+e.target.value; drawBmap(); };
 
 function drawNear(){
   /* The trend line for ONE latitude - the counted row nearest the hunter. A
@@ -958,7 +1079,7 @@ function drawBirds(){
 document.querySelectorAll('#birdSpp button').forEach(function(b){
   b.onclick=function(){ BIRD_SP=b.dataset.sp;
     document.querySelectorAll('#birdSpp button').forEach(x=>x.setAttribute('aria-pressed',x===b));
-    drawBirds(); };
+    drawBirds(); drawBmap(); };
 });
 async function loadBacktest(){try{const b=await (await fetch('data/backtest.json')).json();
   $('#spdN').textContent=b.speeds.length;
