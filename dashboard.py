@@ -50,8 +50,30 @@ prop = {s: summarise(prop[s], len(all_days),
                      control_pairs=None if s == "eucdov" else [dict(p) for p in ctrl])
         for s in species}
 
+# The same counts per CIRCLE, placed on the flyway map. Each circle is read
+# against its own rolling median exactly like a row; one circle has a third
+# of a row's birders, so these are noisier and the page says so.
+from flyway import Fit, MAP_BOX, MAP_W, MAP_H
+fit = Fit(MAP_BOX, MAP_W, MAP_H)
+radius_km = 50
+spots = []
+for name, c in sorted(circles.items(), key=lambda kv: (-kv[1]["lat"], kv[1]["lon"])):
+    x, y = fit(c["lat"], c["lon"])
+    # radius in map pixels, measured north-south: 50 km = 0.45 deg latitude
+    _, y2 = fit(c["lat"] + radius_km / 111.0, c["lon"])
+    spot = {"id": name, "lat": c["lat"], "lon": c["lon"],
+            "xy": [round(x, 1), round(y, 1)], "r": round(abs(y - y2), 1),
+            "series": {}, "anomaly": {}}
+    for s in species:
+        vals = [density(newest.get((name, s, day), {"birds": 0, "counted": 0}))
+                for day in all_days]
+        spot["series"][s] = [None if v is None else round(v, 2) for v in vals]
+        spot["anomaly"][s] = anomaly(vals)
+    spots.append(spot)
+
 json.dump({"rows": rows, "days": all_days, "series": series,
-           "anomaly": anom, "propagation": prop},
+           "anomaly": anom, "propagation": prop,
+           "map": {"w": MAP_W, "h": MAP_H, "radius_km": radius_km, "circles": spots}},
           open(f"{OUT}/data/wave.json", "w"), separators=(",", ":"))
 
 # front-speed distribution from the backtest, for the trust panel
