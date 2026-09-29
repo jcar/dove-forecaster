@@ -1,0 +1,2804 @@
+{
+ "arc_scores": {
+  "1": {
+   "2026-09-24": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 2.7,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 0.735,
+    "index": 1.7,
+    "obs": {
+     "cloud_am": 89.5,
+     "pres_rise": 0.1,
+     "push_mph": -8.8,
+     "temp_drop": 1.4
+    },
+    "raw": 2.7,
+    "reservoir": 0.874
+   },
+   "2026-09-25": {
+    "components": {
+     "clearing": 4.4,
+     "pressure": 0.0,
+     "sharp": 1.2,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 0.79,
+    "index": 3.9,
+    "obs": {
+     "cloud_am": 58.3,
+     "pres_rise": -1.5,
+     "push_mph": -7.4,
+     "temp_drop": 0.7
+    },
+    "raw": 5.6,
+    "reservoir": 0.87
+   },
+   "2026-09-26": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 3.6,
+     "tempdrop": 0.6,
+     "wind": 0.0
+    },
+    "gate": 0.846,
+    "index": 3.0,
+    "obs": {
+     "cloud_am": 86.2,
+     "pres_rise": -3.6,
+     "push_mph": -16.3,
+     "temp_drop": 2.1
+    },
+    "raw": 4.2,
+    "reservoir": 0.86
+   },
+   "2026-09-27": {
+    "components": {
+     "clearing": 6.9,
+     "pressure": 0.0,
+     "sharp": 0.2,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 0.901,
+    "index": 5.5,
+    "obs": {
+     "cloud_am": 33.5,
+     "pres_rise": -1.8,
+     "push_mph": -5.3,
+     "temp_drop": -0.2
+    },
+    "raw": 7.1,
+    "reservoir": 0.853
+   },
+   "2026-09-28": {
+    "components": {
+     "clearing": 3.2,
+     "pressure": 0.0,
+     "sharp": 1.1,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 0.957,
+    "index": 3.4,
+    "obs": {
+     "cloud_am": 21.0,
+     "pres_rise": 0.6,
+     "push_mph": -6.4,
+     "temp_drop": -1.4
+    },
+    "raw": 4.3,
+    "reservoir": 0.839
+   },
+   "2026-09-29": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 3.0,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 2.5,
+    "obs": {
+     "cloud_am": 91.3,
+     "pres_rise": -2.8,
+     "push_mph": -18.5,
+     "temp_drop": -0.6
+    },
+    "raw": 3.0,
+    "reservoir": 0.831
+   },
+   "2026-09-30": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 0.5,
+     "tempdrop": 0.6,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 0.9,
+    "obs": {
+     "cloud_am": 88.3,
+     "pres_rise": -1.5,
+     "push_mph": -22.5,
+     "temp_drop": 2.0
+    },
+    "raw": 1.1,
+    "reservoir": 0.824
+   },
+   "2026-10-01": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 0.0,
+     "tempdrop": 3.4,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 2.8,
+    "obs": {
+     "cloud_am": 99.9,
+     "pres_rise": -0.2,
+     "push_mph": -25.5,
+     "temp_drop": 4.7
+    },
+    "raw": 3.4,
+    "reservoir": 0.822
+   },
+   "2026-10-02": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 13.3,
+     "sharp": 0.0,
+     "tempdrop": 3.4,
+     "wind": 19.8
+    },
+    "gate": 1.0,
+    "index": 29.8,
+    "obs": {
+     "cloud_am": 97.9,
+     "pres_rise": 5.0,
+     "push_mph": 13.8,
+     "temp_drop": 4.3
+    },
+    "raw": 36.5,
+    "reservoir": 0.815
+   },
+   "2026-10-03": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 5.4,
+     "sharp": 0.0,
+     "tempdrop": 0.0,
+     "wind": 14.4
+    },
+    "gate": 1.0,
+    "index": 14.7,
+    "obs": {
+     "cloud_am": 98.9,
+     "pres_rise": 2.6,
+     "push_mph": 12.0,
+     "temp_drop": 1.2
+    },
+    "raw": 19.9,
+    "reservoir": 0.741
+   },
+   "2026-10-04": {
+    "components": {
+     "clearing": 10.0,
+     "pressure": 5.0,
+     "sharp": 2.7,
+     "tempdrop": 0.0,
+     "wind": 22.5
+    },
+    "gate": 1.0,
+    "index": 28.3,
+    "obs": {
+     "cloud_am": 4.3,
+     "pres_rise": 2.5,
+     "push_mph": 15.9,
+     "temp_drop": -2.3
+    },
+    "raw": 40.2,
+    "reservoir": 0.704
+   },
+   "2026-10-05": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 4.4,
+     "sharp": 0.4,
+     "tempdrop": 0.0,
+     "wind": 11.5
+    },
+    "gate": 1.0,
+    "index": 10.4,
+    "obs": {
+     "cloud_am": 0.0,
+     "pres_rise": 2.3,
+     "push_mph": 10.6,
+     "temp_drop": 1.3
+    },
+    "raw": 16.3,
+    "reservoir": 0.633
+   },
+   "2026-10-06": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 0.8,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 0.5,
+    "obs": {
+     "cloud_am": 23.5,
+     "pres_rise": -1.1,
+     "push_mph": -8.4,
+     "temp_drop": 0.1
+    },
+    "raw": 0.8,
+    "reservoir": 0.607
+   },
+   "2026-10-07": {
+    "components": {
+     "clearing": 1.2,
+     "pressure": 0.0,
+     "sharp": 1.2,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 1.4,
+    "obs": {
+     "cloud_am": 42.4,
+     "pres_rise": -1.0,
+     "push_mph": -1.5,
+     "temp_drop": -2.0
+    },
+    "raw": 2.4,
+    "reservoir": 0.606
+   },
+   "2026-10-08": {
+    "components": {
+     "clearing": 7.0,
+     "pressure": 0.0,
+     "sharp": 2.3,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 5.6,
+    "obs": {
+     "cloud_am": 0.2,
+     "pres_rise": -0.7,
+     "push_mph": 1.1,
+     "temp_drop": -1.1
+    },
+    "raw": 9.3,
+    "reservoir": 0.602
+   },
+   "2026-10-09": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 2.7,
+     "sharp": 3.0,
+     "tempdrop": 0.0,
+     "wind": 24.0
+    },
+    "gate": 1.0,
+    "index": 17.5,
+    "obs": {
+     "cloud_am": 0.1,
+     "pres_rise": 1.8,
+     "push_mph": 16.7,
+     "temp_drop": -1.0
+    },
+    "raw": 29.7,
+    "reservoir": 0.588
+   },
+   "2026-10-10": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 4.5,
+     "sharp": 0.3,
+     "tempdrop": 9.7,
+     "wind": 16.4
+    },
+    "gate": 1.0,
+    "index": 16.8,
+    "obs": {
+     "cloud_am": 1.3,
+     "pres_rise": 2.3,
+     "push_mph": 13.0,
+     "temp_drop": 10.9
+    },
+    "raw": 30.9,
+    "reservoir": 0.545
+   },
+   "2026-10-11": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 1.4,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 0.7,
+    "obs": {
+     "cloud_am": 0.0,
+     "pres_rise": -5.8,
+     "push_mph": -11.5,
+     "temp_drop": -4.1
+    },
+    "raw": 1.4,
+    "reservoir": 0.503
+   },
+   "2026-10-12": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.3,
+     "sharp": 0.3,
+     "tempdrop": 0.2,
+     "wind": 7.6
+    },
+    "gate": 1.0,
+    "index": 4.2,
+    "obs": {
+     "cloud_am": 95.4,
+     "pres_rise": 0.7,
+     "push_mph": 8.7,
+     "temp_drop": 1.0
+    },
+    "raw": 8.5,
+    "reservoir": 0.501
+   },
+   "2026-10-13": {
+    "components": {
+     "clearing": 0.5,
+     "pressure": 16.3,
+     "sharp": 0.4,
+     "tempdrop": 3.4,
+     "wind": 23.3
+    },
+    "gate": 1.0,
+    "index": 21.6,
+    "obs": {
+     "cloud_am": 87.0,
+     "pres_rise": 5.9,
+     "push_mph": 16.5,
+     "temp_drop": 6.5
+    },
+    "raw": 44.0,
+    "reservoir": 0.49
+   }
+  },
+  "2": {
+   "2026-09-24": {
+    "components": {
+     "clearing": 0.5,
+     "pressure": 0.0,
+     "sharp": 3.5,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 0.935,
+    "index": 2.9,
+    "obs": {
+     "cloud_am": 79.7,
+     "pres_rise": -1.0,
+     "push_mph": -8.9,
+     "temp_drop": -3.3
+    },
+    "raw": 4.0,
+    "reservoir": 0.785
+   },
+   "2026-09-25": {
+    "components": {
+     "clearing": 0.1,
+     "pressure": 0.0,
+     "sharp": 2.3,
+     "tempdrop": 2.2,
+     "wind": 0.0
+    },
+    "gate": 0.99,
+    "index": 3.6,
+    "obs": {
+     "cloud_am": 84.9,
+     "pres_rise": -2.2,
+     "push_mph": -8.3,
+     "temp_drop": 2.9
+    },
+    "raw": 4.6,
+    "reservoir": 0.777
+   },
+   "2026-09-26": {
+    "components": {
+     "clearing": 1.3,
+     "pressure": 0.0,
+     "sharp": 1.5,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 2.1,
+    "obs": {
+     "cloud_am": 82.5,
+     "pres_rise": -4.1,
+     "push_mph": -16.4,
+     "temp_drop": -3.3
+    },
+    "raw": 2.7,
+    "reservoir": 0.768
+   },
+   "2026-09-27": {
+    "components": {
+     "clearing": 6.7,
+     "pressure": 0.4,
+     "sharp": 1.4,
+     "tempdrop": 0.2,
+     "wind": 2.9
+    },
+    "gate": 1.0,
+    "index": 8.9,
+    "obs": {
+     "cloud_am": 38.8,
+     "pres_rise": -0.1,
+     "push_mph": 0.7,
+     "temp_drop": 0.1
+    },
+    "raw": 11.6,
+    "reservoir": 0.763
+   },
+   "2026-09-28": {
+    "components": {
+     "clearing": 1.2,
+     "pressure": 0.0,
+     "sharp": 2.1,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 2.4,
+    "obs": {
+     "cloud_am": 50.1,
+     "pres_rise": 0.4,
+     "push_mph": -4.6,
+     "temp_drop": -1.3
+    },
+    "raw": 3.3,
+    "reservoir": 0.741
+   },
+   "2026-09-29": {
+    "components": {
+     "clearing": 0.5,
+     "pressure": 0.0,
+     "sharp": 3.8,
+     "tempdrop": 1.2,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 4.1,
+    "obs": {
+     "cloud_am": 85.1,
+     "pres_rise": -4.4,
+     "push_mph": -20.6,
+     "temp_drop": 2.3
+    },
+    "raw": 5.6,
+    "reservoir": 0.735
+   },
+   "2026-09-30": {
+    "components": {
+     "clearing": 0.2,
+     "pressure": 0.0,
+     "sharp": 1.1,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 1.0,
+    "obs": {
+     "cloud_am": 88.8,
+     "pres_rise": -1.3,
+     "push_mph": -12.9,
+     "temp_drop": -1.7
+    },
+    "raw": 1.4,
+    "reservoir": 0.725
+   },
+   "2026-10-01": {
+    "components": {
+     "clearing": 0.6,
+     "pressure": 0.3,
+     "sharp": 0.8,
+     "tempdrop": 2.6,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 3.1,
+    "obs": {
+     "cloud_am": 95.9,
+     "pres_rise": 0.2,
+     "push_mph": -15.3,
+     "temp_drop": 4.7
+    },
+    "raw": 4.4,
+    "reservoir": 0.722
+   },
+   "2026-10-02": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 17.2,
+     "sharp": 0.0,
+     "tempdrop": 2.2,
+     "wind": 29.0
+    },
+    "gate": 1.0,
+    "index": 34.6,
+    "obs": {
+     "cloud_am": 96.2,
+     "pres_rise": 7.0,
+     "push_mph": 21.1,
+     "temp_drop": 5.0
+    },
+    "raw": 48.4,
+    "reservoir": 0.714
+   },
+   "2026-10-03": {
+    "components": {
+     "clearing": 9.4,
+     "pressure": 5.4,
+     "sharp": 1.3,
+     "tempdrop": 0.0,
+     "wind": 0.2
+    },
+    "gate": 1.0,
+    "index": 10.2,
+    "obs": {
+     "cloud_am": 8.4,
+     "pres_rise": 2.5,
+     "push_mph": 4.3,
+     "temp_drop": -2.2
+    },
+    "raw": 16.3,
+    "reservoir": 0.628
+   },
+   "2026-10-04": {
+    "components": {
+     "clearing": 1.4,
+     "pressure": 1.1,
+     "sharp": 3.0,
+     "tempdrop": 0.0,
+     "wind": 12.9
+    },
+    "gate": 1.0,
+    "index": 11.0,
+    "obs": {
+     "cloud_am": 1.1,
+     "pres_rise": 1.3,
+     "push_mph": 11.2,
+     "temp_drop": -1.5
+    },
+    "raw": 18.3,
+    "reservoir": 0.602
+   },
+   "2026-10-05": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 4.5,
+     "sharp": 0.6,
+     "tempdrop": 1.1,
+     "wind": 11.3
+    },
+    "gate": 1.0,
+    "index": 10.1,
+    "obs": {
+     "cloud_am": 1.0,
+     "pres_rise": 2.4,
+     "push_mph": 8.3,
+     "temp_drop": 4.2
+    },
+    "raw": 17.5,
+    "reservoir": 0.575
+   },
+   "2026-10-06": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 0.5,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 0.3,
+    "obs": {
+     "cloud_am": 48.8,
+     "pres_rise": -2.6,
+     "push_mph": -15.9,
+     "temp_drop": -2.9
+    },
+    "raw": 0.5,
+    "reservoir": 0.55
+   },
+   "2026-10-07": {
+    "components": {
+     "clearing": 6.0,
+     "pressure": 0.0,
+     "sharp": 1.1,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 3.9,
+    "obs": {
+     "cloud_am": 6.7,
+     "pres_rise": -1.1,
+     "push_mph": -4.8,
+     "temp_drop": -4.5
+    },
+    "raw": 7.1,
+    "reservoir": 0.549
+   },
+   "2026-10-08": {
+    "components": {
+     "clearing": 1.2,
+     "pressure": 0.0,
+     "sharp": 2.6,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 2.0,
+    "obs": {
+     "cloud_am": 0.0,
+     "pres_rise": -0.4,
+     "push_mph": -4.2,
+     "temp_drop": -1.8
+    },
+    "raw": 3.8,
+    "reservoir": 0.539
+   },
+   "2026-10-09": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 9.0,
+     "sharp": 0.3,
+     "tempdrop": 9.6,
+     "wind": 34.6
+    },
+    "gate": 1.0,
+    "index": 28.6,
+    "obs": {
+     "cloud_am": 30.3,
+     "pres_rise": 3.7,
+     "push_mph": 24.5,
+     "temp_drop": 10.9
+    },
+    "raw": 53.5,
+    "reservoir": 0.534
+   },
+   "2026-10-10": {
+    "components": {
+     "clearing": 4.7,
+     "pressure": 2.5,
+     "sharp": 0.5,
+     "tempdrop": 0.4,
+     "wind": 1.7
+    },
+    "gate": 1.0,
+    "index": 4.5,
+    "obs": {
+     "cloud_am": 0.0,
+     "pres_rise": 0.9,
+     "push_mph": 2.9,
+     "temp_drop": 2.4
+    },
+    "raw": 9.8,
+    "reservoir": 0.463
+   },
+   "2026-10-11": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 0.6,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 0.3,
+    "obs": {
+     "cloud_am": 0.0,
+     "pres_rise": -7.7,
+     "push_mph": -17.5,
+     "temp_drop": -6.3
+    },
+    "raw": 0.6,
+    "reservoir": 0.451
+   },
+   "2026-10-12": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 7.9,
+     "sharp": 0.7,
+     "tempdrop": 6.3,
+     "wind": 30.7
+    },
+    "gate": 1.0,
+    "index": 20.5,
+    "obs": {
+     "cloud_am": 0.5,
+     "pres_rise": 3.2,
+     "push_mph": 24.8,
+     "temp_drop": 8.5
+    },
+    "raw": 45.5,
+    "reservoir": 0.451
+   },
+   "2026-10-13": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 14.4,
+     "sharp": 0.9,
+     "tempdrop": 2.0,
+     "wind": 21.4
+    },
+    "gate": 1.0,
+    "index": 15.4,
+    "obs": {
+     "cloud_am": 0.0,
+     "pres_rise": 5.3,
+     "push_mph": 14.1,
+     "temp_drop": 4.2
+    },
+    "raw": 38.6,
+    "reservoir": 0.399
+   }
+  },
+  "3": {
+   "2026-09-24": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 0.4,
+     "tempdrop": 3.1,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 2.3,
+    "obs": {
+     "cloud_am": 88.9,
+     "pres_rise": -1.1,
+     "push_mph": -6.6,
+     "temp_drop": 4.6
+    },
+    "raw": 3.4,
+    "reservoir": 0.685
+   },
+   "2026-09-25": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 0.1,
+     "tempdrop": 0.3,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 0.3,
+    "obs": {
+     "cloud_am": 99.5,
+     "pres_rise": -3.0,
+     "push_mph": -10.0,
+     "temp_drop": -2.2
+    },
+    "raw": 0.4,
+    "reservoir": 0.679
+   },
+   "2026-09-26": {
+    "components": {
+     "clearing": 1.1,
+     "pressure": 0.0,
+     "sharp": 0.9,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 1.4,
+    "obs": {
+     "cloud_am": 88.1,
+     "pres_rise": -4.6,
+     "push_mph": -17.5,
+     "temp_drop": -6.5
+    },
+    "raw": 2.0,
+    "reservoir": 0.678
+   },
+   "2026-09-27": {
+    "components": {
+     "clearing": 1.9,
+     "pressure": 2.7,
+     "sharp": 0.9,
+     "tempdrop": 0.1,
+     "wind": 0.2
+    },
+    "gate": 1.0,
+    "index": 3.8,
+    "obs": {
+     "cloud_am": 76.6,
+     "pres_rise": 1.3,
+     "push_mph": 1.8,
+     "temp_drop": -0.3
+    },
+    "raw": 5.7,
+    "reservoir": 0.675
+   },
+   "2026-09-28": {
+    "components": {
+     "clearing": 0.8,
+     "pressure": 0.0,
+     "sharp": 0.7,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 1.0,
+    "obs": {
+     "cloud_am": 90.6,
+     "pres_rise": 0.0,
+     "push_mph": -5.7,
+     "temp_drop": 0.7
+    },
+    "raw": 1.5,
+    "reservoir": 0.665
+   },
+   "2026-09-29": {
+    "components": {
+     "clearing": 1.1,
+     "pressure": 0.0,
+     "sharp": 1.6,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 1.8,
+    "obs": {
+     "cloud_am": 85.3,
+     "pres_rise": -6.1,
+     "push_mph": -19.1,
+     "temp_drop": -0.1
+    },
+    "raw": 2.7,
+    "reservoir": 0.663
+   },
+   "2026-09-30": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 0.0,
+     "tempdrop": 2.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 1.3,
+    "obs": {
+     "cloud_am": 100.0,
+     "pres_rise": -0.7,
+     "push_mph": -1.6,
+     "temp_drop": 4.4
+    },
+    "raw": 2.0,
+    "reservoir": 0.658
+   },
+   "2026-10-01": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 2.8,
+     "sharp": 0.4,
+     "tempdrop": 0.0,
+     "wind": 14.9
+    },
+    "gate": 1.0,
+    "index": 11.8,
+    "obs": {
+     "cloud_am": 100.0,
+     "pres_rise": 1.8,
+     "push_mph": 7.2,
+     "temp_drop": 1.9
+    },
+    "raw": 18.1,
+    "reservoir": 0.655
+   },
+   "2026-10-02": {
+    "components": {
+     "clearing": 8.8,
+     "pressure": 19.9,
+     "sharp": 2.4,
+     "tempdrop": 0.0,
+     "wind": 32.9
+    },
+    "gate": 1.0,
+    "index": 40.0,
+    "obs": {
+     "cloud_am": 22.5,
+     "pres_rise": 8.4,
+     "push_mph": 23.0,
+     "temp_drop": -0.1
+    },
+    "raw": 63.9,
+    "reservoir": 0.625
+   },
+   "2026-10-03": {
+    "components": {
+     "clearing": 2.9,
+     "pressure": 2.2,
+     "sharp": 2.2,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 3.8,
+    "obs": {
+     "cloud_am": 12.1,
+     "pres_rise": 1.1,
+     "push_mph": -6.9,
+     "temp_drop": -1.6
+    },
+    "raw": 7.3,
+    "reservoir": 0.525
+   },
+   "2026-10-04": {
+    "components": {
+     "clearing": 1.6,
+     "pressure": 0.1,
+     "sharp": 2.6,
+     "tempdrop": 0.0,
+     "wind": 9.0
+    },
+    "gate": 1.0,
+    "index": 6.8,
+    "obs": {
+     "cloud_am": 0.2,
+     "pres_rise": 0.2,
+     "push_mph": 9.4,
+     "temp_drop": -2.7
+    },
+    "raw": 13.2,
+    "reservoir": 0.516
+   },
+   "2026-10-05": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 5.8,
+     "sharp": 0.8,
+     "tempdrop": 3.5,
+     "wind": 7.9
+    },
+    "gate": 1.0,
+    "index": 8.9,
+    "obs": {
+     "cloud_am": 16.9,
+     "pres_rise": 2.7,
+     "push_mph": 5.9,
+     "temp_drop": 6.5
+    },
+    "raw": 17.9,
+    "reservoir": 0.499
+   },
+   "2026-10-06": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 0.0,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 0.0,
+    "obs": {
+     "cloud_am": 69.6,
+     "pres_rise": -4.4,
+     "push_mph": -21.2,
+     "temp_drop": -4.1
+    },
+    "raw": 0.0,
+    "reservoir": 0.476
+   },
+   "2026-10-07": {
+    "components": {
+     "clearing": 6.7,
+     "pressure": 0.2,
+     "sharp": 0.5,
+     "tempdrop": 0.0,
+     "wind": 0.2
+    },
+    "gate": 1.0,
+    "index": 3.7,
+    "obs": {
+     "cloud_am": 13.6,
+     "pres_rise": -0.9,
+     "push_mph": 2.1,
+     "temp_drop": -5.7
+    },
+    "raw": 7.7,
+    "reservoir": 0.476
+   },
+   "2026-10-08": {
+    "components": {
+     "clearing": 1.2,
+     "pressure": 0.0,
+     "sharp": 1.4,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 1.2,
+    "obs": {
+     "cloud_am": 28.2,
+     "pres_rise": -0.0,
+     "push_mph": -4.8,
+     "temp_drop": -1.9
+    },
+    "raw": 2.6,
+    "reservoir": 0.467
+   },
+   "2026-10-09": {
+    "components": {
+     "clearing": 1.2,
+     "pressure": 17.0,
+     "sharp": 0.7,
+     "tempdrop": 10.3,
+     "wind": 34.0
+    },
+    "gate": 1.0,
+    "index": 29.4,
+    "obs": {
+     "cloud_am": 38.3,
+     "pres_rise": 6.4,
+     "push_mph": 25.9,
+     "temp_drop": 11.4
+    },
+    "raw": 63.2,
+    "reservoir": 0.464
+   },
+   "2026-10-10": {
+    "components": {
+     "clearing": 5.7,
+     "pressure": 0.6,
+     "sharp": 0.7,
+     "tempdrop": 0.2,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 2.8,
+    "obs": {
+     "cloud_am": 0.9,
+     "pres_rise": -1.4,
+     "push_mph": -7.2,
+     "temp_drop": 1.9
+    },
+    "raw": 7.3,
+    "reservoir": 0.391
+   },
+   "2026-10-11": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 0.2,
+     "tempdrop": 0.0,
+     "wind": 0.2
+    },
+    "gate": 1.0,
+    "index": 0.2,
+    "obs": {
+     "cloud_am": 0.0,
+     "pres_rise": -8.4,
+     "push_mph": -15.7,
+     "temp_drop": -4.5
+    },
+    "raw": 0.4,
+    "reservoir": 0.384
+   },
+   "2026-10-12": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 13.3,
+     "sharp": 0.0,
+     "tempdrop": 7.6,
+     "wind": 31.1
+    },
+    "gate": 1.0,
+    "index": 20.0,
+    "obs": {
+     "cloud_am": 4.7,
+     "pres_rise": 5.0,
+     "push_mph": 26.5,
+     "temp_drop": 9.5
+    },
+    "raw": 52.1,
+    "reservoir": 0.383
+   },
+   "2026-10-13": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 13.4,
+     "sharp": 0.4,
+     "tempdrop": 3.6,
+     "wind": 23.1
+    },
+    "gate": 1.0,
+    "index": 13.5,
+    "obs": {
+     "cloud_am": 1.3,
+     "pres_rise": 5.1,
+     "push_mph": 17.3,
+     "temp_drop": 6.1
+    },
+    "raw": 40.4,
+    "reservoir": 0.333
+   }
+  },
+  "4": {
+   "2026-09-24": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 0.9,
+     "tempdrop": 0.7,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 1.1,
+    "obs": {
+     "cloud_am": 95.5,
+     "pres_rise": -1.2,
+     "push_mph": -17.7,
+     "temp_drop": 2.2
+    },
+    "raw": 1.7,
+    "reservoir": 0.662
+   },
+   "2026-09-25": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 0.0,
+     "tempdrop": 1.4,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 0.9,
+    "obs": {
+     "cloud_am": 99.7,
+     "pres_rise": -2.1,
+     "push_mph": -8.9,
+     "temp_drop": 2.2
+    },
+    "raw": 1.4,
+    "reservoir": 0.659
+   },
+   "2026-09-26": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 0.1,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 0.1,
+    "obs": {
+     "cloud_am": 98.1,
+     "pres_rise": -5.4,
+     "push_mph": -19.0,
+     "temp_drop": -5.7
+    },
+    "raw": 0.1,
+    "reservoir": 0.657
+   },
+   "2026-09-27": {
+    "components": {
+     "clearing": 0.8,
+     "pressure": 5.3,
+     "sharp": 0.0,
+     "tempdrop": 0.1,
+     "wind": 0.7
+    },
+    "gate": 1.0,
+    "index": 4.5,
+    "obs": {
+     "cloud_am": 93.8,
+     "pres_rise": 2.3,
+     "push_mph": 1.9,
+     "temp_drop": -0.6
+    },
+    "raw": 6.9,
+    "reservoir": 0.657
+   },
+   "2026-09-28": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 0.3,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 0.2,
+    "obs": {
+     "cloud_am": 98.2,
+     "pres_rise": -1.0,
+     "push_mph": -10.0,
+     "temp_drop": -1.9
+    },
+    "raw": 0.3,
+    "reservoir": 0.645
+   },
+   "2026-09-29": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 0.1,
+     "tempdrop": 0.6,
+     "wind": 0.6
+    },
+    "gate": 1.0,
+    "index": 0.8,
+    "obs": {
+     "cloud_am": 99.4,
+     "pres_rise": -7.1,
+     "push_mph": -18.1,
+     "temp_drop": 1.7
+    },
+    "raw": 1.3,
+    "reservoir": 0.645
+   },
+   "2026-09-30": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.9,
+     "sharp": 1.3,
+     "tempdrop": 0.0,
+     "wind": 4.0
+    },
+    "gate": 1.0,
+    "index": 4.0,
+    "obs": {
+     "cloud_am": 96.4,
+     "pres_rise": 0.3,
+     "push_mph": 5.6,
+     "temp_drop": -3.8
+    },
+    "raw": 6.2,
+    "reservoir": 0.643
+   },
+   "2026-10-01": {
+    "components": {
+     "clearing": 2.0,
+     "pressure": 13.9,
+     "sharp": 1.1,
+     "tempdrop": 4.5,
+     "wind": 23.7
+    },
+    "gate": 1.0,
+    "index": 28.7,
+    "obs": {
+     "cloud_am": 85.5,
+     "pres_rise": 5.2,
+     "push_mph": 16.5,
+     "temp_drop": 7.2
+    },
+    "raw": 45.3,
+    "reservoir": 0.633
+   },
+   "2026-10-02": {
+    "components": {
+     "clearing": 7.9,
+     "pressure": 19.1,
+     "sharp": 2.0,
+     "tempdrop": 0.0,
+     "wind": 20.7
+    },
+    "gate": 1.0,
+    "index": 27.9,
+    "obs": {
+     "cloud_am": 11.8,
+     "pres_rise": 6.8,
+     "push_mph": 14.7,
+     "temp_drop": 1.8
+    },
+    "raw": 49.7,
+    "reservoir": 0.561
+   },
+   "2026-10-03": {
+    "components": {
+     "clearing": 0.4,
+     "pressure": 0.0,
+     "sharp": 3.4,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 1.9,
+    "obs": {
+     "cloud_am": 36.1,
+     "pres_rise": -0.9,
+     "push_mph": -12.5,
+     "temp_drop": -4.1
+    },
+    "raw": 3.8,
+    "reservoir": 0.491
+   },
+   "2026-10-04": {
+    "components": {
+     "clearing": 2.0,
+     "pressure": 0.6,
+     "sharp": 2.7,
+     "tempdrop": 0.0,
+     "wind": 11.4
+    },
+    "gate": 1.0,
+    "index": 8.1,
+    "obs": {
+     "cloud_am": 33.8,
+     "pres_rise": 0.2,
+     "push_mph": 10.1,
+     "temp_drop": 0.9
+    },
+    "raw": 16.6,
+    "reservoir": 0.487
+   },
+   "2026-10-05": {
+    "components": {
+     "clearing": 3.7,
+     "pressure": 4.8,
+     "sharp": 0.2,
+     "tempdrop": 1.8,
+     "wind": 6.7
+    },
+    "gate": 1.0,
+    "index": 8.0,
+    "obs": {
+     "cloud_am": 16.6,
+     "pres_rise": 2.2,
+     "push_mph": 3.0,
+     "temp_drop": 4.6
+    },
+    "raw": 17.1,
+    "reservoir": 0.467
+   },
+   "2026-10-06": {
+    "components": {
+     "clearing": 1.7,
+     "pressure": 0.0,
+     "sharp": 0.0,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 0.8,
+    "obs": {
+     "cloud_am": 9.1,
+     "pres_rise": -5.9,
+     "push_mph": -18.2,
+     "temp_drop": -6.9
+    },
+    "raw": 1.7,
+    "reservoir": 0.447
+   },
+   "2026-10-07": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 2.4,
+     "sharp": 0.6,
+     "tempdrop": 0.2,
+     "wind": 13.8
+    },
+    "gate": 1.0,
+    "index": 7.6,
+    "obs": {
+     "cloud_am": 52.5,
+     "pres_rise": 0.8,
+     "push_mph": 11.7,
+     "temp_drop": -0.9
+    },
+    "raw": 17.2,
+    "reservoir": 0.445
+   },
+   "2026-10-08": {
+    "components": {
+     "clearing": 4.0,
+     "pressure": 0.5,
+     "sharp": 2.2,
+     "tempdrop": 0.0,
+     "wind": 1.0
+    },
+    "gate": 1.0,
+    "index": 3.3,
+    "obs": {
+     "cloud_am": 34.5,
+     "pres_rise": 0.6,
+     "push_mph": -1.4,
+     "temp_drop": -1.9
+    },
+    "raw": 7.7,
+    "reservoir": 0.426
+   },
+   "2026-10-09": {
+    "components": {
+     "clearing": 5.2,
+     "pressure": 19.2,
+     "sharp": 1.4,
+     "tempdrop": 8.7,
+     "wind": 21.6
+    },
+    "gate": 1.0,
+    "index": 23.4,
+    "obs": {
+     "cloud_am": 1.7,
+     "pres_rise": 8.0,
+     "push_mph": 15.5,
+     "temp_drop": 10.3
+    },
+    "raw": 56.2,
+    "reservoir": 0.417
+   },
+   "2026-10-10": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 0.4,
+     "tempdrop": 0.0,
+     "wind": 0.0
+    },
+    "gate": 1.0,
+    "index": 0.1,
+    "obs": {
+     "cloud_am": 0.5,
+     "pres_rise": -5.2,
+     "push_mph": -15.4,
+     "temp_drop": -2.4
+    },
+    "raw": 0.4,
+    "reservoir": 0.359
+   },
+   "2026-10-11": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 0.0,
+     "sharp": 0.8,
+     "tempdrop": 0.0,
+     "wind": 11.6
+    },
+    "gate": 1.0,
+    "index": 4.4,
+    "obs": {
+     "cloud_am": 10.3,
+     "pres_rise": -8.0,
+     "push_mph": -3.9,
+     "temp_drop": -2.4
+    },
+    "raw": 12.4,
+    "reservoir": 0.358
+   },
+   "2026-10-12": {
+    "components": {
+     "clearing": 0.0,
+     "pressure": 16.7,
+     "sharp": 0.0,
+     "tempdrop": 14.5,
+     "wind": 31.9
+    },
+    "gate": 1.0,
+    "index": 21.9,
+    "obs": {
+     "cloud_am": 59.0,
+     "pres_rise": 6.5,
+     "push_mph": 24.4,
+     "temp_drop": 14.5
+    },
+    "raw": 63.1,
+    "reservoir": 0.347
+   },
+   "2026-10-13": {
+    "components": {
+     "clearing": 8.1,
+     "pressure": 12.4,
+     "sharp": 0.1,
+     "tempdrop": 2.3,
+     "wind": 24.1
+    },
+    "gate": 1.0,
+    "index": 13.8,
+    "obs": {
+     "cloud_am": 0.5,
+     "pres_rise": 4.8,
+     "push_mph": 17.9,
+     "temp_drop": 4.6
+    },
+    "raw": 47.0,
+    "reservoir": 0.293
+   }
+  }
+ },
+ "arcs": {
+  "1": {
+   "dist_mi": 167,
+   "half_width_mi": 109,
+   "label": "Oklahoma",
+   "mean_lat": 35.641,
+   "north_mi": 155.25,
+   "usable": true,
+   "width_mi": 217
+  },
+  "2": {
+   "dist_mi": 339,
+   "half_width_mi": 210,
+   "label": "Southern Kansas",
+   "mean_lat": 37.891,
+   "north_mi": 310.5,
+   "usable": true,
+   "width_mi": 420
+  },
+  "3": {
+   "dist_mi": 484,
+   "half_width_mi": 210,
+   "label": "Northern Kansas",
+   "mean_lat": 40.141,
+   "north_mi": 465.75,
+   "usable": true,
+   "width_mi": 420
+  },
+  "4": {
+   "dist_mi": 634,
+   "half_width_mi": 210,
+   "label": "Nebraska & Iowa",
+   "mean_lat": 42.391,
+   "north_mi": 621.0,
+   "usable": true,
+   "width_mi": 420
+  }
+ },
+ "arrival": [
+  {
+   "arrival": 7.3,
+   "date": "2026-09-29",
+   "from_arcs": [
+    [
+     1,
+     3.0
+    ],
+    [
+     2,
+     2.0
+    ],
+    [
+     3,
+     2.0
+    ]
+   ]
+  },
+  {
+   "arrival": 19.4,
+   "date": "2026-09-30",
+   "from_arcs": [
+    [
+     1,
+     7.0
+    ],
+    [
+     2,
+     5.2
+    ],
+    [
+     3,
+     4.6
+    ],
+    [
+     1,
+     1.0
+    ]
+   ]
+  },
+  {
+   "arrival": 47.3,
+   "date": "2026-10-01",
+   "from_arcs": [
+    [
+     1,
+     11.9
+    ],
+    [
+     2,
+     9.9
+    ],
+    [
+     3,
+     8.3
+    ],
+    [
+     1,
+     5.5
+    ],
+    [
+     2,
+     4.0
+    ],
+    [
+     1,
+     3.4
+    ],
+    [
+     2,
+     2.2
+    ],
+    [
+     3,
+     1.4
+    ]
+   ]
+  },
+  {
+   "arrival": 117.3,
+   "date": "2026-10-02",
+   "from_arcs": [
+    [
+     1,
+     27.9
+    ],
+    [
+     2,
+     21.6
+    ],
+    [
+     1,
+     14.7
+    ],
+    [
+     2,
+     13.8
+    ],
+    [
+     3,
+     11.4
+    ],
+    [
+     3,
+     10.6
+    ],
+    [
+     2,
+     8.1
+    ],
+    [
+     1,
+     5.5
+    ],
+    [
+     3,
+     3.0
+    ]
+   ]
+  },
+  {
+   "arrival": 146.7,
+   "date": "2026-10-03",
+   "from_arcs": [
+    [
+     3,
+     37.2
+    ],
+    [
+     2,
+     31.9
+    ],
+    [
+     1,
+     15.8
+    ],
+    [
+     2,
+     14.1
+    ],
+    [
+     1,
+     13.0
+    ],
+    [
+     3,
+     11.9
+    ],
+    [
+     2,
+     8.3
+    ],
+    [
+     4,
+     6.5
+    ],
+    [
+     1,
+     4.1
+    ],
+    [
+     3,
+     3.8
+    ]
+   ]
+  },
+  {
+   "arrival": 99.0,
+   "date": "2026-10-04",
+   "from_arcs": [
+    [
+     3,
+     27.5
+    ],
+    [
+     4,
+     21.6
+    ],
+    [
+     2,
+     10.6
+    ],
+    [
+     3,
+     9.6
+    ],
+    [
+     1,
+     8.3
+    ],
+    [
+     2,
+     7.2
+    ],
+    [
+     1,
+     4.6
+    ],
+    [
+     2,
+     4.3
+    ],
+    [
+     3,
+     2.8
+    ],
+    [
+     1,
+     1.5
+    ]
+   ]
+  },
+  {
+   "arrival": 76.5,
+   "date": "2026-10-05",
+   "from_arcs": [
+    [
+     4,
+     28.0
+    ],
+    [
+     1,
+     25.7
+    ],
+    [
+     3,
+     5.9
+    ],
+    [
+     2,
+     5.8
+    ],
+    [
+     3,
+     4.3
+    ],
+    [
+     1,
+     3.8
+    ],
+    [
+     3,
+     1.2
+    ],
+    [
+     2,
+     1.1
+    ]
+   ]
+  },
+  {
+   "arrival": 38.7,
+   "date": "2026-10-06",
+   "from_arcs": [
+    [
+     1,
+     16.7
+    ],
+    [
+     4,
+     14.1
+    ],
+    [
+     3,
+     2.8
+    ],
+    [
+     2,
+     2.4
+    ],
+    [
+     1,
+     1.3
+    ]
+   ]
+  },
+  {
+   "arrival": 11.6,
+   "date": "2026-10-07",
+   "from_arcs": [
+    [
+     4,
+     2.8
+    ],
+    [
+     2,
+     2.7
+    ],
+    [
+     4,
+     1.4
+    ],
+    [
+     1,
+     1.3
+    ],
+    [
+     3,
+     1.2
+    ],
+    [
+     3,
+     1.0
+    ]
+   ]
+  },
+  {
+   "arrival": 19.3,
+   "date": "2026-10-08",
+   "from_arcs": [
+    [
+     2,
+     7.9
+    ],
+    [
+     3,
+     4.7
+    ],
+    [
+     4,
+     4.4
+    ],
+    [
+     3,
+     1.2
+    ]
+   ]
+  },
+  {
+   "arrival": 35.4,
+   "date": "2026-10-09",
+   "from_arcs": [
+    [
+     2,
+     9.8
+    ],
+    [
+     3,
+     8.6
+    ],
+    [
+     4,
+     7.6
+    ],
+    [
+     1,
+     4.6
+    ],
+    [
+     3,
+     3.4
+    ]
+   ]
+  },
+  {
+   "arrival": 50.9,
+   "date": "2026-10-10",
+   "from_arcs": [
+    [
+     1,
+     17.3
+    ],
+    [
+     4,
+     7.4
+    ],
+    [
+     3,
+     7.3
+    ],
+    [
+     2,
+     5.2
+    ],
+    [
+     2,
+     4.8
+    ],
+    [
+     3,
+     2.9
+    ],
+    [
+     4,
+     2.6
+    ],
+    [
+     3,
+     2.3
+    ],
+    [
+     4,
+     1.1
+    ]
+   ]
+  },
+  {
+   "arrival": 64.2,
+   "date": "2026-10-11",
+   "from_arcs": [
+    [
+     2,
+     20.1
+    ],
+    [
+     3,
+     13.0
+    ],
+    [
+     1,
+     7.3
+    ],
+    [
+     4,
+     6.8
+    ],
+    [
+     4,
+     6.2
+    ],
+    [
+     4,
+     4.1
+    ],
+    [
+     3,
+     2.9
+    ],
+    [
+     2,
+     1.5
+    ],
+    [
+     2,
+     1.2
+    ]
+   ]
+  },
+  {
+   "arrival": 106.0,
+   "date": "2026-10-12",
+   "from_arcs": [
+    [
+     3,
+     28.1
+    ],
+    [
+     2,
+     28.0
+    ],
+    [
+     4,
+     18.9
+    ],
+    [
+     2,
+     13.8
+    ],
+    [
+     3,
+     7.5
+    ],
+    [
+     4,
+     7.5
+    ],
+    [
+     4,
+     1.2
+    ]
+   ]
+  }
+ ],
+ "arrival_challenger": {
+  "days": [
+   {
+    "arrival": 6.7,
+    "date": "2026-09-29"
+   },
+   {
+    "arrival": 17.9,
+    "date": "2026-09-30"
+   },
+   {
+    "arrival": 41.9,
+    "date": "2026-10-01"
+   },
+   {
+    "arrival": 100.0,
+    "date": "2026-10-02"
+   },
+   {
+    "arrival": 134.2,
+    "date": "2026-10-03"
+   },
+   {
+    "arrival": 97.7,
+    "date": "2026-10-04"
+   },
+   {
+    "arrival": 63.2,
+    "date": "2026-10-05"
+   },
+   {
+    "arrival": 42.5,
+    "date": "2026-10-06"
+   },
+   {
+    "arrival": 29.0,
+    "date": "2026-10-07"
+   },
+   {
+    "arrival": 42.3,
+    "date": "2026-10-08"
+   },
+   {
+    "arrival": 54.8,
+    "date": "2026-10-09"
+   },
+   {
+    "arrival": 64.5,
+    "date": "2026-10-10"
+   },
+   {
+    "arrival": 70.3,
+    "date": "2026-10-11"
+   },
+   {
+    "arrival": 97.1,
+    "date": "2026-10-12"
+   }
+  ],
+  "law": "linear (pre-2026-09-21)",
+  "still_airborne": 43.5
+ },
+ "engine_version": "0.1.0",
+ "fronts": [
+  {
+   "actual_speed_mph": null,
+   "arcs": [
+    3,
+    2,
+    1
+   ],
+   "eta_extrapolated": "2026-09-21T09:46",
+   "id": 1,
+   "passages": [
+    {
+     "arc": 3,
+     "index": 26.8,
+     "points_firing": 8,
+     "strength": 21.8,
+     "when": "2026-09-19T18:00"
+    },
+    {
+     "arc": 2,
+     "index": 17.4,
+     "points_firing": 5,
+     "strength": 30.8,
+     "when": "2026-09-19T20:00"
+    },
+    {
+     "arc": 1,
+     "index": 18.5,
+     "points_firing": 4,
+     "strength": 20.5,
+     "when": "2026-09-20T20:30"
+    }
+   ],
+   "reaches_home": null,
+   "reaches_home_source": "none detected",
+   "skipped_bands": [],
+   "speed_mph": 11.7
+  },
+  {
+   "actual_speed_mph": null,
+   "arcs": [
+    3,
+    1
+   ],
+   "eta_extrapolated": "2026-09-23T10:01",
+   "id": 2,
+   "passages": [
+    {
+     "arc": 3,
+     "index": 12.1,
+     "points_firing": 6,
+     "strength": 12.5,
+     "when": "2026-09-21T20:30"
+    },
+    {
+     "arc": 1,
+     "index": 14.7,
+     "points_firing": 4,
+     "strength": 11.8,
+     "when": "2026-09-22T21:30"
+    }
+   ],
+   "reaches_home": null,
+   "reaches_home_source": "none detected",
+   "skipped_bands": [
+    2
+   ],
+   "speed_mph": 12.4
+  },
+  {
+   "actual_speed_mph": null,
+   "arcs": [
+    2
+   ],
+   "eta_extrapolated": null,
+   "id": 3,
+   "passages": [
+    {
+     "arc": 2,
+     "index": 14.5,
+     "points_firing": 8,
+     "strength": 11.8,
+     "when": "2026-09-22T22:00"
+    }
+   ],
+   "reaches_home": null,
+   "reaches_home_source": "none detected",
+   "skipped_bands": [],
+   "speed_mph": null
+  },
+  {
+   "actual_speed_mph": 3.8,
+   "arcs": [
+    3
+   ],
+   "confidence": {
+    "agreeing": 31,
+    "median": "2026-10-02T05:00",
+    "members": 31,
+    "p10": "2026-10-01T08:00",
+    "p90": "2026-10-02T20:00",
+    "spread_h": 27
+   },
+   "eta_extrapolated": null,
+   "id": 4,
+   "passages": [
+    {
+     "arc": 3,
+     "index": 3.8,
+     "points_firing": 6,
+     "strength": 13.6,
+     "when": "2026-09-26T21:00"
+    }
+   ],
+   "reaches_home": "2026-10-02T01:00",
+   "reaches_home_source": "detected",
+   "skipped_bands": [],
+   "speed_mph": null
+  },
+  {
+   "actual_speed_mph": 1.5,
+   "arcs": [
+    2,
+    1
+   ],
+   "confidence": {
+    "agreeing": 31,
+    "median": "2026-10-02T05:00",
+    "members": 31,
+    "p10": "2026-10-01T08:00",
+    "p90": "2026-10-02T20:00",
+    "spread_h": 27
+   },
+   "eta_extrapolated": null,
+   "id": 5,
+   "passages": [
+    {
+     "arc": 2,
+     "index": 8.9,
+     "points_firing": 7,
+     "strength": 12.9,
+     "when": "2026-09-27T19:00"
+    },
+    {
+     "arc": 1,
+     "index": 5.5,
+     "points_firing": 4,
+     "strength": 13.6,
+     "when": "2026-09-27T20:00"
+    }
+   ],
+   "reaches_home": "2026-10-02T01:00",
+   "reaches_home_source": "detected",
+   "skipped_bands": [],
+   "speed_mph": null
+  },
+  {
+   "actual_speed_mph": 77.6,
+   "arcs": [
+    4,
+    1
+   ],
+   "confidence": {
+    "agreeing": 31,
+    "median": "2026-10-02T05:00",
+    "members": 31,
+    "p10": "2026-10-01T08:00",
+    "p90": "2026-10-02T20:00",
+    "spread_h": 27
+   },
+   "eta_extrapolated": "2026-10-02T02:19",
+   "id": 6,
+   "passages": [
+    {
+     "arc": 4,
+     "index": 28.7,
+     "points_firing": 8,
+     "strength": 13.5,
+     "when": "2026-10-01T13:00"
+    },
+    {
+     "arc": 1,
+     "index": 29.8,
+     "points_firing": 4,
+     "strength": 19.5,
+     "when": "2026-10-01T23:00"
+    }
+   ],
+   "reaches_home": "2026-10-02T01:00",
+   "reaches_home_source": "detected",
+   "skipped_bands": [
+    2,
+    3
+   ],
+   "speed_mph": 46.6
+  },
+  {
+   "actual_speed_mph": 155.2,
+   "arcs": [
+    2
+   ],
+   "confidence": {
+    "agreeing": 31,
+    "median": "2026-10-02T05:00",
+    "members": 31,
+    "p10": "2026-10-01T08:00",
+    "p90": "2026-10-02T20:00",
+    "spread_h": 27
+   },
+   "eta_extrapolated": null,
+   "id": 7,
+   "passages": [
+    {
+     "arc": 2,
+     "index": 34.6,
+     "points_firing": 8,
+     "strength": 23.7,
+     "when": "2026-10-01T23:00"
+    }
+   ],
+   "reaches_home": "2026-10-02T01:00",
+   "reaches_home_source": "detected",
+   "skipped_bands": [],
+   "speed_mph": null
+  },
+  {
+   "actual_speed_mph": 232.9,
+   "arcs": [
+    3
+   ],
+   "confidence": {
+    "agreeing": 31,
+    "median": "2026-10-02T05:00",
+    "members": 31,
+    "p10": "2026-10-01T08:00",
+    "p90": "2026-10-02T20:00",
+    "spread_h": 27
+   },
+   "eta_extrapolated": null,
+   "id": 8,
+   "passages": [
+    {
+     "arc": 3,
+     "index": 40.0,
+     "points_firing": 8,
+     "strength": 18.8,
+     "when": "2026-10-01T23:00"
+    }
+   ],
+   "reaches_home": "2026-10-02T01:00",
+   "reaches_home_source": "detected",
+   "skipped_bands": [],
+   "speed_mph": null
+  },
+  {
+   "actual_speed_mph": null,
+   "arcs": [
+    4,
+    1
+   ],
+   "eta_extrapolated": "2026-10-05T07:41",
+   "id": 9,
+   "passages": [
+    {
+     "arc": 4,
+     "index": 8.1,
+     "points_firing": 5,
+     "strength": 17.4,
+     "when": "2026-10-03T19:00"
+    },
+    {
+     "arc": 1,
+     "index": 28.3,
+     "points_firing": 4,
+     "strength": 10.8,
+     "when": "2026-10-04T22:30"
+    }
+   ],
+   "reaches_home": null,
+   "reaches_home_source": "none detected",
+   "skipped_bands": [
+    2,
+    3
+   ],
+   "speed_mph": 16.9
+  },
+  {
+   "actual_speed_mph": null,
+   "arcs": [
+    2
+   ],
+   "eta_extrapolated": null,
+   "id": 10,
+   "passages": [
+    {
+     "arc": 2,
+     "index": 10.1,
+     "points_firing": 8,
+     "strength": 13.0,
+     "when": "2026-10-05T02:00"
+    }
+   ],
+   "reaches_home": null,
+   "reaches_home_source": "none detected",
+   "skipped_bands": [],
+   "speed_mph": null
+  },
+  {
+   "actual_speed_mph": null,
+   "arcs": [
+    3
+   ],
+   "eta_extrapolated": null,
+   "id": 11,
+   "passages": [
+    {
+     "arc": 3,
+     "index": 8.9,
+     "points_firing": 8,
+     "strength": 19.0,
+     "when": "2026-10-05T02:00"
+    }
+   ],
+   "reaches_home": null,
+   "reaches_home_source": "none detected",
+   "skipped_bands": [],
+   "speed_mph": null
+  },
+  {
+   "actual_speed_mph": null,
+   "arcs": [
+    4,
+    3
+   ],
+   "eta_extrapolated": null,
+   "id": 12,
+   "passages": [
+    {
+     "arc": 4,
+     "index": 7.6,
+     "points_firing": 8,
+     "strength": 14.6,
+     "when": "2026-10-07T01:30"
+    },
+    {
+     "arc": 3,
+     "index": 3.7,
+     "points_firing": 5,
+     "strength": 14.0,
+     "when": "2026-10-07T02:00"
+    }
+   ],
+   "reaches_home": null,
+   "reaches_home_source": "none detected",
+   "skipped_bands": [],
+   "speed_mph": null
+  },
+  {
+   "actual_speed_mph": null,
+   "arcs": [
+    4,
+    3,
+    2,
+    1
+   ],
+   "eta_extrapolated": "2026-10-10T01:56",
+   "id": 13,
+   "passages": [
+    {
+     "arc": 4,
+     "index": 23.4,
+     "points_firing": 8,
+     "strength": 23.8,
+     "when": "2026-10-08T22:30"
+    },
+    {
+     "arc": 3,
+     "index": 29.4,
+     "points_firing": 8,
+     "strength": 32.0,
+     "when": "2026-10-09T02:30"
+    },
+    {
+     "arc": 2,
+     "index": 28.6,
+     "points_firing": 7,
+     "strength": 18.8,
+     "when": "2026-10-09T04:00"
+    },
+    {
+     "arc": 1,
+     "index": 17.5,
+     "points_firing": 4,
+     "strength": 13.4,
+     "when": "2026-10-09T19:30"
+    }
+   ],
+   "reaches_home": null,
+   "reaches_home_source": "none detected",
+   "skipped_bands": [],
+   "speed_mph": 24.1
+  },
+  {
+   "actual_speed_mph": null,
+   "arcs": [
+    4,
+    3,
+    2,
+    1
+   ],
+   "eta_extrapolated": "2026-10-13T09:21",
+   "id": 14,
+   "passages": [
+    {
+     "arc": 4,
+     "index": 21.9,
+     "points_firing": 8,
+     "strength": 31.5,
+     "when": "2026-10-11T17:30"
+    },
+    {
+     "arc": 3,
+     "index": 20.0,
+     "points_firing": 8,
+     "strength": 28.6,
+     "when": "2026-10-11T21:30"
+    },
+    {
+     "arc": 2,
+     "index": 20.5,
+     "points_firing": 6,
+     "strength": 29.5,
+     "when": "2026-10-11T23:30"
+    },
+    {
+     "arc": 1,
+     "index": 21.6,
+     "points_firing": 4,
+     "strength": 17.2,
+     "when": "2026-10-13T00:00"
+    }
+   ],
+   "reaches_home": null,
+   "reaches_home_source": "none detected",
+   "skipped_bands": [],
+   "speed_mph": 16.6
+  }
+ ],
+ "generated_at": "2026-09-29T18:11:35+00:00",
+ "home": {
+  "lat": 33.391,
+  "lon": -96.579,
+  "name": "North Texas reference point (D11 anchor)"
+ },
+ "local": [
+  {
+   "date": "2026-09-29",
+   "evening": {
+    "cloud_pct": 100,
+    "gust_mph": 23,
+    "rain_pct": 0,
+    "temp_f": 88,
+    "wind_dir": 158,
+    "wind_from": "SSE",
+    "wind_mph": 12
+   },
+   "morning": {
+    "cloud_pct": 94,
+    "gust_mph": 15,
+    "rain_pct": 0,
+    "temp_f": 75,
+    "wind_dir": 164,
+    "wind_from": "SSE",
+    "wind_mph": 8
+   },
+   "sunrise": "07:19",
+   "sunset": "19:12"
+  },
+  {
+   "date": "2026-09-30",
+   "evening": {
+    "cloud_pct": 75,
+    "gust_mph": 29,
+    "rain_pct": 36,
+    "temp_f": 88,
+    "wind_dir": 173,
+    "wind_from": "S",
+    "wind_mph": 14
+   },
+   "morning": {
+    "cloud_pct": 97,
+    "gust_mph": 26,
+    "rain_pct": 0,
+    "temp_f": 76,
+    "wind_dir": 169,
+    "wind_from": "S",
+    "wind_mph": 14
+   },
+   "sunrise": "07:19",
+   "sunset": "19:11"
+  },
+  {
+   "date": "2026-10-01",
+   "evening": {
+    "cloud_pct": 87,
+    "gust_mph": 21,
+    "rain_pct": 85,
+    "temp_f": 76,
+    "wind_dir": 164,
+    "wind_from": "SSE",
+    "wind_mph": 9
+   },
+   "morning": {
+    "cloud_pct": 99,
+    "gust_mph": 28,
+    "rain_pct": 72,
+    "temp_f": 76,
+    "wind_dir": 164,
+    "wind_from": "SSE",
+    "wind_mph": 17
+   },
+   "sunrise": "07:20",
+   "sunset": "19:10"
+  },
+  {
+   "date": "2026-10-02",
+   "evening": {
+    "cloud_pct": 100,
+    "gust_mph": 14,
+    "rain_pct": 67,
+    "temp_f": 73,
+    "wind_dir": 41,
+    "wind_from": "NE",
+    "wind_mph": 6
+   },
+   "morning": {
+    "cloud_pct": 100,
+    "gust_mph": 8,
+    "rain_pct": 78,
+    "temp_f": 73,
+    "wind_dir": 36,
+    "wind_from": "NE",
+    "wind_mph": 2
+   },
+   "sunrise": "07:21",
+   "sunset": "19:08"
+  },
+  {
+   "date": "2026-10-03",
+   "evening": {
+    "cloud_pct": 31,
+    "gust_mph": 18,
+    "rain_pct": 57,
+    "temp_f": 80,
+    "wind_dir": 5,
+    "wind_from": "N",
+    "wind_mph": 9
+   },
+   "morning": {
+    "cloud_pct": 100,
+    "gust_mph": 20,
+    "rain_pct": 41,
+    "temp_f": 71,
+    "wind_dir": 30,
+    "wind_from": "NNE",
+    "wind_mph": 11
+   },
+   "sunrise": "07:21",
+   "sunset": "19:07"
+  },
+  {
+   "date": "2026-10-04",
+   "evening": {
+    "cloud_pct": 29,
+    "gust_mph": 22,
+    "rain_pct": 27,
+    "temp_f": 78,
+    "wind_dir": 13,
+    "wind_from": "NNE",
+    "wind_mph": 11
+   },
+   "morning": {
+    "cloud_pct": 73,
+    "gust_mph": 17,
+    "rain_pct": 22,
+    "temp_f": 71,
+    "wind_dir": 12,
+    "wind_from": "NNE",
+    "wind_mph": 10
+   },
+   "sunrise": "07:22",
+   "sunset": "19:06"
+  },
+  {
+   "date": "2026-10-05",
+   "evening": {
+    "cloud_pct": 0,
+    "gust_mph": 20,
+    "rain_pct": 10,
+    "temp_f": 76,
+    "wind_dir": 43,
+    "wind_from": "NE",
+    "wind_mph": 6
+   },
+   "morning": {
+    "cloud_pct": 15,
+    "gust_mph": 17,
+    "rain_pct": 7,
+    "temp_f": 68,
+    "wind_dir": 33,
+    "wind_from": "NNE",
+    "wind_mph": 10
+   },
+   "sunrise": "07:23",
+   "sunset": "19:04"
+  },
+  {
+   "date": "2026-10-06",
+   "evening": {
+    "cloud_pct": 0,
+    "gust_mph": 16,
+    "rain_pct": 5,
+    "temp_f": 73,
+    "wind_dir": 56,
+    "wind_from": "ENE",
+    "wind_mph": 5
+   },
+   "morning": {
+    "cloud_pct": 0,
+    "gust_mph": 14,
+    "rain_pct": 5,
+    "temp_f": 64,
+    "wind_dir": 79,
+    "wind_from": "ENE",
+    "wind_mph": 8
+   },
+   "sunrise": "07:24",
+   "sunset": "19:03"
+  },
+  {
+   "date": "2026-10-07",
+   "evening": {
+    "cloud_pct": 100,
+    "gust_mph": 14,
+    "rain_pct": 11,
+    "temp_f": 73,
+    "wind_dir": 40,
+    "wind_from": "NE",
+    "wind_mph": 4
+   },
+   "morning": {
+    "cloud_pct": 44,
+    "gust_mph": 10,
+    "rain_pct": 5,
+    "temp_f": 60,
+    "wind_dir": 70,
+    "wind_from": "ENE",
+    "wind_mph": 5
+   },
+   "sunrise": "07:24",
+   "sunset": "19:02"
+  },
+  {
+   "date": "2026-10-08",
+   "evening": {
+    "cloud_pct": 0,
+    "gust_mph": 14,
+    "rain_pct": 4,
+    "temp_f": 75,
+    "wind_dir": 54,
+    "wind_from": "NE",
+    "wind_mph": 4
+   },
+   "morning": {
+    "cloud_pct": 82,
+    "gust_mph": 10,
+    "rain_pct": 6,
+    "temp_f": 64,
+    "wind_dir": 48,
+    "wind_from": "NE",
+    "wind_mph": 5
+   },
+   "sunrise": "07:25",
+   "sunset": "19:00"
+  }
+ ],
+ "local_fronts": [
+  {
+   "strength": 15.2,
+   "when": "2026-10-02T01:00"
+  },
+  {
+   "strength": 14.7,
+   "when": "2026-10-03T19:00"
+  }
+ ],
+ "still_airborne": 43.5
+}
