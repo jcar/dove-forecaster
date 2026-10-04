@@ -61,6 +61,12 @@ h1{font-family:Bitter,Georgia,serif; margin:0; font-weight:700; letter-spacing:-
 .brand{display:flex; align-items:baseline; gap:10px}
 .brand .n{font-family:Bitter,serif; font-weight:700; font-size:17px; letter-spacing:-.01em}
 .where{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.game{display:flex}
+.game button{border-radius:0}
+.game button:first-child{border-radius:2px 0 0 2px}
+.game button:last-child{border-radius:0 2px 2px 0; margin-left:-1px}
+.untested{margin-top:14px; padding:11px 15px; border:1px dashed var(--wheat); border-radius:3px; font-size:13.5px; line-height:1.55}
+.untested b{color:var(--wheat)}
 .where .cur{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--ink2)}
 button{font:inherit; font-size:13px; padding:7px 13px; border-radius:2px; cursor:pointer;
   background:var(--raise); color:var(--ink); border:1px solid var(--line)}
@@ -160,6 +166,8 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
   <div class="top">
     <div class="brand"><span class="n">Dove Arrival Watch</span>
       <span class="dim mono" style="font-size:12px">Central Flyway</span></div>
+    <div class="game" role="group" aria-label="What are you hunting">
+      <button data-g="dove" aria-pressed="true">Doves</button><button data-g="duck" aria-pressed="false">Ducks</button></div>
     <div class="where"><span class="cur" id="curLoc">&mdash;</span>
       <button id="change" hidden>Change location</button>
       <button id="theme" title="Light / dark">&#9681;</button></div>
@@ -181,6 +189,9 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
   <div id="overview">
     <section>
       <h2>The whole system, moving</h2>
+      <p class="sub" id="ovDuck" hidden>Duck mode: the dotted line is the <b>freeze line</b> &mdash; how far south winter is cold
+         and snowy enough to push mallards off their water &mdash; and grey specks are snow on the ground. Ducks ride north winds
+         south a night or two behind it. Dove arrival dots are hidden.</p>
       <p class="sub">Cold fronts sweep south down the plains. Birds leave when one reaches them, ride the
          north wind while it holds, and sit down when it quits. Press play and watch it happen.</p>
       <div class="flyrow">
@@ -218,6 +229,41 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
         <input type="range" id="scrub" min="0" max="0" value="0" step="1" aria-label="Day">
         <span class="day mono" id="flyDay">&mdash;</span>
       </div>
+    </section>
+  </div>
+
+  <div id="duckSite" hidden>
+    <div class="mast">
+      <div class="eyebrow" id="dEyebrow">&nbsp;</div>
+      <h1 id="dHeadline">&nbsp;</h1>
+      <p id="dPlain"></p>
+      <div class="untested" id="dUntested"></div>
+    </div>
+    <div class="row" style="margin-top:20px" id="dGroups" role="group" aria-label="Which ducks"></div>
+    <div class="verdict">
+      <div><div class="k">Best morning</div><div class="v mono" id="dDay">&mdash;</div></div>
+      <div><div class="k">How many</div><div class="v mono" id="dStr">&mdash;</div></div>
+      <div><div class="k">Freeze line</div><div class="v mono" id="dLine">&mdash;</div></div>
+      <div><div class="k">Days of notice</div><div class="v mono" id="dLead">&mdash;</div></div>
+    </div>
+    <div class="howto">
+      <div class="hd">How the duck forecast works</div>
+      <ol>
+        <li>Ducks leave when their water up north <b>freezes or snows over</b> &mdash; we track that with the
+            weather severity index ducks are known to answer to (Schummer et al. 2010).</li>
+        <li>They fly <b>at night</b>, leaving about 45 minutes after sunset, and only when the wind ~1,500 ft up is behind
+            them, it's dry, and it isn't socked in.</li>
+        <li>One night carries them <b>300&ndash;500+ miles</b> &mdash; farther the harder the cold came.</li>
+        <li>So the freeze line moving south is the thing to watch. New birds land at dawn, a night or two behind it.</li>
+      </ol>
+    </div>
+    <section>
+      <h2>New ducks, by morning</h2>
+      <p class="sub">Bars are birds landing near you at dawn; faded bars are the last week, for context. Dashed lines are
+         cold fronts reaching you. The strip below is how hard winter is pressing at your own spot.</p>
+      <figure class="scroll"><svg id="dArrival" viewBox="0 0 1000 300" role="img" aria-label="Forecast duck arrivals by morning"></svg></figure>
+      <figure class="scroll"><svg id="dFreeze" viewBox="0 0 1000 96" role="img" aria-label="Freeze line distance and weather severity by day"></svg></figure>
+      <div class="leg" id="dLeg"></div>
     </section>
   </div>
 
@@ -272,9 +318,9 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
 
   <section>
     <h2>Are the birds actually moving?</h2>
-    <p class="sub">Real dove counts from Cornell's eBird at 128 spots across the lower 48, every morning. Each spot
-       is compared only to <b>its own</b> last week &mdash; a quiet Montana county isn't judged against busy Dallas.
-       Glowing means more doves than usual there; dark means fewer.
+    <p class="sub">Real counts from Cornell's eBird at 128 spots across the lower 48, every morning &mdash; doves, and since
+       Oct 4 ducks too (use the switch at the top). Each spot is compared only to <b>its own</b> last week &mdash; a quiet
+       Montana county isn't judged against busy Dallas. Glowing means more birds than usual there; dark means fewer.
        <b>A migration shows up as a glow that slides south over days.</b></p>
     <div id="nearWrap" hidden>
       <h3 style="margin:18px 0 4px">Doves near you</h3>
@@ -284,9 +330,6 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
     </div>
     <h3 style="margin:8px 0 8px">The whole country</h3>
     <div class="row" style="margin-bottom:12px" id="birdSpp" role="group" aria-label="Species">
-      <button data-sp="moudov" aria-pressed="true">Mourning dove</button>
-      <button data-sp="whwdov" aria-pressed="false">White-winged</button>
-      <button data-sp="eucdov" aria-pressed="false">Collared (the check)</button>
     </div>
     <figure><div class="usmap"><svg id="bmap" viewBox="0 0 960 600" role="img" aria-label="Dove counts at eBird circles across the lower 48, each against its own normal, by day"></svg></div></figure>
     <div class="transport">
@@ -377,6 +420,8 @@ async function boot(){
   if(INDEX.scale) SCALE=INDEX.scale;
   $('#gen').textContent='Last updated '+INDEX.generated_at.replace('T',' ').slice(0,16)+'Z.';
   if(INDEX.synthetic||(FLOW&&FLOW.synthetic)) $('#synthBanner').hidden=false;
+  let g0=new URLSearchParams(location.search).get('game'); if(!g0){try{g0=localStorage.getItem('dove.game')}catch(e){}}
+  if(g0==='duck') setGame('duck',true);
   loadFlow(); loadBacktest(); loadBirds();
   const url=new URLSearchParams(location.search).get('loc');
   let saved=null; try{saved=JSON.parse(localStorage.getItem('dove.place')||'null')}catch(e){}
@@ -410,10 +455,11 @@ async function selectSite(id,name,lat,lon){
   catch(e){$('#finderNote').textContent='That spot has no forecast published yet.';return;}
   PLACE={id:id,name:name||null,lat:lat!=null?lat:SITE.lat,lon:lon!=null?lon:SITE.lon};
   try{localStorage.setItem('dove.place',JSON.stringify(PLACE))}catch(e){}
-  history.replaceState(null,'','?loc='+id);
+  history.replaceState(null,'','?loc='+id+(GAME==='duck'?'&game=duck':''));
   $('#curLoc').textContent=PLACE.name||(SITE.lat+', '+SITE.lon);
-  $('#finder').hidden=true;$('#overview').hidden=true;$('#site').hidden=false;$('#change').hidden=false;
-  drawSite(); drawNear(); drawBmap(); loadLocal();
+  $('#finder').hidden=true;$('#overview').hidden=true;$('#change').hidden=false;
+  $('#site').hidden=GAME==='duck'; $('#duckSite').hidden=GAME!=='duck';
+  drawSite(); drawNear(); drawBmap(); loadLocal(); if(GAME==='duck') loadDuck(id);
   scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});
 }
 
@@ -560,6 +606,7 @@ function setFrame(f){
     HALOS[k].setAttribute('opacity',(q*0.22).toFixed(3));
   });
   drawFront(FLOW.dates[Math.round(FRAME)]);
+  drawDuckLayer(FLOW.dates[Math.round(FRAME)]);
   $('#scrub').value=Math.round(FRAME);
   const d=FLOW.dates[Math.round(FRAME)], dd=dt(d);
   $('#flyDay').textContent=DOW3[dd.getDay()]+' '+nice(d);
@@ -889,8 +936,10 @@ async function loadLocal(){
 }
 
 async function loadBirds(){try{
-  const r=await Promise.all([fetch('data/wave.json').then(x=>x.json()),fetch('data/geo_us.json').then(x=>x.json()).catch(()=>null)]);
-  WAVE=r[0]; GEOUS=r[1]; drawBirds(); drawNear(); drawBmap();}catch(e){console.error(e)}}
+  const r=await Promise.all([fetch('data/wave.json').then(x=>x.json()),fetch('data/geo_us.json').then(x=>x.json()).catch(()=>null),
+    fetch('data/duck/wave.json').then(x=>x.json()).catch(()=>null)]);
+  DOVEWAVE=r[0]; GEOUS=r[1]; DUCKWAVE=r[2]; WAVE=(GAME==='duck'&&DUCKWAVE)?DUCKWAVE:DOVEWAVE;
+  drawSppButtons(); drawBirds(); drawNear(); drawBmap();}catch(e){console.error(e)}}
 
 /* Restored 2026-09-27: deleted by accident in 0c5ec76 while its callers stayed,
    which left this panel blank and threw on every theme change. */
@@ -988,7 +1037,8 @@ function drawBmap(){
     s.appendChild(el('circle',{cx:p[0],cy:p[1],r:4.5,fill:'none',stroke:tok('--ink'),'stroke-width':1.6}));
     s.appendChild(el('circle',{cx:p[0],cy:p[1],r:1.6,fill:tok('--ink')}));
     const t=el('text',{x:p[0]+8,y:p[1]+4,'font-size':12,fill:tok('--ink'),'font-weight':600}); t.textContent='you'; s.appendChild(t);}
-  $('#bmapDay').textContent=nice(days[BFRAME])+(BIRD_SP==='eucdov'?' — collared (the check)':BIRD_SP==='whwdov'?' — white-winged':' — mourning doves');
+  const spn=(SPP[GAME].find(q=>q[0]===BIRD_SP)||[0,BIRD_SP])[1];
+  $('#bmapDay').textContent=nice(days[BFRAME])+' — '+spn.toLowerCase();
 }
 function setBplay(on){
   if(BTIMER){clearInterval(BTIMER);BTIMER=null;}
@@ -1011,7 +1061,8 @@ function nearCircles(){
   if(!near.length) return [];
   const lat=near.reduce((b,c)=>Math.abs(c.lat-PLACE.lat)<Math.abs(b-PLACE.lat)?c.lat:b,near[0].lat);
   const row=near.filter(c=>c.lat===lat).sort((a,b)=>Math.abs(a.lon-PLACE.lon)-Math.abs(b.lon-PLACE.lon));
-  const days=c=>c.counted.moudov.filter(x=>x).length;
+  const lead=NEAR_SER[GAME][0][0];
+  const days=c=>(c.counted[lead]||[]).filter(x=>x).length;
   const steady=row.filter(c=>days(c)>=0.4*n);
   return steady.length?steady:row.slice(0,1);
 }
@@ -1026,9 +1077,9 @@ function drawNear(){
     '. Dots are single days, which are noisy; the line is a 3-day average, so read the line. '+
     'The shaded band is mourning doves’ own normal there.';
   const pooled=sp=>days.map((d,i)=>{let b=0,k=0;use.forEach(c=>{if(c.counted[sp][i]){b+=c.birds[sp][i];k+=c.counted[sp][i];}});return k?b/k:null;});
-  const SER=[['moudov','Mourning','--s1',2.6],['whwdov','White-wing','--s2',2],['eucdov','Collared (the check)','--s3',1.4]];
+  const SER=NEAR_SER[GAME], lead=SER[0][0];
   const raw={}; SER.forEach(q=>raw[q[0]]=pooled(q[0]));
-  const norm=rollMedian(raw.moudov,7);
+  const norm=rollMedian(raw[lead],7);
   const all=SER.flatMap(q=>smooth3(raw[q[0]])).concat(norm).filter(v=>v!=null);
   if(all.length<3){$('#nearLeg').innerHTML='<span class="dim">Not enough counts near you yet.</span>';return;}
   const W=1000,H=280,L=44,R=150,T=16,B=36,iw=W-L-R,ih=H-T-B;
@@ -1044,9 +1095,9 @@ function drawNear(){
   SER.forEach(function(q){
     const k=q[0],c=tok(q[2]),r=raw[k],sm=smooth3(r);
     r.forEach((v,i)=>{ if(v==null) return;
-      const dot=el('circle',{cx:X(i),cy:Y(v),r:k==='moudov'?3.2:2.4,fill:c,'fill-opacity':0.35});
+      const dot=el('circle',{cx:X(i),cy:Y(v),r:k===lead?3.2:2.4,fill:c,'fill-opacity':0.35});
       dot.addEventListener('pointermove',e=>show(e,q[1]+'  '+nice(days[i])+'\n'+v.toFixed(1)+' doves per counting stop'+
-        (k==='moudov'&&norm[i]!=null?'\nnormal here: '+norm[i].toFixed(1):'')));
+        (k===lead&&norm[i]!=null?'\nnormal here: '+norm[i].toFixed(1):'')));
       dot.addEventListener('pointerleave',hide); s.appendChild(dot);});
     let d='',pen=false,last=null;
     sm.forEach((v,i)=>{ if(v==null){pen=false;return;} d+=(pen?'L':'M')+X(i).toFixed(1)+','+Y(v).toFixed(1); pen=true; last=[X(i),Y(v)];});
@@ -1134,22 +1185,153 @@ function drawBirds(){
     '<span><i style="background:'+tok('--whold')+'"></i>fewer</span>'+
     '<span><i style="background:none;border:1px dashed '+tok('--line')+'"></i>no counts that day</span>';
 }
-document.querySelectorAll('#birdSpp button').forEach(function(b){
-  b.onclick=function(){ BIRD_SP=b.dataset.sp;
-    document.querySelectorAll('#birdSpp button').forEach(x=>x.setAttribute('aria-pressed',x===b));
-    drawBirds(); drawBmap(); };
-});
+function drawSppButtons(){
+  const box=$('#birdSpp'); box.innerHTML='';
+  if(!SPP[GAME].some(q=>q[0]===BIRD_SP)) BIRD_SP=SPP[GAME][0][0];
+  SPP[GAME].forEach(function(q){ const b=document.createElement('button'); b.textContent=q[1];
+    b.setAttribute('aria-pressed',q[0]===BIRD_SP);
+    b.onclick=function(){BIRD_SP=q[0]; drawSppButtons(); drawBirds(); drawBmap();}; box.appendChild(b);});
+}
+/* ---------- ducks (D27): one engine, a second section ---------- */
+const SPP={dove:[['moudov','Mourning dove'],['whwdov','White-winged'],['eucdov','Collared (the check)']],
+  duck:[['mallar3','Mallard'],['gnwtea','Green-winged teal'],['buwtea','Blue-winged teal'],['gadwal','Gadwall'],
+        ['amewig','Wigeon'],['norpin','Pintail'],['eucdov','Collared (the check)']]};
+const NEAR_SER={dove:[['moudov','Mourning','--s1',2.6],['whwdov','White-wing','--s2',2],['eucdov','Collared (the check)','--s3',1.4]],
+  duck:[['mallar3','Mallard','--s1',2.6],['gnwtea','Green-winged teal','--s2',2],['gadwal','Gadwall','--wheat',2],
+        ['eucdov','Collared (the check)','--s3',1.4]]};
+const DGROUPS=[['duck_mallard','Mallards & big ducks'],['duck_teal','Teal'],['duck_puddle','Gadwall, wigeon & pintail']];
+let GAME='dove', DOVEWAVE=null, DUCKWAVE=null, DINDEX=null, DSITE=null, DFLOW=null, DGROUP='duck_mallard', GRADES=null;
+
+function setGame(g, quiet){
+  GAME=g==='duck'?'duck':'dove';
+  document.querySelectorAll('.game button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.g===GAME));
+  try{localStorage.setItem('dove.game',GAME)}catch(e){}
+  const u=new URLSearchParams(location.search); if(GAME==='duck') u.set('game','duck'); else u.delete('game');
+  history.replaceState(null,'',u.toString()?'?'+u.toString():location.pathname);
+  if(PLACE){ $('#site').hidden=GAME==='duck'; $('#duckSite').hidden=GAME!=='duck'; if(GAME==='duck') loadDuck(PLACE.id); }
+  $('#ovDuck').hidden=GAME!=='duck';
+  WAVE=(GAME==='duck'&&DUCKWAVE)?DUCKWAVE:DOVEWAVE;
+  if(WAVE){ drawSppButtons(); drawBirds(); drawNear(); drawBmap(); }
+  if(GAME==='duck'&&!DFLOW) fetch('data/duck/flow.json').then(r=>r.json()).then(f=>{DFLOW=f; if(FLOW) setFrame(FRAME);}).catch(()=>{});
+  else if(FLOW) setFrame(FRAME);
+}
+document.querySelectorAll('.game button').forEach(b=>b.onclick=()=>setGame(b.dataset.g));
+
+async function loadDuck(id){
+  try{
+    if(!DINDEX) DINDEX=await (await fetch('data/duck/index.json')).json();
+    DSITE=await (await fetch('data/duck/loc/'+id+'.json')).json();
+  }catch(e){ DSITE=null; $('#dHeadline').textContent='Duck forecast not published for this spot yet.'; return; }
+  drawDuck();
+}
+function dStrength(v){
+  const sc=(DINDEX&&DINDEX.scale&&DINDEX.scale[DGROUP])||{few:0.1,decent:1,big:5};
+  return v<sc.few*0.5?'Nothing new':v<sc.few?'A few new birds':v<sc.decent?'A few':v<sc.big?'Decent push':'Big push';
+}
+function duckBanner(){
+  const g=GRADES&&GRADES.forecasts&&GRADES.forecasts[DGROUP]&&DSITE&&GRADES.forecasts[DGROUP][DSITE.flyway];
+  let st='building a record';
+  if(g){ st=g.status==='passes'?'<b>passing</b> the scorecard':g.status==='building'?'building its record &mdash; '+g.days+' of '+g.need_days+' days':
+    g.status==='control'?'void right now (the control tracks it too)':'not yet tracking the counts'; }
+  return '<b>Untested.</b> This duck forecast is new. It is built from published duck research, but it has not yet been checked against real birds here &mdash; '+
+    'the scorecard grades it every morning, and it is currently '+st+'. Treat it as an informed guess.';
+}
+function drawDuck(){
+  if(!DSITE) return;
+  const G=DSITE.groups[DGROUP], ti=DSITE.today_index, days=DSITE.dates;
+  const box=$('#dGroups'); box.innerHTML='';
+  DGROUPS.forEach(function(q){ const b=document.createElement('button'); b.textContent=q[1];
+    b.setAttribute('aria-pressed',q[0]===DGROUP); b.onclick=()=>{DGROUP=q[0]; drawDuck();}; box.appendChild(b);});
+  const next=G.arrival.slice(ti), pk=next.reduce((a,b)=>b.arrival>a.arrival?b:a,next[0]);
+  const lead=Math.round((dt(pk.date)-dt(next[0].date))/864e5);
+  const strong=dStrength(pk.arrival);
+  $('#dEyebrow').textContent=G.name+' \u00B7 '+FW_NAME[DSITE.flyway||'central']+' flyway';
+  $('#dHeadline').textContent=strong==='Nothing new'?'No new '+G.name.toLowerCase()+' due in the next two weeks':
+    'New birds most likely '+DOW[dt(pk.date).getDay()]+' morning';
+  $('#dPlain').textContent=strong==='Nothing new'?'Nothing upstream is pushing them yet. Watch the freeze line below.':
+    'That is '+nice(pk.date)+'. '+strong+' for this time of year, relative to the rest of the flyway.';
+  $('#dUntested').innerHTML=duckBanner();
+  $('#dDay').textContent=strong==='Nothing new'?'\u2014':DOW3[dt(pk.date).getDay()]+' '+nice(pk.date);
+  $('#dStr').textContent=strong;
+  const ln=DSITE.freeze.line_lat[ti];
+  $('#dLine').textContent=ln==null?'none yet':(ln<=DSITE.lat+0.4?'at you':Math.round((ln-DSITE.lat)*69)+' mi N');
+  $('#dLead').textContent=strong==='Nothing new'?'\u2014':lead+(lead===1?' day':' days');
+  // bars
+  const s=$('#dArrival'); s.innerHTML='';
+  const W=1000,H=300,L=30,R=18,T=40,B=46,iw=W-L-R,ih=H-T-B, n=days.length, step=iw/n, bw=Math.min(34,step*0.6);
+  const vals=G.arrival.map(a=>a.arrival), mx=Math.max(1e-6,...vals)*1.12, y=v=>T+ih-(v/mx)*ih;
+  const pkI=ti+next.indexOf(pk);
+  G.arrival.forEach(function(a,i){
+    const cx=L+step*i+step/2, h=a.arrival>0?Math.max(1.5,ih-(y(a.arrival)-T)):0, past=i<ti;
+    if(h>0) s.appendChild(el('rect',{x:cx-bw/2,y:y(a.arrival),width:bw,height:h,rx:3,
+      fill:i===pkI&&strong!=='Nothing new'?tok('--barPeak'):tok('--bar'),opacity:past?0.35:1}));
+    if(i%2===0||i===ti){ const t=el('text',{x:cx,y:H-26,'text-anchor':'middle','font-size':11,fill:i===ti?tok('--ink'):tok('--ink3'),
+      'font-weight':i===ti?600:400}); t.textContent=i===ti?'Today':DOW3[dt(a.date).getDay()]; s.appendChild(t);
+      const t2=el('text',{x:cx,y:H-11,'text-anchor':'middle','font-size':10,fill:tok('--ink3')}); t2.textContent=md(a.date); s.appendChild(t2);}
+    const hit=el('rect',{x:L+step*i,y:T,width:step,height:ih,fill:'transparent'});
+    hit.addEventListener('pointermove',e=>show(e,DOW[dt(a.date).getDay()]+', '+nice(a.date)+'\n'+dStrength(a.arrival)+
+      (G.ground[i]!=null?'\nbirds around (relative): '+G.ground[i]:'')));
+    hit.addEventListener('pointerleave',hide); s.appendChild(hit);
+  });
+  s.appendChild(el('line',{x1:L+step*ti,x2:L+step*ti,y1:T-6,y2:T+ih,stroke:tok('--line'),'stroke-width':1}));
+  (DSITE.fronts||[]).forEach(function(f){
+    const i=days.indexOf(f.slice(0,10)); if(i<0) return;
+    const x=L+step*i+step*(+f.slice(11,13)/24);
+    s.appendChild(el('line',{x1:x,x2:x,y1:T-10,y2:T+ih,stroke:tok('--ink2'),'stroke-width':1.3,'stroke-dasharray':'5 4'}));
+    const t=el('text',{x:x,y:T-14,'text-anchor':'middle','font-size':10.5,fill:tok('--ink2')}); t.textContent='front'; s.appendChild(t);});
+  s.appendChild(el('line',{x1:L,x2:W-R,y1:T+ih,y2:T+ih,stroke:tok('--line'),'stroke-width':1}));
+  // freeze strip: how far north the mallard-moving cold is, and WSI here
+  const f=$('#dFreeze'); f.innerHTML='';
+  const FH=96, fy=30;
+  const t0=el('text',{x:L,y:14,'font-size':10.5,fill:tok('--ink3')}); t0.textContent='Freeze line (where mallards are ready to leave), miles north of you'; f.appendChild(t0);
+  DSITE.freeze.line_lat.forEach(function(la,i){ const cx=L+step*i+step/2;
+    if(la==null){ const t=el('text',{x:cx,y:fy+14,'text-anchor':'middle','font-size':10,fill:tok('--ink3')}); t.textContent='\u2014'; f.appendChild(t); return;}
+    const mi=Math.max(0,Math.round((la-DSITE.lat)*69)), q=Math.max(0,Math.min(1,1-mi/900));
+    f.appendChild(el('rect',{x:cx-bw/2,y:fy,width:bw,height:22,rx:3,fill:mix(tok('--wmid'),tok('--wgo'),q),opacity:i<ti?0.45:1}));
+    const t=el('text',{x:cx,y:fy+15,'text-anchor':'middle','font-size':9.5,fill:tok('--ink'),'font-weight':600}); t.textContent=mi<30?'here':mi; f.appendChild(t);});
+  const w=DSITE.freeze.wsi;
+  const t1=el('text',{x:L,y:fy+44,'font-size':10.5,fill:tok('--ink3')});
+  const wi=w[ti];
+  t1.textContent='Weather severity at your spot today: '+(wi==null?'no data':wi.toFixed(1))+
+    ' \u00B7 mallards here start leaving above ~'+(DSITE.lat<37.5?'4\u20136':DSITE.lat<42.5?'6\u20137':'7\u20139')+' (Schummer 2010; Notaro 2016)';
+  f.appendChild(t1);
+  $('#dLeg').innerHTML='<span><i style="background:'+tok('--barPeak')+'"></i>best morning</span><span><i style="background:'+tok('--bar')+'"></i>new birds</span>'+
+    '<span><i style="background:'+mix(tok('--wmid'),tok('--wgo'),0.8)+'"></i>freeze line close</span><span class="dim">sizes are relative, not head counts</span>';
+}
+function drawDuckLayer(day){
+  const s=$('#fly'); if(!s) return;
+  let g=$('#duckLayer'); if(g) g.remove();
+  const on=GAME==='duck';
+  DOTS.forEach(d=>d.style.display=on?'none':''); HALOS.forEach(d=>d.style.display=on?'none':'');
+  if(!on||!DFLOW) return;
+  const fr=DFLOW.days.find(x=>x.date===day); if(!fr) return;
+  g=el('g',{id:'duckLayer'}); s.appendChild(g);
+  fr.snow.forEach(p=>g.appendChild(el('circle',{cx:p[0],cy:p[1],r:2.2,fill:tok('--ink'),opacity:0.28})));
+  if(fr.line.length>1){
+    const pts=fr.line.slice().sort((a,b)=>a[0]-b[0]);
+    g.appendChild(el('path',{d:'M'+pts.map(p=>p[0]+','+p[1]).join('L'),fill:'none',stroke:tok('--wgo'),'stroke-width':6,opacity:0.18,'stroke-linecap':'round'}));
+    g.appendChild(el('path',{d:'M'+pts.map(p=>p[0]+','+p[1]).join('L'),fill:'none',stroke:tok('--wgo'),'stroke-width':1.8,'stroke-linecap':'round','stroke-dasharray':'2 3'}));
+  }
+}
+
 async function loadGrades(){try{
-  const g=await (await fetch('data/grades.json')).json();
+  const g=GRADES=await (await fetch('data/grades.json')).json();
   const say={building:(f)=>'building a record &mdash; '+f.days+' of '+f.need_days+' days',
-    passes:()=>'<b>passes</b> &mdash; forecasts track the birds, control quiet',
+    passes:()=>'<b>passes</b> &mdash; beats the calendar, tracks the birds, control quiet',
     control:()=>'<b>void</b> &mdash; the collared doves track it too, so it is measuring birders',
-    no_skill:()=>'<b>no skill yet</b> &mdash; forecasts do not track the counts'};
-  $('#grades').innerHTML=['central','mississippi','atlantic','pacific'].filter(k=>g.flyways[k]).map(function(k){
-    const f=g.flyways[k];
-    return '<li><b>'+FW_NAME[k]+'</b> '+(k==='central'?'(published)':'(watched)')+': '+(say[f.status]||(()=>f.status))(f)+
-      (f.better_law?' &middot; the '+(f.better_law==='live'?'current':'older')+' flight model scores better':'')+
-      ' <span class="dim">&middot; '+f.circles_paired+' circles, '+f.locations+' locations</span></li>';}).join('');
+    no_skill:()=>'<b>no skill yet</b> &mdash; does not beat the calendar'};
+  const LAW={arrival:'current model',challenger:'older flight law',dove_v2:'evidence-based model'};
+  const F=g.forecasts||{dove:g.flyways};
+  const row=(label,f,extra)=>'<li><b>'+label+'</b>: '+(say[f.status]||(()=>f.status))(f)+(extra||'')+
+    ' <span class="dim">&middot; '+f.circles_paired+' circles, '+f.locations+' locations</span></li>';
+  let h=['central','mississippi','atlantic','pacific'].filter(k=>F.dove&&F.dove[k]).map(function(k){
+    const f=F.dove[k];
+    return row('Doves, '+FW_NAME[k]+(k==='central'?' (published)':' (watched)'),f,
+      f.best_law?' &middot; the '+(LAW[f.best_law]||f.best_law)+' scores best':'');}).join('');
+  DGROUPS.forEach(function(q){ const f=F[q[0]]&&F[q[0]].central;
+    if(f) h+=row(q[1]+', Central (published, untested)',f); });
+  if(GRADES&&DSITE) $('#dUntested').innerHTML=duckBanner();
+  $('#grades').innerHTML=h;
 }catch(e){$('#grades').innerHTML='<li class="dim">No scorecard yet.</li>';}}
 loadGrades();
 async function loadBacktest(){try{const b=await (await fetch('data/backtest.json')).json();

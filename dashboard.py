@@ -36,8 +36,11 @@ for p in sorted(glob.glob("data/wave/*.json")):
     d = json.load(open(p))
     run_dates.append(d["run_date"])
     circles.update(d["circles"])
-    for c in d["circles"]:
-        first_pull.setdefault(c, d["run_date"])
+    # first pull per (circle, SPECIES): ducks joined circles that were weeks
+    # old, and their first reach-back is just as slanted as a new circle's
+    for c, sp in d["counts"].items():
+        for s_ in sp:
+            first_pull.setdefault((c, s_), d["run_date"])
     for circle, sp in d.get("records", {}).items():
         for s_, rows_ in sp.items():
             bucket = recs.setdefault((circle, s_), {})
@@ -69,7 +72,7 @@ for (circle, s_), bucket in recs.items():
 # Trust a day only from the day before the circle was first pulled.
 from datetime import date as _date, timedelta as _td
 for k in list(cells):
-    start = first_pull.get(k[0])
+    start = first_pull.get((k[0], k[1]))
     if start and k[2] < (_date.fromisoformat(start) - _td(days=1)).isoformat():
         del cells[k]
 

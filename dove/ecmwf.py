@@ -30,7 +30,17 @@ LONG_STEPS = list(range(0, 145, 3)) + list(range(150, 361, 6))
 SHORT_STEPS = [0, 3, 6, 9]          # past days: the shortest lead of each run
 # (param, levelist) -> output key
 FIELDS = [("2t", None), ("sp", None), ("tcc", None), ("10u", None), ("10v", None),
-          ("u", "925"), ("v", "925")]
+          ("u", "925"), ("v", "925"),
+          # D26: wind at height above ground needs the profile, not one level -
+          # 925 hPa is underground over the High Plains. 100 m for doves; the
+          # pressure levels let ducks' ~450 m AGL cruise be interpolated anywhere.
+          ("100u", None), ("100v", None),
+          ("u", "1000"), ("v", "1000"), ("u", "850"), ("v", "850"), ("u", "700"), ("v", "700"),
+          # snow: sd is water equivalent (m); depth = sd * 1000 / rsn (kg m-3)
+          ("sd", None), ("rsn", None),
+          # accumulated precipitation (m since the run began) -> hourly rate
+          ("tp", None)]
+LEVELS = ("1000", "925", "850", "700")
 MS_TO_MPH = 2.2369362920544
 
 _S = None
@@ -119,9 +129,36 @@ def _download(jobs, idx, workers=12):
     earlier ones at the same valid time (shorter lead wins)."""
     with ThreadPoolExecutor(workers) as ex:
         res = list(ex.map(lambda js: (js, _read_step(js[0], js[1], idx)), jobs))
+    # Precipitation arrives as an accumulation since each run began; turn it
+    # into a rate over the interval ending at each step, within its own run.
+    by_run = {}
+    for (run, step), fields in res:
+        by_run.setdefault(run, []).append((step, fields))
+    for run, steps in by_run.items():
+        steps.sort(key=lambda x: x[0])
+        prev = None
+        for step, fields in steps:
+            tp = fields.get(("tp", None))
+            if prev is None or tp is None:
+                fields[("tprate", None)] = None
+            else:
+                dt = step - prev[0]
+                fields[("tprate", None)] = [max(0.0, (a - b) * 1000.0 / dt)
+                                            for a, b in zip(tp, prev[1])]
+            prev = (step, tp)
     by_time = {}
-    for (run, step), fields in sorted(res, key=lambda x: x[0][0]):
-        by_time[run + timedelta(hours=step)] = fields
+    for run in sorted(by_run):
+        for step, fields in by_run[run]:
+            t = run + timedelta(hours=step)
+            if fields[("tprate", None)] is None and t in by_time:
+                fields[("tprate", None)] = by_time[t][("tprate", None)]   # keep the earlier run's rate
+            by_time[t] = fields
+    first = min(by_time)
+    if by_time[first][("tprate", None)] is None:
+        by_time[first][("tprate", None)] = [0.0] * len(by_time[first][("sp", None)])
+    for t in sorted(by_time):
+        if by_time[t][("tprate", None)] is None:
+            by_time[t][("tprate", None)] = [0.0] * len(by_time[t][("sp", None)])
     return by_time
 
 
@@ -171,7 +208,7 @@ def hourly(points, past_days=2, run=None, tz=None, steps=None, progress=None):
     if progress:
         progress(len(jobs), time.time() - t0)
 
-    series = {k: _interp(by_time, k) for k in FIELDS}
+    series = {k: _interp(by_time, k) for k in FIELDS + [("tprate", None)]}
     times = sorted(series[FIELDS[0]])
     zones = {}
     out = []
@@ -180,7 +217,9 @@ def hourly(points, past_days=2, run=None, tz=None, steps=None, progress=None):
         zone = zones.setdefault(name, ZoneInfo(name))
         h = {"time": [], "temperature_2m": [], "surface_pressure": [], "cloud_cover": [],
              "wind_speed_10m": [], "wind_direction_10m": [],
-             "wind_speed_925hPa": [], "wind_direction_925hPa": []}
+             "wind_speed_100m": [], "wind_direction_100m": [],
+             "snow_depth": [], "precipitation": [],
+             **{f"wind_{x}_{lv}hPa": [] for lv in LEVELS for x in ("speed", "direction")}}
         for t in times:
             g = lambda k: series[k][t][p]
             h["time"].append(t.astimezone(zone).strftime("%Y-%m-%dT%H:%M"))
@@ -188,8 +227,14 @@ def hourly(points, past_days=2, run=None, tz=None, steps=None, progress=None):
             h["surface_pressure"].append(round(g(("sp", None)) / 100.0, 1))
             h["cloud_cover"].append(round(max(0.0, min(1.0, g(("tcc", None)))) * 100))
             s10, d10 = _speed_dir(g(("10u", None)), g(("10v", None)))
-            s9, d9 = _speed_dir(g(("u", "925")), g(("v", "925")))
             h["wind_speed_10m"].append(s10); h["wind_direction_10m"].append(d10)
-            h["wind_speed_925hPa"].append(s9); h["wind_direction_925hPa"].append(d9)
+            for lv in LEVELS:
+                sl, dl = _speed_dir(g(("u", lv)), g(("v", lv)))
+                h[f"wind_speed_{lv}hPa"].append(sl); h[f"wind_direction_{lv}hPa"].append(dl)
+            s1, d1 = _speed_dir(g(("100u", None)), g(("100v", None)))
+            h["wind_speed_100m"].append(s1); h["wind_direction_100m"].append(d1)
+            rho = g(("rsn", None)) or 0.0
+            h["snow_depth"].append(round(g(("sd", None)) * 1000.0 / rho, 3) if rho > 1.0 else 0.0)  # metres
+            h["precipitation"].append(round(g(("tprate", None)), 2))                              # mm/h
         out.append({"latitude": points[p][0], "longitude": points[p][1], "hourly": h})
     return out

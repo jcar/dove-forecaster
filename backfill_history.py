@@ -27,15 +27,23 @@ CACHE_DIR = "data/wxcache"
 WANT_DAYS = 21                 # a full 16-day flight plus margin; the reservoir takes what exists
 PAST_DAYS = CACHE_KEEP_DAYS    # fetch the whole kept window in one go
 BUDGET = int(os.environ.get("BACKFILL_BUDGET", "12000"))    # location-days a morning
-CHUNK = 100
+CHUNK = 50          # 19 variables now: Open-Meteo weights each request ~2x heavier
 
 
-def history_days(pt):
+def history_days(pt, key=None):
+    """Past days held for a node - or, with `key`, past days that carry that
+    feature. The D26 fields (freeze, snow, evening wind) arrived after most
+    history was cached, so a node can be "full" for doves and empty for ducks."""
     p = os.path.join(CACHE_DIR, f"{pt[0]}_{pt[1]}.json")
     if not os.path.exists(p):
         return 0
     today = date.today().isoformat()
-    return sum(1 for d in json.load(open(p)).get("features", {}) if d < today)
+    return sum(1 for d, f in json.load(open(p)).get("features", {}).items()
+               if d < today and (key is None or key in f))
+
+
+def short(pt):
+    return history_days(pt) < WANT_DAYS or history_days(pt, "night_push") < WANT_DAYS
 
 
 def nodes_for(sites):
@@ -48,8 +56,7 @@ def main():
     every = catalogue(flyways=list(FLYWAY_STATES))
     pub = nodes_for([s for s in every if s["flyway"] in PUBLISH_FLYWAYS])
     rest = nodes_for(every) - pub
-    need = ([p for p in sorted(pub) if history_days(p) < WANT_DAYS] +
-            [p for p in sorted(rest) if history_days(p) < WANT_DAYS])
+    need = [p for p in sorted(pub) if short(p)] + [p for p in sorted(rest) if short(p)]
     print(f"{len(need)} nodes short of {WANT_DAYS} days of history "
           f"({sum(1 for p in need if p in pub)} in the published flyway)")
     per_node = PAST_DAYS + 1
@@ -64,7 +71,7 @@ def main():
         if c.failed:
             print(f"  stopped: Open-Meteo refused a batch after {done} nodes")
             break
-        time.sleep(20)                 # stay well under the per-minute limit
+        time.sleep(30)                 # stay well under the per-minute limit
     left = len(need) - done
     print(f"  backfilled {done} nodes (~{done * per_node} location-days); {left} still short"
           + (f", ~{-(-left * per_node // BUDGET)} more mornings" if left else ""))

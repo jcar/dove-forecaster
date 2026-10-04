@@ -11,3 +11,6 @@ fields.yaml
 
 # built and deployed by the daily job, never committed (D23)
 docs/
+
+# lives on the wxcache branch, force-pushed daily (D29)
+data/wxcache/

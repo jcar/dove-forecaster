@@ -32,6 +32,7 @@ class Profile:
     full_go_mph: float = 11.0
     drift_mi: float = 15.0
     max_mi_per_day: float = 420.0
+    fly_prob: float = 1.0                # share of a flyable day spent flying (expected value)
     arrival_hour: int = 8
     season_start: tuple = (8, 15)        # (month, day) the reservoir replay starts
     reservoir_k: float = 0.25
@@ -41,4 +42,92 @@ class Profile:
 
 DOVE = Profile(key="dove", name="Mourning dove", species=("moudov",))
 
-PROFILES = {p.key: p for p in (DOVE,)}
+
+def _gate_v2(lat, doy):
+    """Band-recovery evidence (Dunks et al. 1982; Otis et al. 2008):
+    departures spread over 30-45 days, young birds ~1-2 weeks ahead of
+    adults. Same opening (day 258 at 33 N, 1.6 d per degree - roughly
+    confirmed), a 40-day ramp, and a young cohort (55% of the fall flight,
+    age ratio ~1.3-2.2 young per adult, Seamans 2025) ten days early."""
+    return (0.55 * photoperiod_gate(lat, doy + 10, ramp_days=40)
+            + 0.45 * photoperiod_gate(lat, doy, ramp_days=40))
+
+
+# The dove model corrected by the published evidence (D26/D28). A CHALLENGER:
+# scored daily beside DOVE, live only if the scorecard says it wins.
+DOVE_V2 = Profile(
+    key="dove_v2", name="Mourning dove (evidence-based challenger)", species=("moudov",),
+    push_key="wind_push100",        # doves fly low; 925 hPa is underground on the High Plains
+    airspeed_mph=39.0,              # radar 65 km/h (Birds of the World); Taber 35-40 mph
+    flight_hours=5.0,               # one leg <= ~200 mi
+    max_mi_per_day=200.0,
+    fly_prob=0.4,                   # flocks "dally ... for several days" (Taber 1930):
+                                    # average progress lands in the evidenced 10-110 mi/day
+    arrival_hour=11,                # a dawn start plus a ~5 h leg lands late morning
+    gate=_gate_v2)
+
+PROFILES = {p.key: p for p in (DOVE, DOVE_V2)}
+
+
+# ---------------------------------------------------------------------------
+# Ducks (D27). A different engine (dove/duck.py: a population field on the
+# weather lattice) with these parameters. Every number is a PRIOR from the
+# literature cited beside it, to be refit against eBird by the scorecard; none
+# of these studies was fit in the Central Flyway.
+
+@dataclass(frozen=True)
+class DuckGroup:
+    key: str
+    name: str
+    species: tuple
+    control: str = "eucdov"
+    # readiness: logistic in a severity measure; threshold may vary with lat
+    measure: str = "wsi"             # wsi | wsimean | wsi7max
+    theta: tuple = ((35.0, 0.0),)    # (lat, threshold) pairs, linear between
+    slope: float = 1.5               # logistic width, index units
+    # calendar term for early migrants (blue-winged teal): day of year the
+    # departure probability peaks at 45 N, shifting later 2 d per degree south
+    calendar_peak_doy: float = None
+    calendar_width_d: float = 14.0
+    groundspeed_kmh: float = 80.0    # McDuie et al. 2019 GPS medians
+    night_km: float = 650.0          # Pearse et al. 2023: first moves median 838,
+                                     # later 488 km; 650 between them
+    km_per_c_drop: float = 166.0     # Pearse et al. 2023
+    # breeding/staging distribution at season start: share of birds by
+    # latitude, logistic centred here (prairie potholes ~45-55 N)
+    north_centre: float = 46.0
+
+
+DUCK_MALLARD = DuckGroup(
+    key="duck_mallard", name="Mallards & big ducks", species=("mallar3",),
+    # Schummer et al. 2010: declines past WSI 7.2; Notaro et al. 2016 mallard
+    # model puts the zero-crossing ~4 at 35 N rising to ~8.5 at 45 N.
+    measure="wsi", theta=((35.0, 4.1), (40.0, 6.3), (45.0, 8.5)),
+    groundspeed_kmh=82.5)
+
+DUCK_PUDDLE = DuckGroup(
+    key="duck_puddle", name="Gadwall, wigeon & pintail",
+    species=("gadwal", "amewig", "norpin"),
+    # Notaro 2016 WSIMEAN models (gadwall ~-7, wigeon ~-9 to -11; pintail on
+    # the 7-day max WSI ~0). One group, one measure: WSIMEAN at -7 is "a 7-day
+    # mean near 7 C" - these birds leave well before the hard freeze.
+    measure="wsimean", theta=((35.0, -6.0), (40.0, -7.5), (45.0, -8.0)),
+    groundspeed_kmh=70.6)
+
+DUCK_TEAL = DuckGroup(
+    key="duck_teal", name="Teal", species=("gnwtea", "buwtea"),
+    # Green-winged: Notaro 2016 WSIMEAN ~-8. Blue-winged: no weather model
+    # (Van Den Elsen 2016: photoperiod); Texas playas see them Aug 16-Sep 15
+    # and almost none by October (Baar et al. 2008) -> calendar term.
+    measure="wsimean", theta=((35.0, -4.0), (40.0, -8.0), (45.0, -9.0)),
+    calendar_peak_doy=245.0, calendar_width_d=14.0,
+    groundspeed_kmh=60.0)        # cinnamon teal 63.5 as the proxy
+
+DUCK_GROUPS = {g.key: g for g in (DUCK_MALLARD, DUCK_PUDDLE, DUCK_TEAL)}
+
+# O'Neal et al. 2018 (Mov. Ecol. 6:23), departure odds at a stopover:
+# following wind aloft OR 35.2, no rain 13.2, not overcast 2.8; P = 0.76 when
+# all favourable -> intercept logit(0.76) - ln(35.2) - ln(13.2) - ln(2.8).
+NIGHT_GATE = {"or_wind": 35.2, "or_dry": 13.2, "or_clear": 2.8, "p_all": 0.76,
+              "wind_full_mph": 10.0,      # tailwind counted fully favourable
+              "rain_mm": 0.2, "overcast_pct": 95}

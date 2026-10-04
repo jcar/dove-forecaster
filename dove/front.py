@@ -268,7 +268,7 @@ def flight_law(pr):
             return pr.drift_mi
         frac = min(1.0, (push_mph - pr.go_threshold_mph) / (pr.full_go_mph - pr.go_threshold_mph))
         full = min(pr.max_mi_per_day, pr.flight_hours * (pr.airspeed_mph + push_mph))
-        return pr.drift_mi + frac * (full - pr.drift_mi)
+        return pr.drift_mi + pr.fly_prob * frac * (full - pr.drift_mi)
     return law
 
 

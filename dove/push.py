@@ -69,9 +69,13 @@ class Reservoir:
         return self.level
 
 
-def daily_features(h, daylight=(6, 14)):
+def daily_features(h, daylight=(6, 14), lat=None, lon=None, tz=None):
     """Collapse an hourly series into per-day features.
-    Wind is sampled in DAYLIGHT ONLY - doves are diurnal migrants."""
+    Wind is sampled in DAYLIGHT ONLY - doves are diurnal migrants.
+
+    The keys the live dove law reads are computed exactly as before; the
+    D26 keys (100 m and above-ground winds, the duck evening window, freeze
+    and snow) are added alongside and never alter them."""
     days = {}
     for i, ts in enumerate(h["time"]):
         d, hr = ts[:10], int(ts[11:13])
@@ -108,7 +112,63 @@ def daily_features(h, daylight=(6, 14)):
             "max_hourly_drop": max(drops) if drops else 0.0,
             **{f"wind_push_{b}": max(f[f"push_{b}"]) for b in ROUTE_BEARINGS if f[f"push_{b}"]},
         }
+    _extra_features(h, out, daylight, lat, lon, tz)
     return out
+
+
+def _extra_features(h, out, daylight, lat, lon, tz):
+    """D26 features. Each is skipped quietly when the series lacks its fields
+    (older cache entries, the 7-field Open-Meteo request)."""
+    from .agl import add_agl, sunset_local
+    add_agl(h)
+    have = lambda k: k in h and h[k] is not None
+    by_day = {}
+    for i, ts in enumerate(h["time"]):
+        by_day.setdefault(ts[:10], []).append((int(ts[11:13]), i))
+    for d, hours in by_day.items():
+        if d not in out:
+            continue
+        f = out[d]
+        temps = [h["temperature_2m"][i] for _, i in hours if h["temperature_2m"][i] is not None]
+        if temps:
+            f["tmean_c"] = round((sum(temps) / len(temps) - 32) * 5 / 9, 2)
+            f["tmin_c"] = round((min(temps) - 32) * 5 / 9, 2)
+        if have("snow_depth"):
+            sd = [h["snow_depth"][i] for _, i in hours if h["snow_depth"][i] is not None]
+            if sd:
+                f["snow_cm"] = round(100.0 * sum(sd) / len(sd), 1)
+        if have("precipitation"):
+            pr = [h["precipitation"][i] for _, i in hours if h["precipitation"][i] is not None]
+            f["precip_mm"] = round(sum(pr), 1)
+        # Doves fly low: the 100 m wind, same daylight window as wind_push.
+        if have("wind_speed_100m"):
+            day = [(h["wind_speed_100m"][i], h["wind_direction_100m"][i]) for hr, i in hours
+                   if daylight[0] <= hr < daylight[1] and h["wind_speed_100m"][i] is not None]
+            if day:
+                f["wind_push100"] = max(southward_push(a, b) for a, b in day)
+                for bb in ROUTE_BEARINGS:
+                    f[f"wind_push100_{bb}"] = max(route_push(a, b, bb) for a, b in day)
+        # Ducks leave ~45 min after sunset (O'Neal et al. 2018) and decide on
+        # the wind ~450 m up, rain, and cloud in the first hours of the night.
+        if have("wind_speed_agl"):
+            if lat is not None and tz:
+                ss = sunset_local(lat, lon, d, tz)
+                lo_h, hi_h = int(ss + 0.75), int(ss + 3.0)
+            else:
+                lo_h, hi_h = 19, 22
+            eve = [i for hr, i in hours if lo_h <= hr <= hi_h]
+            w = [(h["wind_speed_agl"][i], h["wind_direction_agl"][i]) for i in eve
+                 if h["wind_speed_agl"][i] is not None]
+            if w:
+                f["night_push"] = max(southward_push(a, b) for a, b in w)
+                for bb in ROUTE_BEARINGS:
+                    f[f"night_push_{bb}"] = max(route_push(a, b, bb) for a, b in w)
+                cl = [h["cloud_cover"][i] for i in eve if h["cloud_cover"][i] is not None]
+                f["night_cloud"] = round(sum(cl) / len(cl)) if cl else None
+                ps = [h["surface_pressure"][i] for i in eve if h["surface_pressure"][i] is not None]
+                f["p_eve"] = round(sum(ps) / len(ps), 1) if ps else None
+                if have("precipitation"):
+                    f["night_rain_mm"] = round(sum(h["precipitation"][i] or 0 for i in eve), 1)
 
 
 def score_day(cur, prev, lat, d_iso, reservoir_level, gate_fn=None):

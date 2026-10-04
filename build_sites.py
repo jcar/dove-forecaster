@@ -101,10 +101,19 @@ def main():
     index, built, failed = [], 0, 0
     log_rows, log_dates = {}, []
 
+    from dove.profiles import DOVE_V2
+
     def log_row(res, s):
         if not log_dates:
             log_dates.append([r["date"] for r in res["arrival"]])
-        return {"lat": s["lat"], "lon": s["lon"], "flyway": s["flyway"],
+        # the evidence-based dove challenger, scored beside the live law (D28)
+        try:
+            v2 = [round(r["arrival"]) for r in
+                  run((s["lat"], s["lon"]), s["id"], grid=cache, ensemble=None,
+                      profile=DOVE_V2)["arrival"]]
+        except Exception:
+            v2 = None
+        return {"dove_v2": v2, "lat": s["lat"], "lon": s["lon"], "flyway": s["flyway"],
                 "published": s["flyway"] in PUBLISH_FLYWAYS,
                 "arrival": [round(r["arrival"]) for r in res["arrival"]],
                 "challenger": [round(r["arrival"]) for r in res["arrival_challenger"]["days"]],
@@ -139,10 +148,25 @@ def main():
             continue
         log_rows[s["id"]] = log_row(res, s)
     rows = {k: v for k, v in log_rows.items() if not v["published"]}
+    # Ducks: the population field over the same cache (D27). Never fatal to
+    # the dove build - doves are the validated product.
+    duck_dates = None
+    try:
+        import build_ducks
+        drows, duck_dates = build_ducks.build(
+            cache, sites, every,
+            flow_fit=flyway.Fit(flyway.MAP_BOX, flyway.MAP_W, flyway.MAP_H))
+        for sid, row in drows.items():
+            if sid in log_rows:
+                log_rows[sid].update({k: v for k, v in row.items() if k.startswith("duck_")})
+    except Exception as ex:
+        import traceback; traceback.print_exc()
+        print(f"  ducks skipped ({type(ex).__name__}: {ex})")
+
     if log_rows:
         os.makedirs("data/sitelog", exist_ok=True)
         json.dump({"generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                   "dates": log_dates[0], "sites": log_rows},
+                   "dates": log_dates[0], "duck_dates": duck_dates, "sites": log_rows},
                   open(f"data/sitelog/{time.strftime('%Y-%m-%d')}.json", "w"),
                   separators=(",", ":"))
     print(f"  shadow: {len(rows)} locations in {len({r['flyway'] for r in rows.values()})} "

@@ -60,6 +60,20 @@ def snap(lat, lon):
     return (snap_lat(lat), snap_lon(lon))
 
 
+OPEN_METEO_TZ = "America/Chicago"      # what weather.OpenMeteo asks for
+
+
+def relocalize(h, src_tz, dst_tz):
+    """Re-stamp an hourly series from one zone's clock to another's, so an
+    Open-Meteo node in Mountain time gets Mountain-time days - as the ECMWF
+    path already does (D23)."""
+    from zoneinfo import ZoneInfo
+    a, b = ZoneInfo(src_tz), ZoneInfo(dst_tz)
+    h["time"] = [datetime.fromisoformat(t).replace(tzinfo=a).astimezone(b).strftime("%Y-%m-%dT%H:%M")
+                 for t in h["time"]]
+    return h
+
+
 EDGE_HOURS = 12      # the detector needs 6 h either side; give the edge margin
 
 
@@ -123,7 +137,10 @@ class PointCache:
     def _save_disk(self, pt, feat, passes):
         today = date.today().isoformat()
         cutoff = (date.today() - timedelta(days=CACHE_KEEP_DAYS)).isoformat()
-        past_feat = {k: v for k, v in feat.items() if cutoff <= k < today}
+        # 2 decimals: the cache is all 2,062 nodes rewritten daily, and 15
+        # significant digits of a wind speed is noise (D26).
+        past_feat = {k: {kk: (round(vv, 2) if isinstance(vv, float) else vv) for kk, vv in v.items()}
+                     for k, v in feat.items() if cutoff <= k < today}
         past_pass = [(t.isoformat(), s) for t, s in passes
                      if cutoff <= t.date().isoformat() < today]
         json.dump({"features": past_feat, "passages": past_pass},
@@ -159,7 +176,12 @@ class PointCache:
             self.requests += 1
             for pt, s in zip(chunk, series):
                 h = s["hourly"]
-                feat, passes = daily_features(h), frontal_passages(h)
+                from .regions import tz_for
+                tz = tz_for(*pt)
+                if self.source != "ecmwf" and tz != OPEN_METEO_TZ:
+                    relocalize(h, OPEN_METEO_TZ, tz)
+                feat = daily_features(h, lat=pt[0], lon=pt[1], tz=tz)
+                passes = frontal_passages(h)
                 if self.cache_dir:
                     old_f, old_p = self._load_disk(pt)
                     if old_f:

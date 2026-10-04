@@ -33,6 +33,8 @@ MIN_DAYS = 21              # distinct forecast-target days before any verdict
 MAX_KM = 60                # circle centre to its forecast location
 Z_PASS = 2.71              # one-sided p < 0.01 after Bonferroni over 3 leads
 Z_CONTROL = 1.64           # control "quiet" means not even p < 0.05
+Z_OVER_CALENDAR = 1.0      # must also beat "the calendar alone" by this much
+CALENDAR_DAYS = 21         # the calendar: each circle's own centred 21-day mean
 OUT = "docs/data/grades.json"
 
 
@@ -61,30 +63,42 @@ def combine(rs):
     return (num / math.sqrt(w)) if w > 0 else None, w
 
 
-def main():
-    if not os.path.exists("docs/data/wave.json"):
-        print("no wave.json - run dashboard.py first")
-        return 1
-    wave = json.load(open("docs/data/wave.json"))
+# What each forecast is scored on: its log key(s), the eBird species it
+# predicts (summed when a group), the wave file those counts live in, and
+# which log date list its arrays follow.
+FORECASTS = {
+    "dove":         {"laws": ("arrival", "challenger", "dove_v2"), "species": ("moudov",),
+                     "wave": "docs/data/wave.json", "dates": "dates", "live": "arrival"},
+    "duck_mallard": {"laws": ("duck_mallard",), "species": ("mallar3",),
+                     "wave": "docs/data/duck/wave.json", "dates": "duck_dates", "live": "duck_mallard"},
+    "duck_teal":    {"laws": ("duck_teal",), "species": ("gnwtea", "buwtea"),
+                     "wave": "docs/data/duck/wave.json", "dates": "duck_dates", "live": "duck_teal"},
+    "duck_puddle":  {"laws": ("duck_puddle",), "species": ("gadwal", "amewig", "norpin"),
+                     "wave": "docs/data/duck/wave.json", "dates": "duck_dates", "live": "duck_puddle"},
+}
+CONTROL = "eucdov"
+
+
+def circle_anomaly(c, species):
+    """A circle's anomaly for a species GROUP: pooled density (birds per
+    counting stop across the group), then minus the circle's own rolling
+    median - the same rule as the published heatmaps."""
+    from dove.wavetrend import anomaly
+    n = len(c["birds"][species[0]])
+    dens = []
+    for i in range(n):
+        b = sum(c["birds"][s][i] or 0 for s in species if s in c["birds"])
+        k = sum(c["counted"][s][i] or 0 for s in species if s in c["counted"])
+        dens.append(b / k if k else None)
+    return anomaly(dens)
+
+
+def grade_one(spec, sites, logs):
+    if not os.path.exists(spec["wave"]):
+        return None
+    wave = json.load(open(spec["wave"]))
     wdays = {d: i for i, d in enumerate(wave["days"])}
-
-    # forecasts[(site, target_day, lead, law)] = arrival
-    logs, sites = {}, {}
-    for p in sorted(glob.glob("data/sitelog/*.json")):
-        made = date.fromisoformat(os.path.basename(p)[:10])
-        d = json.load(open(p))
-        for sid, row in d["sites"].items():
-            sites[sid] = row
-            for law in ("arrival", "challenger"):
-                for k, day in enumerate(d["dates"]):
-                    lead = (date.fromisoformat(day) - made).days
-                    if lead in LEADS:
-                        logs[(sid, day, lead, law)] = row[law][k]
-    if not sites:
-        print("no forecast log yet")
-        return 0
-
-    out = {"generated_at": date.today().isoformat(), "flyways": {}}
+    out = {}
     for fw in ("central", "mississippi", "atlantic", "pacific"):
         circles = [c for c in wave["map"]["circles"] if c["flyway"] == fw]
         fw_sites = {k: v for k, v in sites.items() if v["flyway"] == fw}
@@ -93,49 +107,104 @@ def main():
             near = min(fw_sites.items(), key=lambda kv: km((c["lat"], c["lon"]), (kv[1]["lat"], kv[1]["lon"])),
                        default=None)
             if near and km((c["lat"], c["lon"]), (near[1]["lat"], near[1]["lon"])) <= MAX_KM:
-                pairs.append((c, near[0]))
+                pairs.append((c, near[0], circle_anomaly(c, spec["species"]),
+                              circle_anomaly(c, (CONTROL,)) if CONTROL in c["birds"] else None))
+        # THE CALENDAR (BirdCast's lesson): a forecast that knows only the
+        # season's slow shape. Built from each circle's own 21-day centred
+        # mean - which peeks at the future, so it is a generous calendar and
+        # a strict bar. Skill means beating it, not beating zero.
+        cal = []
+        for c, sid, an_t, an_c in pairs:
+            n = len(an_t)
+            sp_ = spec["species"]
+            dens = []
+            for i in range(n):
+                b = sum(c["birds"][x][i] or 0 for x in sp_ if x in c["birds"])
+                k = sum(c["counted"][x][i] or 0 for x in sp_ if x in c["counted"])
+                dens.append(b / k if k else None)
+            h = CALENDAR_DAYS // 2
+            sm = [None if dens[i] is None else
+                  (lambda w: sum(w) / len(w) if w else None)(
+                      [x for x in dens[max(0, i - h):i + h + 1] if x is not None]) for i in range(n)]
+            xs = [sm[i] for i in range(n) if sm[i] is not None and an_t[i] is not None]
+            ys = [an_t[i] for i in range(n) if sm[i] is not None and an_t[i] is not None]
+            r = corr(xs, ys)
+            if r is not None:
+                cal.append((r, len(xs)))
+        z_cal, _ = combine(cal)
         res, target_days = {}, set()
-        for law in ("arrival", "challenger"):
+        for law in spec["laws"]:
             for lead in LEADS:
-                per = {"moudov": [], "eucdov": []}
-                for c, sid in pairs:
-                    for sp in per:
+                per_t, per_c = [], []
+                for c, sid, an_t, an_c in pairs:
+                    for an, per in ((an_t, per_t), (an_c, per_c)):
+                        if an is None:
+                            continue
                         xs, ys = [], []
                         for day, i in wdays.items():
                             f = logs.get((sid, day, lead, law))
-                            a = c["anomaly"][sp][i]
-                            if f is not None and a is not None:
-                                xs.append(f); ys.append(a)
-                                target_days.add(day)
+                            if f is not None and an[i] is not None:
+                                xs.append(f); ys.append(an[i])
+                                if per is per_t:
+                                    target_days.add(day)
                         r = corr(xs, ys)
                         if r is not None:
-                            per[sp].append((r, len(xs)))
-                zm, wm = combine(per["moudov"])
-                zc, _ = combine(per["eucdov"])
+                            per.append((r, len(xs)))
+                zm, wm = combine(per_t)
+                zc, _ = combine(per_c)
                 res[f"{law}_lead{lead}"] = {"z": None if zm is None else round(zm, 2),
                                             "z_control": None if zc is None else round(zc, 2),
-                                            "circles": len(per["moudov"]), "weight": wm}
+                                            "circles": len(per_t), "weight": wm}
         n_days = len(target_days)
-        live = [res[f"arrival_lead{l}"] for l in LEADS]
+        live = [res[f"{spec['live']}_lead{l}"] for l in LEADS]
         best = max((r for r in live if r["z"] is not None), key=lambda r: r["z"], default=None)
         if n_days < MIN_DAYS or best is None:
             status = "building"
         elif any((r["z_control"] or 0) >= Z_CONTROL for r in live):
             status = "control"
-        elif best["z"] >= Z_PASS:
+        elif best["z"] >= Z_PASS and best["z"] >= (z_cal or 0) + Z_OVER_CALENDAR:
             status = "passes"
         else:
             status = "no_skill"
-        law_pick = None
-        if status != "building":
-            za = sum(res[f"arrival_lead{l}"]["z"] or 0 for l in LEADS)
-            zc = sum(res[f"challenger_lead{l}"]["z"] or 0 for l in LEADS)
-            law_pick = "live" if za >= zc else "challenger"
-        out["flyways"][fw] = {"status": status, "days": n_days, "need_days": MIN_DAYS,
-                              "circles_paired": len(pairs), "locations": len(fw_sites),
-                              "better_law": law_pick, "scores": res}
-        print(f"{fw:12} {status:9} {n_days:3} days, {len(pairs)} circles paired"
-              + (f", best z {best['z']}" if best else ""))
+        laws = {law: round(sum(res[f"{law}_lead{l}"]["z"] or 0 for l in LEADS), 2)
+                for law in spec["laws"]}
+        out[fw] = {"status": status, "days": n_days, "need_days": MIN_DAYS,
+                   "z_calendar": None if z_cal is None else round(z_cal, 2),
+                   "circles_paired": len(pairs), "locations": len(fw_sites),
+                   "best_law": max(laws, key=laws.get) if status != "building" else None,
+                   "law_scores": laws if status != "building" else None, "scores": res}
+        print(f"  {spec['live']:14} {fw:12} {status:9} {n_days:3} days, {len(pairs)} circles"
+              + (f", best z {best['z']}" if best else "")
+              + (f", calendar z {z_cal:.2f}" if z_cal is not None else ""))
+    return out
+
+
+def main():
+    logs, sites = {}, {}
+    for p in sorted(glob.glob("data/sitelog/*.json")):
+        made = date.fromisoformat(os.path.basename(p)[:10])
+        d = json.load(open(p))
+        for sid, row in d["sites"].items():
+            sites[sid] = row
+            for spec in FORECASTS.values():
+                ds = d.get(spec["dates"]) or []
+                for law in spec["laws"]:
+                    arr = row.get(law)
+                    if not arr:
+                        continue
+                    for k, day in enumerate(ds[:len(arr)]):
+                        lead = (date.fromisoformat(day) - made).days
+                        if lead in LEADS:
+                            logs[(sid, day, lead, law)] = arr[k]
+    if not sites:
+        print("no forecast log yet")
+        return 0
+    out = {"generated_at": date.today().isoformat(), "forecasts": {}}
+    for key, spec in FORECASTS.items():
+        g = grade_one(spec, sites, logs)
+        if g is not None:
+            out["forecasts"][key] = g
+    out["flyways"] = out["forecasts"].get("dove", {})       # the page's dove scorecard
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     json.dump(out, open(OUT, "w"), separators=(",", ":"))
     return 0

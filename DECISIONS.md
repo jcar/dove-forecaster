@@ -946,3 +946,80 @@ Existing systems
  - eBird Status & Trends: the calendar baseline - internal use only under its
    terms (needs the user's free key; public display needs Cornell's OK).
  - Commercial apps publish no validation.
+
+## D26 — Wind above the ground, snow, rain, and the evening window (2026-10-04)
+
+ECMWF fields added: 100 m wind; u/v at 1000/850/700 hPa (925 was there);
+sd and rsn (snow depth = sd x 1000 / rsn - matches Open-Meteo's physical depth
+to the centimetre at two snowy Alaska points); tp (as an hourly rate within
+each run). Open-Meteo requests the same set. Side by side with Open-Meteo at
+Dallas, Denver, Cheyenne, Amarillo and North Dakota: 100 m wind 0.1-0.3 mph,
+above-ground wind 0.2-0.4 mph median.
+
+dove/agl.py: wind at a height ABOVE GROUND, interpolated in log-pressure
+through the 100 m wind and only those pressure levels above the surface that
+hour. Over Denver (surface ~840 hPa) the 925 and 850 values are rejected as
+underground; tested. sunset_local() (NOAA approximation) checks against the
+almanac: Dallas 19:09, Denver 18:39, Bismarck 19:18 on Oct 4.
+
+New per-day features (alongside, never altering, the live dove keys):
+wind_push100 (doves fly low), night_push / night_cloud / night_rain_mm / p_eve
+in the window sunset+45 min to +3 h at ~450 m AGL (ducks: O'Neal et al.
+2010, 2018), tmean_c, tmin_c, snow_cm, precip_mm.
+
+dove/freeze.py: WSI exactly per Schummer et al. 2010 Table 2 - reproduces the
+paper's worked example (-2, 4, 19) as a unit test - plus WSIMEAN and the
+7-day max (Notaro et al. 2016) and a wetland-ice proxy (Weller et al. 2022).
+
+Open-Meteo history is re-stamped into each node's own time zone, matching the
+ECMWF path. Backfill now also refills nodes lacking the new fields.
+
+## D27 — Ducks: a population field on the weather lattice (2026-10-04)
+
+Not the dove band model. Every lattice node holds a relative number of each
+duck group; each night a share leaves = readiness x night gate, flies one
+night south along its flyway's route, and settles across the nodes around
+where that distance lands it. A hunter's forecast is what settles on their
+node at dawn. The cascade (a ND freeze fills KS before TX) is emergent.
+
+  readiness   logistic in the group's severity measure at the node's own
+              latitude - mallards: WSI, threshold 4.1 (35N) -> 6.3 -> 8.5
+              (45N) [Schummer 2010; Notaro 2016]; puddle ducks: WSIMEAN ~-6
+              to -8; teal: WSIMEAN ~-4 to -9 plus a calendar term for
+              blue-winged teal [Baar 2008; Van Den Elsen 2016]
+  night gate  O'Neal 2018 logistic: wind aloft OR 35.2, dry 13.2, not
+              overcast 2.8, P = 0.76 all favourable
+  distance    650 km + 166 km per C of overnight cooling [Pearse 2023],
+              capped at groundspeed x 11 h [McDuie 2019], log-normal spread
+  start       relative numbers concentrated north of ~46N
+
+The field needs the whole season, the weather cache keeps 40 days: the state
+is checkpointed to data/duckstate/ three days back each morning and replayed
+forward. Published per user's decision with a permanent "untested" banner
+driven by the scorecard. Every parameter is a prior to be refit.
+
+## D28 — The evidence-based dove challenger, and grading against the calendar (2026-10-04)
+
+DOVE_V2 (dove/profiles.py), scored daily beside the live law and the old
+linear law; it goes live only if the scorecard says it wins:
+100 m wind; airspeed 39 mph; legs <= 200 mi; fly_prob 0.4 so typical
+progress is 15-89 mi/day (evidence: 10-110 including stopovers); departure
+ramp 40 days with a young cohort (55%) ten days ahead; lands late morning.
+Not yet in v2: the resident/migrant split and a refilling dove cascade.
+
+grade.py now scores every forecast (dove live, dove linear, dove v2, three
+duck groups) per flyway, and a forecast passes only if it ALSO beats "the
+calendar" - each circle's own centred 21-day mean, which peeks at the future
+and so is a generous calendar and a strict bar - by z >= 1. Synthetic tests:
+perfect passes (z 13.6); control-tracking flagged; random and calendar-only
+both fail.
+
+## D29 — The weather cache moves to its own branch (2026-10-04)
+
+With the D26 fields and every flyway backfilled, data/wxcache is ~2,062 files
+(~35 MB at full precision) and every one is rewritten each morning - hundreds
+of MB of master history a season. Floats are now stored at 2 decimals, and the
+cache lives on branch `wxcache`, force-pushed as ONE commit daily: the daily
+job restores it before building and saves it after. Master keeps what is an
+audit trail - forecasts, the forecast log, eBird snapshots, the duck-field
+checkpoint (data/duckstate/).

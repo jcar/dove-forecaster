@@ -14,7 +14,14 @@ import requests
 # field and it is what the conditions table shows.
 HOURLY = ["temperature_2m", "wind_speed_10m", "wind_direction_10m",
           "wind_speed_925hPa", "wind_direction_925hPa",
-          "surface_pressure", "cloud_cover"]
+          "surface_pressure", "cloud_cover",
+          # D26: the same profile ECMWF direct supplies - 100 m and the
+          # pressure levels for above-ground wind, plus snow and precipitation.
+          "wind_speed_100m", "wind_direction_100m",
+          "wind_speed_1000hPa", "wind_direction_1000hPa",
+          "wind_speed_850hPa", "wind_direction_850hPa",
+          "wind_speed_700hPa", "wind_direction_700hPa",
+          "snow_depth", "precipitation"]
 
 ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"

@@ -29,6 +29,14 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      # The weather history cache lives on its own branch, force-pushed as a
+      # single commit each morning: 2,062 files rewritten daily would add
+      # hundreds of MB a season to master's history (D29).
+      - name: Restore weather cache
+        run: |
+          git fetch --depth=1 origin wxcache && git worktree add /tmp/wx FETCH_HEAD \
+            && mkdir -p data/wxcache && cp -r /tmp/wx/data/wxcache/. data/wxcache/ \
+            || echo "no wxcache branch yet - starting from master's copy"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -78,7 +86,7 @@ jobs:
         run: |
           git config user.name  "dove-forecaster"
           git config user.email "actions@users.noreply.github.com"
-          git add data/
+          git add data/ ':!data/wxcache'
           if git diff --staged --quiet; then
             echo "no change"; exit 0
           fi
@@ -86,6 +94,15 @@ jobs:
           # another run may have landed while we were fetching weather
           git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
           git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Save weather cache
+        if: always() && (steps.daily.outcome == 'success' || inputs.publish_only)
+        run: |
+          rm -rf /tmp/wxpub && mkdir -p /tmp/wxpub/data && cp -r data/wxcache /tmp/wxpub/data/
+          cd /tmp/wxpub && git init -q && git checkout -q -b wxcache
+          git config user.name "dove-forecaster" && git config user.email "actions@users.noreply.github.com"
+          git add -A && git commit -q -m "weather cache $(date -u +%Y-%m-%d)"
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" wxcache
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
