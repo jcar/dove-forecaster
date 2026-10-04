@@ -111,7 +111,7 @@ def daily_features(h, daylight=(6, 14)):
     return out
 
 
-def score_day(cur, prev, lat, d_iso, reservoir_level):
+def score_day(cur, prev, lat, d_iso, reservoir_level, gate_fn=None):
     """Score one day at one location.  Returns component breakdown - the
     'why' string is the trust engine, so nothing is allowed to be opaque."""
     if prev is None:
@@ -127,7 +127,7 @@ def score_day(cur, prev, lat, d_iso, reservoir_level):
         "sharp":    ramp(cur["max_hourly_drop"], 1.0, 3.5, SHARP_MAX),
     }
     raw = sum(c.values())
-    gate = photoperiod_gate(lat, doy)
+    gate = (gate_fn or photoperiod_gate)(lat, doy)
     return {
         "raw": raw, "gate": gate, "reservoir": reservoir_level,
         "index": raw * gate * reservoir_level, "components": c,

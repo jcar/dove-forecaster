@@ -886,3 +886,63 @@ ordered sensibly (Saskatchewan ~0.2-0.3, Nebraska ~0.45 in early October)
 but the depletion constants are strawmen set for Texas. Billings, MT shows a
 mid-October push, which is later than Montana doves usually leave. The
 scorecard will say whether that is wrong.
+
+## D25 — Ducks join; the research the engine now rests on (2026-10-04)
+
+One app, two sections (doves Sep-Oct, ducks Nov-Jan; one engine). Central
+Flyway first. Duck groups: mallards & big ducks (mallar3) | teal (gnwtea,
+buwtea) | gadwall, wigeon, pintail (gadwal, amewig, norpin). Published
+openly with an "untested" label until the scorecard passes (user's call).
+Every model change is a CHALLENGER scored beside the live law first.
+
+EBIRD, COLLECTION: one call per REGION per species - all 48 states + DC, plus
+Canada and Mexico for the border circles - binned into the 128 circles
+ourselves. Verified against the 50 km geo call: 30/32 circles identical with
+states only; 4/4 border circles identical once CA and MX are added. 9 species
+x 51 regions = 459 calls. Serial, with a 15-minute budget, doves first:
+four concurrent requests on top of a day of testing drew HTTP 429.
+CORRECTION: an all-species geo call returns one sighting per species per
+circle, not per spot - useless for density. (I had told the user otherwise.)
+
+PROFILES: dove/profiles.py holds everything species-specific. Introducing it
+changed nothing: bit-identical arrivals, challenger, airborne, fronts and
+band scores on all 1,094 locations against the previous commit.
+
+RESEARCH (three passes; full reports summarised here, citations kept):
+Ducks
+ - WSI, Schummer et al. 2010 JWM 74:94 (doi:10.2193/2008-524), computed where
+   birds LEAVE: -Tmean(C) + consecutive days Tmean<=0 + snow(cm)*0.394 +
+   consecutive days snow>=2.54 cm. Worked example 2,-1,-5 C / 0,3,26 cm ->
+   -2, 4, 19. Mallards decline past 7.2 (8 in Schummer 2014).
+ - Latitude-dependent species models: Notaro et al. 2016 PLoS ONE
+   e0167506 (mallard PC1; WSIMEAN for gadwall, wigeon, GW teal, shoveler;
+   7-day max WSI for pintail). Thresholds derived from them are sensitive to
+   coefficient rounding: priors only. None fit in the Central Flyway.
+ - Departure night: O'Neal et al. 2018 Mov. Ecol. 6:23 - ducks left on 30%
+   of nights, ~44 min after sunset; following wind aloft OR 35.2, no rain
+   13.2, not overcast 2.8; P=0.76 when all favourable; cruise 490+-163 m AGL.
+ - GPS: Pearse et al. 2023 Ecol Evol (first migration median 838 km;
+   +166 km and +29% odds per 1 C colder minimum; +80% per cm snow later);
+   Weller et al. 2022 Mov Ecol 10:1 (snow days 65% of departures; ice model
+   2 d < 0 C, 1 cm per 3.3 FDD); Krementz et al. 2012 (stopovers 15.4 d);
+   McDuie et al. 2019 (mallard 82.5, pintail 79, gadwall 70.6, wigeon 52 km/h).
+ - Chronology: Baar et al. 2008 Waterbirds 31:394 (TX playas: blue-winged
+   teal gone by October; mallard and pintail peak late winter; ice-up early
+   December).
+Doves
+ - Band recoveries (Dunks et al. 1982 USFWS SSR-W 249; Otis et al. 2008):
+   young leave first; North Texas harvest 72% local early Sep -> 27% Oct;
+   migrant share KS ~38%, NE ~48%, SD ~44%, ND ~65%, OK ~15%, TX ~8%.
+ - Progress 10-110 mi/day including stopovers (Taber 1930; Baskett et al.
+   1993 via Birds of the World). The live law allows 420 in a day.
+ - 925 hPa is underground over CO, WY, MT, NM, the TX Panhandle and western
+   KS/NE; doves fly low. Use 100 m wind.
+ - No published numeric dove weather trigger: push weights must be fit.
+ - Urban white-winged doves mostly resident (Collier et al. 2012).
+Existing systems
+ - BirdCast (Van Doren & Horton 2018 Science) cannot see doves or ducks;
+   lesson kept: beat a calendar-only baseline, not zero.
+ - Schummer Lab weekly duck forecast: Mississippi and Atlantic only.
+ - eBird Status & Trends: the calendar baseline - internal use only under its
+   terms (needs the user's free key; public display needs Cornell's OK).
+ - Commercial apps publish no validation.

@@ -258,6 +258,20 @@ def linear_flight_mi(push_mph):
     return max(0.0, min(260.0, 25.0 + 13.0 * push_mph))
 
 
+def flight_law(pr):
+    """daily_flight_mi with a profile's constants. Same formula, so the dove
+    profile reproduces daily_flight_mi exactly."""
+    def law(push_mph):
+        if push_mph <= -2.0:
+            return 0.0
+        if push_mph < pr.go_threshold_mph:
+            return pr.drift_mi
+        frac = min(1.0, (push_mph - pr.go_threshold_mph) / (pr.full_go_mph - pr.go_threshold_mph))
+        full = min(pr.max_mi_per_day, pr.flight_hours * (pr.airspeed_mph + push_mph))
+        return pr.drift_mi + frac * (full - pr.drift_mi)
+    return law
+
+
 def push_at(push_field, day_iso, lat):
     """Southward wind push at a latitude, linearly interpolated between the
     latitudes we actually sample (the four bands plus the fields)."""
@@ -309,7 +323,8 @@ def simulate_arrival(depart_day, north_mi, push_field, home_lat, max_days=16,
 
 
 def arrival_forecast_wind(events, push_field, home_lat, days_out=10,
-                          today=None, spread=0.6, law=None, max_days=16):
+                          today=None, spread=0.6, law=None, max_days=16,
+                          arrival_hour=ARRIVAL_HOUR):
     """Superpose per-band pulses, each timed by an actual simulated flight."""
     today = today or datetime.now().date()
     legs, airborne = [], 0.0
@@ -328,7 +343,7 @@ def arrival_forecast_wind(events, push_field, home_lat, days_out=10,
     out = []
     for k in range(days_out):
         d = today + timedelta(days=k)
-        target = datetime.combine(d, time(ARRIVAL_HOUR))
+        target = datetime.combine(d, time(arrival_hour))
         total, parts = 0.0, []
         for e, centre, lead in legs:
             # a longer, more interrupted flight arrives more smeared out

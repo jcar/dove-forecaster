@@ -20,7 +20,9 @@ build_geo_us()          # geometry is rebuilt each run: docs/ is not committed
 _fw.build_geo(_fw.GEO_SRC)
 
 KEEP_DAYS = 45
-species = ["moudov", "whwdov", "eucdov"]
+from dove.ebird import SPECIES as _DOVES, DUCKS as _DUCKS, CONTROL
+DOVE_SPECIES = list(_DOVES)                       # includes the control
+DUCK_SPECIES = list(_DUCKS) + [CONTROL]
 
 # One record per location per pull (eBird returns each spot's LATEST
 # sighting), so overlapping pulls are UNIONED by (location, day) where the
@@ -76,22 +78,6 @@ for k in list(cells):
 newest_pull = max(run_dates, default="9999-12-31")
 all_days = sorted({k[2] for k in cells if k[2] < newest_pull})[-KEEP_DAYS:]
 fit = albers_box_fit_us()
-spots = []
-for name, c in sorted(circles.items(), key=lambda kv: (-kv[1]["lat"], kv[1]["lon"])):
-    fw = nearest_flyway(c["lat"], c["lon"])
-    if not fw:
-        continue
-    x, y = fit(c["lat"], c["lon"])
-    _, y2 = fit(c["lat"] + 50 / 111.0, c["lon"])
-    spot = {"id": name, "lat": c["lat"], "lon": c["lon"], "flyway": fw,
-            "xy": [round(x, 1), round(y, 1)], "r": round(abs(y - y2), 1),
-            "birds": {}, "counted": {}, "anomaly": {}}
-    for s_ in species:
-        cs = [cells.get((name, s_, day)) for day in all_days]
-        spot["birds"][s_] = [c_["birds"] if c_ else None for c_ in cs]
-        spot["counted"][s_] = [c_["counted"] if c_ else None for c_ in cs]
-        spot["anomaly"][s_] = anomaly([density(c_) for c_ in cs])
-    spots.append(spot)
 
 
 def row_mean(vals):
@@ -99,26 +85,53 @@ def row_mean(vals):
     return round(sum(v) / len(v), 2) if v else None
 
 
-flyways = {}
-for fw in FLYWAY_NAME:
-    mine = [sp for sp in spots if sp["flyway"] == fw]
-    rows = sorted({sp["lat"] for sp in mine})
-    anom, prop = {}, {}
-    for s_ in species:
-        anom[s_] = [[row_mean([sp["anomaly"][s_][i] for sp in mine if sp["lat"] == lat])
-                     for i in range(len(all_days))] for lat in rows]
-        prop[s_] = propagation(list(reversed(anom[s_])))
-    ctrl = prop["eucdov"]
-    prop = {s_: summarise(prop[s_], len(all_days),
-                          control_pairs=None if s_ == "eucdov" else [dict(q) for q in ctrl])
-            for s_ in species}
-    flyways[fw] = {"name": FLYWAY_NAME[fw], "rows": rows, "anomaly": anom,
-                   "propagation": prop,
-                   "circles_per_row": [sum(1 for sp in mine if sp["lat"] == lat) for lat in rows]}
+def publish_wave(species, path):
+    """One game's counts: the map circles, and per-flyway latitude rows built
+    from each circle's own anomaly. Doves and ducks ship separately so a dove
+    page never downloads duck data (D25)."""
+    spots = []
+    for name, c in sorted(circles.items(), key=lambda kv: (-kv[1]["lat"], kv[1]["lon"])):
+        fw = nearest_flyway(c["lat"], c["lon"])
+        if not fw:
+            continue
+        x, y = fit(c["lat"], c["lon"])
+        _, y2 = fit(c["lat"] + 50 / 111.0, c["lon"])
+        spot = {"id": name, "lat": c["lat"], "lon": c["lon"], "flyway": fw,
+                "xy": [round(x, 1), round(y, 1)], "r": round(abs(y - y2), 1),
+                "birds": {}, "counted": {}, "anomaly": {}}
+        for s_ in species:
+            cs = [cells.get((name, s_, day)) for day in all_days]
+            spot["birds"][s_] = [c_["birds"] if c_ else None for c_ in cs]
+            spot["counted"][s_] = [c_["counted"] if c_ else None for c_ in cs]
+            spot["anomaly"][s_] = anomaly([density(c_) for c_ in cs])
+        spots.append(spot)
 
-json.dump({"days": all_days, "species": species, "flyways": flyways,
-           "map": {"w": fit.w, "h": fit.h, "radius_km": 50, "circles": spots}},
-          open(f"{OUT}/data/wave.json", "w"), separators=(",", ":"))
+    flyways = {}
+    for fw in FLYWAY_NAME:
+        mine = [sp for sp in spots if sp["flyway"] == fw]
+        rows = sorted({sp["lat"] for sp in mine})
+        anom, prop = {}, {}
+        for s_ in species:
+            anom[s_] = [[row_mean([sp["anomaly"][s_][i] for sp in mine if sp["lat"] == lat])
+                         for i in range(len(all_days))] for lat in rows]
+            prop[s_] = propagation(list(reversed(anom[s_])))
+        ctrl = prop[CONTROL]
+        prop = {s_: summarise(prop[s_], len(all_days),
+                              control_pairs=None if s_ == CONTROL else [dict(q) for q in ctrl])
+                for s_ in species}
+        flyways[fw] = {"name": FLYWAY_NAME[fw], "rows": rows, "anomaly": anom,
+                       "propagation": prop,
+                       "circles_per_row": [sum(1 for sp in mine if sp["lat"] == lat) for lat in rows]}
+
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    json.dump({"days": all_days, "species": species, "flyways": flyways,
+               "map": {"w": fit.w, "h": fit.h, "radius_km": 50, "circles": spots}},
+              open(path, "w"), separators=(",", ":"))
+    return flyways
+
+
+flyways = publish_wave(DOVE_SPECIES, f"{OUT}/data/wave.json")
+publish_wave(DUCK_SPECIES, f"{OUT}/data/duck/wave.json")
 rows = flyways["central"]["rows"]
 
 # front-speed distribution from the backtest, for the trust panel

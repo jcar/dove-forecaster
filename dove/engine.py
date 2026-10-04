@@ -30,7 +30,7 @@ MAX_FRONT_TRANSIT_DAYS = 6   # a boundary 620 mi north reaches the fields in
                              # a different front
 
 
-def season_past_days(today=None):
+def season_past_days(today=None, season_start=SEASON_START):
     """Days of history needed to replay the season's depletion.
 
     The reservoir is the whole point: a finite northern population that
@@ -40,14 +40,14 @@ def season_past_days(today=None):
     November it would report the north as untouched.
     """
     today = today or datetime.now().date()
-    start = date(today.year, *SEASON_START)
+    start = date(today.year, *season_start)
     if today < start:                       # pre-season: nothing has drained
         return 5
     return max(5, min(92, (today - start).days))
 
 
 def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
-        local_hourly=None, ensemble=False):
+        local_hourly=None, ensemble=False, profile=None):
     """Forecast for one hunter's location.
 
     `home` is the only thing that makes this location-specific; everything
@@ -55,20 +55,29 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
     pre-fetched shared weather cache (see dove/grid.py) so a build covering
     hundreds of locations pays for the weather once rather than per location.
     """
-    past = season_past_days() if past is None else past
+    from .profiles import DOVE
+    from .front import flight_law
+    pr = profile or DOVE
+    past = season_past_days(season_start=pr.season_start) if past is None else past
     flyway = nearest_flyway(*home) or "central"
     route = route_for(home)
     bearing = int(route["bearing"])
-    arcs, events, arc_series, band_daily = arc_points(home, route=route), [], {}, {}
+    arcs, events, arc_series, band_daily = arc_points(home, arcs=list(pr.bands), route=route), [], {}, {}
 
     def along_route(feats):
         """Swap in the tailwind ALONG this flyway's route. Due-north routes
         are untouched; older cached days without the bearing fall back to
         the north wind rather than vanishing."""
-        if not bearing or feats is None:
+        if feats is None:
             return feats
-        k = f"wind_push_{bearing}"
-        return {d: ({**v, "wind_push": v[k]} if k in v else v) for d, v in feats.items()}
+        base = pr.push_key
+        k = f"{base}_{bearing}" if bearing else base
+        if k == "wind_push":
+            return feats
+        # the profile's tailwind becomes "wind_push" for scoring; a day missing
+        # the key (older cache) keeps whatever it has rather than vanishing
+        return {d: ({**v, "wind_push": v[k]} if k in v else
+                    ({**v, "wind_push": v[base]} if base in v else v)) for d, v in feats.items()}
     for idx, arc in arcs.items():
         if grid is not None:
             pp = [along_route(grid.features(*p)) for p in arc["points"]]
@@ -79,11 +88,12 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
             pp = [along_route(daily_features(h)) for h in hourly]
             band_passages = None
         dates = sorted(set.intersection(*[set(p) for p in pp]))
-        res, daily = Reservoir(), {}
+        res, daily = Reservoir(k=pr.reservoir_k), {}
         for i, d in enumerate(dates):
             if i == 0:
                 continue
-            ss = [score_day(p[d], p[dates[i - 1]], arc["mean_lat"], d, res.level) for p in pp]
+            ss = [score_day(p[d], p[dates[i - 1]], arc["mean_lat"], d, res.level, pr.gate)
+                  for p in pp]
             daily[d] = {
                 "index": round(mean(s["index"] for s in ss), 1),
                 "raw": round(mean(s["raw"] for s in ss), 1),
@@ -172,13 +182,14 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
     # a bird covers ground diagonally, so only cos(bearing) of each day's
     # flight closes the latitude gap. Due north: factor 1, nothing changes.
     cb = math.cos(math.radians(bearing))
-    from .front import daily_flight_mi
+    law = flight_law(pr)
     _arr = arrival_forecast_wind(events, push_field, home[0], days_out=future,
-                                 law=lambda p: daily_flight_mi(p) * cb)
+                                 law=lambda p: law(p) * cb, arrival_hour=pr.arrival_hour)
     # Same birds, same wind, the old flight law. Recorded every day so the
     # season's counts can grade the two against each other (DECISIONS D21).
     _alt = arrival_forecast_wind(events, push_field, home[0], days_out=future,
-                                 law=lambda p: linear_flight_mi(p) * cb)
+                                 law=lambda p: linear_flight_mi(p) * cb,
+                                 arrival_hour=pr.arrival_hour)
 
     # Replace the extrapolated ETA with the DETECTED arrival at the fields.
     # Match each tracked boundary to the strongest local passage that happens
@@ -209,6 +220,7 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "home": {"name": home_name, "lat": home[0], "lon": home[1]},
         "flyway": flyway,
+        "profile": pr.key,
         "engine_version": ENGINE_VERSION,
         "arcs": {str(i): {k: a[k] for k in ("dist_mi", "north_mi", "label", "mean_lat", "half_width_mi", "width_mi", "usable")}
                  for i, a in arcs.items()},

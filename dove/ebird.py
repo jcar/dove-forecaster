@@ -23,6 +23,21 @@ SPECIES = {"moudov": "Mourning Dove",
 MIGRATORY = ("moudov", "whwdov")
 CONTROL = "eucdov"
 
+# Ducks (2026-10-04, D25), in the three groups hunters actually talk about.
+# The collared dove stays the control for ducks too: it measures how hard
+# people are birding, not ducks. It is a weaker control for waterfowl - in
+# winter birders go to the lakes - and the page says so.
+DUCKS = {"mallar3": "Mallard",
+         "gnwtea": "Green-winged Teal", "buwtea": "Blue-winged Teal",
+         "gadwal": "Gadwall", "amewig": "American Wigeon", "norpin": "Northern Pintail"}
+GROUPS = {
+    "dove":         ("moudov",),
+    "duck_mallard": ("mallar3",),
+    "duck_teal":    ("gnwtea", "buwtea"),
+    "duck_puddle":  ("gadwal", "amewig", "norpin"),
+}
+ALL_SPECIES = {**SPECIES, **DUCKS}          # everything the morning pull collects
+
 BASE = "https://api.ebird.org/v2"
 CACHE = "data/ebird"
 
