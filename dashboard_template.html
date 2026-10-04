@@ -99,7 +99,7 @@ svg text{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-num
 #play{min-width:82px}
 .flyrow{display:flex; gap:22px; align-items:flex-start; flex-wrap:wrap}
 .flyrow figure{flex:1 1 340px; min-width:0}
-.flymap{position:relative; width:100%; max-width:480px; aspect-ratio:480/640; margin-inline:auto}
+.flymap{position:relative; width:100%; max-width:600px; aspect-ratio:560/576; margin-inline:auto}
 .flymap canvas,.flymap svg{position:absolute; inset:0; width:100%; height:100%}
 .flymap canvas{border-radius:4px}
 .usmap{position:relative; width:100%; aspect-ratio:960/600}
@@ -159,7 +159,7 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
 
   <div class="top">
     <div class="brand"><span class="n">Dove Arrival Watch</span>
-      <span class="dim mono" style="font-size:12px">Texas &amp; Oklahoma</span></div>
+      <span class="dim mono" style="font-size:12px">Central Flyway</span></div>
     <div class="where"><span class="cur" id="curLoc">&mdash;</span>
       <button id="change" hidden>Change location</button>
       <button id="theme" title="Light / dark">&#9681;</button></div>
@@ -167,7 +167,8 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
 
   <div class="finder" id="finder">
     <h2>Where do you hunt?</h2>
-    <p>Type a town in Texas or Oklahoma. You get the forecast for that ground &mdash; its own cold fronts,
+    <p>Type a town anywhere in the Central Flyway &mdash; Texas up through Oklahoma, Kansas, Nebraska, the Dakotas,
+       New Mexico, Colorado, Wyoming and Montana. You get the forecast for that ground &mdash; its own cold fronts,
        its own arrival days &mdash; not a guess borrowed from somewhere nearby.</p>
     <div class="row">
       <input type="search" id="q" placeholder="Amarillo, TX" autocomplete="off" enterkeyhint="search">
@@ -183,7 +184,7 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
       <p class="sub">Cold fronts sweep south down the plains. Birds leave when one reaches them, ride the
          north wind while it holds, and sit down when it quits. Press play and watch it happen.</p>
       <div class="flyrow">
-        <figure><div class="flymap"><canvas id="wind" width="480" height="640"></canvas><svg id="fly" viewBox="0 0 480 640" role="img" aria-label="Wind and expected dove arrivals across the Central Flyway, animated by day"></svg></div></figure>
+        <figure><div class="flymap"><canvas id="wind" width="560" height="576"></canvas><svg id="fly" viewBox="0 0 560 576" role="img" aria-label="Wind and expected dove arrivals across the Central Flyway, animated by day"></svg></div></figure>
         <div class="flykey">
           <h4>What you're watching</h4>
           <svg viewBox="0 0 240 92" style="width:100%;max-width:240px;margin:2px 0 10px">
@@ -225,6 +226,7 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
       <div class="eyebrow" id="eyebrow">&nbsp;</div>
       <h1 id="headline">&nbsp;</h1>
       <p id="plain"></p>
+      <p class="sub" id="warm" hidden style="border-left:3px solid var(--wheat);padding:6px 10px;margin-top:10px"></p>
     </div>
     <div class="verdict">
       <div><div class="k">Go this morning</div><div class="v mono" id="vDay">&mdash;</div></div>
@@ -308,7 +310,8 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
 
   <section>
     <h2>How much to trust this</h2>
-    <p class="sub">The weather half has been checked against eleven years of records. The bird half has never been checked at all.</p>
+    <p class="sub">The weather half has been checked against eleven years of records. The bird half is now graded every
+       morning against what eBird birders counted &mdash; that scorecard is below, and it is the rule for publishing a flyway.</p>
     <div class="ledger">
       <div><h3>Checked and working</h3><ul class="ok">
         <li>Front speeds &mdash; <span class="mono" id="spdMed">&mdash;</span> typical across <span class="mono" id="spdN">&mdash;</span> fronts, 2015&ndash;2025</li>
@@ -319,9 +322,14 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
         <li>How far a dove really covers on a given tailwind &mdash; that number sets the arrival day</li>
         <li>How fast the birds up north run out over a season</li>
         <li>Strength labels aren't calibrated &mdash; read them as bigger-vs-smaller, not as counts</li>
-        <li>Whether any of this has ever correctly predicted a single bird</li>
+        <li>Whether any of this has ever correctly predicted a single bird &mdash; one promising day so far (Collin County, Sep 22)</li>
       </ul></div>
     </div>
+    <h3 style="margin:26px 0 6px">The scorecard</h3>
+    <p class="sub" style="margin-bottom:10px">Each forecast is checked 1&ndash;3 days later against mourning-dove counts at the
+       nearest eBird circle, with collared doves as the control. A flyway is published only after it passes on at least three weeks
+       of record &mdash; and the Central flyway is held to that same bar.</p>
+    <ul id="grades" style="list-style:none;padding:0;line-height:1.9"><li class="dim">Loading&hellip;</li></ul>
   </section>
 
   <foot>Every morning's forecast is saved before anyone knows how it turned out, so the record can't be tidied up later.
@@ -375,13 +383,14 @@ async function boot(){
 function nearestSite(lat,lon){
   return INDEX.sites.reduce((a,b)=>{const d=s=>(s.lat-lat)**2+((s.lon-lon)*Math.cos(lat*Math.PI/180))**2;return d(b)<d(a)?b:a;});
 }
+const CENTRAL=['Texas','Oklahoma','Kansas','Nebraska','South Dakota','North Dakota','New Mexico','Colorado','Wyoming','Montana'];
 async function search(){
   const q=$('#q').value.trim(); if(!q)return;
   $('#finderNote').textContent='Searching...'; $('#hits').innerHTML='';
   try{
-    const r=await (await fetch('https://geocoding-api.open-meteo.com/v1/search?count=8&country=US&name='+encodeURIComponent(q))).json();
-    const res=(r.results||[]).filter(x=>['Texas','Oklahoma'].includes(x.admin1));
-    if(!res.length){$('#finderNote').textContent='No match in Texas or Oklahoma — those are the two states we publish for right now.';return;}
+    const r=await (await fetch('https://geocoding-api.open-meteo.com/v1/search?count=20&country=US&name='+encodeURIComponent(q))).json();
+    const res=(r.results||[]).filter(x=>CENTRAL.includes(x.admin1)).slice(0,8);
+    if(!res.length){$('#finderNote').textContent='No match in the Central Flyway. We publish for TX, OK, KS, NE, SD, ND, NM, CO, WY and MT; the other flyways are being tested first.';return;}
     $('#finderNote').textContent='';
     $('#hits').innerHTML=res.map((x,i)=>'<li data-i="'+i+'"><span>'+x.name+(x.admin2?', '+x.admin2:'')+', '+x.admin1+
       '</span><span class="sub">'+x.latitude.toFixed(2)+', '+x.longitude.toFixed(2)+'</span></li>').join('');
@@ -504,6 +513,8 @@ function buildFly(){
   if(RAF){cancelAnimationFrame(RAF); RAF=null;}
   s.innerHTML=''; DOTS=[]; HALOS=[]; TINTS.clear();
   s.setAttribute('viewBox','0 0 '+FLOW.w+' '+FLOW.h);
+  const cvs=$('#wind'); if(cvs.width!==FLOW.w||cvs.height!==FLOW.h){cvs.width=FLOW.w; cvs.height=FLOW.h;}
+  s.parentNode.style.aspectRatio=FLOW.w+'/'+FLOW.h;
 
   if(GEO){
     const g=el('g',{}); s.appendChild(g);
@@ -609,8 +620,18 @@ function setPlaying(on){
 $('#play').onclick=()=>setPlaying(!PLAYING);
 $('#scrub').addEventListener('input',e=>{setPlaying(false); setFrame(+e.target.value);});
 
+const WARM_DAYS=21;
 function drawSite(){
   const D=SITE, ramp=RAMP();
+  // A location whose upstream grid points were added recently has only a
+  // few days of past weather; birds already in the air and the season's
+  // drain-down are both under-counted until the backfill catches up.
+  const w=$('#warm');
+  if(D.history_days!=null && D.history_days<WARM_DAYS){
+    w.hidden=false;
+    w.innerHTML='<b>Still filling in history for this area.</b> We have '+D.history_days+' days of past weather for the country upstream of you and want '+WARM_DAYS+
+      '. Until then, birds that left more than a few days ago may be missing, and the north may look fuller than it is. This fixes itself within a few mornings.';
+  } else w.hidden=true;
   const peak=D.arrival.reduce((a,b)=>b.arrival>a.arrival?b:a);
   const bandName=a=>(D.arcs[a]||{}).label||('Band '+a);
   // The front that matters is the one that delivered THIS peak - not simply
@@ -663,10 +684,15 @@ function drawSite(){
       const f=(new Date(fr.reaches_home).getTime()-t0)/(t1-t0);
       if(f>=0&&f<=1)frX=L+step/2+f*(iw-step);
     }
-    [['Big push',30],['Decent',14],['A few',4]].forEach(function(p){
-      if(p[1]>mx)return;
+    // Guide lines at the SAME data-derived cut-offs the strength words use
+    // (they were hard-coded 30/14/4 from before the scale was data-driven),
+    // labelled at the right edge where they cannot sit under a bar.
+    const SC=SCALE||{big:30,decent:14,few:4}, guides=[];
+    [['Big push',SC.big],['Decent',SC.decent],['A few',SC.few]].forEach(function(p){
+      if(!(p[1]>0)||p[1]>mx)return;
       s.appendChild(el('line',{x1:L,x2:W-R,y1:y(p[1]),y2:y(p[1]),stroke:tok('--line'),'stroke-width':1,'stroke-dasharray':'3 4'}));
-      const t=el('text',{x:L+2,y:y(p[1])-5,'font-size':10,fill:tok('--ink3')}); t.textContent=p[0]; s.appendChild(t);});
+      const t=el('text',{x:W-R,y:y(p[1])-4,'text-anchor':'end','font-size':10,fill:tok('--ink3'),
+        stroke:tok('--ground'),'stroke-width':3,'paint-order':'stroke'}); t.textContent=p[0]; guides.push(t);});
     rows.forEach((r,i)=>{
       const cx=centre(i), isPeak=i===peakI&&r.arrival>=4;
       const h=r.arrival>0?Math.max(2,ih-(y(r.arrival)-T)):0;
@@ -682,12 +708,17 @@ function drawSite(){
       hit.addEventListener('pointerleave',hide); s.appendChild(hit);
     });
     s.appendChild(el('line',{x1:L,x2:W-R,y1:T+ih,y2:T+ih,stroke:tok('--line'),'stroke-width':1}));
+    guides.forEach(t=>s.appendChild(t));          // on top of the bars
     if(frX!==null){
       s.appendChild(el('line',{x1:frX,x2:frX,y1:44,y2:T+ih,stroke:tok('--ink2'),'stroke-width':1.5,'stroke-dasharray':'5 4'}));
       const rh=new Date(fr.reaches_home);
-      const c1=el('text',{x:frX,y:36,'text-anchor':'middle','font-size':12,'font-weight':600,fill:tok('--ink')});
+      // When the front and the best morning are close, centred labels pile
+      // on top of each other: push them apart, front to the left.
+      const pxx=peakI>=0?centre(peakI):null, close=pxx!==null&&Math.abs(pxx-frX)<190;
+      const fa=close?(pxx>=frX?'end':'start'):'middle', fdx=close?(pxx>=frX?-6:6):0;
+      const c1=el('text',{x:frX+fdx,y:36,'text-anchor':fa,'font-size':12,'font-weight':600,fill:tok('--ink')});
       c1.textContent='Front hits '+DOW3[rh.getDay()]; s.appendChild(c1);
-      const c2=el('text',{x:frX,y:50,'text-anchor':'middle','font-size':10.5,fill:tok('--ink3')});
+      const c2=el('text',{x:frX+fdx,y:50,'text-anchor':fa,'font-size':10.5,fill:tok('--ink3')});
       c2.textContent='wind switches, feels great'; s.appendChild(c2);
       if(peakI>=0&&rows[peakI].arrival>=4){
         const px=centre(peakI), gy=70;
@@ -698,10 +729,17 @@ function drawSite(){
           const g=el('text',{x:(frX+px)/2,y:gy-7,'text-anchor':'middle','font-size':11.5,'font-weight':600,fill:tok('--wheat')});
           g.textContent='wait '+days+' more day'+(days>1?'s':''); s.appendChild(g);
         }
-        const p1=el('text',{x:px,y:36,'text-anchor':'middle','font-size':12,'font-weight':600,fill:tok('--ink')});
+        const pa=close?(px>=frX?'start':'end'):'middle', pdx=close?(px>=frX?6:-6):0;
+        const p1=el('text',{x:px+pdx,y:36,'text-anchor':pa,'font-size':12,'font-weight':600,fill:tok('--ink')});
         p1.textContent='Birds land '+DOW3[dt(peak.date).getDay()]; s.appendChild(p1);
-        const p2=el('text',{x:px,y:50,'text-anchor':'middle','font-size':10.5,fill:tok('--ink3')});
+        const p2=el('text',{x:px+pdx,y:50,'text-anchor':pa,'font-size':10.5,fill:tok('--ink3')});
         p2.textContent='this is the morning to go'; s.appendChild(p2);
+        // Near the right edge the birds' note runs off the chart: slide the
+        // whole label pair left by however much it overflows.
+        try{
+          const over=Math.max(p1.getBBox().x+p1.getBBox().width, p2.getBBox().x+p2.getBBox().width)-(W-4);
+          if(over>0) [c1,c2,p1,p2].forEach(t=>t.setAttribute('x',+t.getAttribute('x')-over));
+        }catch(e){}
       }
     }
     $('#arrLeg').innerHTML='<span><i style="background:'+tok('--barPeak')+'"></i>best morning</span>'+
@@ -1098,6 +1136,19 @@ document.querySelectorAll('#birdSpp button').forEach(function(b){
     document.querySelectorAll('#birdSpp button').forEach(x=>x.setAttribute('aria-pressed',x===b));
     drawBirds(); drawBmap(); };
 });
+async function loadGrades(){try{
+  const g=await (await fetch('data/grades.json')).json();
+  const say={building:(f)=>'building a record &mdash; '+f.days+' of '+f.need_days+' days',
+    passes:()=>'<b>passes</b> &mdash; forecasts track the birds, control quiet',
+    control:()=>'<b>void</b> &mdash; the collared doves track it too, so it is measuring birders',
+    no_skill:()=>'<b>no skill yet</b> &mdash; forecasts do not track the counts'};
+  $('#grades').innerHTML=['central','mississippi','atlantic','pacific'].filter(k=>g.flyways[k]).map(function(k){
+    const f=g.flyways[k];
+    return '<li><b>'+FW_NAME[k]+'</b> '+(k==='central'?'(published)':'(watched)')+': '+(say[f.status]||(()=>f.status))(f)+
+      (f.better_law?' &middot; the '+(f.better_law==='live'?'current':'older')+' flight model scores better':'')+
+      ' <span class="dim">&middot; '+f.circles_paired+' circles, '+f.locations+' locations</span></li>';}).join('');
+}catch(e){$('#grades').innerHTML='<li class="dim">No scorecard yet.</li>';}}
+loadGrades();
 async function loadBacktest(){try{const b=await (await fetch('data/backtest.json')).json();
   $('#spdN').textContent=b.speeds.length;
   $('#spdMed').textContent=b.speeds.length?b.speeds[Math.floor(b.speeds.length/2)].toFixed(0)+' mph':'—';}catch(e){}}

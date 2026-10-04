@@ -2,7 +2,10 @@
 from datetime import datetime, timedelta, date
 from statistics import mean
 
-from .geo import arc_points, HOME, HOME_NAME
+import math
+
+from .geo import arc_points, HOME, HOME_NAME, route_for
+from .regions import nearest_flyway
 from .weather import OpenMeteo, ensemble_members
 from .push import daily_features, score_day, Reservoir
 from .front import (arc_passage, arc_passage_from, arc_passages_from,
@@ -53,15 +56,27 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
     hundreds of locations pays for the weather once rather than per location.
     """
     past = season_past_days() if past is None else past
-    arcs, events, arc_series, band_daily = arc_points(home), [], {}, {}
+    flyway = nearest_flyway(*home) or "central"
+    route = route_for(home)
+    bearing = int(route["bearing"])
+    arcs, events, arc_series, band_daily = arc_points(home, route=route), [], {}, {}
+
+    def along_route(feats):
+        """Swap in the tailwind ALONG this flyway's route. Due-north routes
+        are untouched; older cached days without the bearing fall back to
+        the north wind rather than vanishing."""
+        if not bearing or feats is None:
+            return feats
+        k = f"wind_push_{bearing}"
+        return {d: ({**v, "wind_push": v[k]} if k in v else v) for d, v in feats.items()}
     for idx, arc in arcs.items():
         if grid is not None:
-            pp = [grid.features(*p) for p in arc["points"]]
+            pp = [along_route(grid.features(*p)) for p in arc["points"]]
             band_passages = [grid.passages(*p) for p in arc["points"]]
         else:
             series = OpenMeteo().hourly(arc["points"], past_days=past, forecast_days=WIND_HORIZON)
             hourly = [s["hourly"] for s in series]
-            pp = [daily_features(h) for h in hourly]
+            pp = [along_route(daily_features(h)) for h in hourly]
             band_passages = None
         dates = sorted(set.intersection(*[set(p) for p in pp]))
         res, daily = Reservoir(), {}
@@ -100,7 +115,7 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
         # home is a lattice node, so its own features and passages are
         # already cached. Display-only extras (gusts, rain, sunrise) are
         # fetched client-side for the hunter's exact coordinates.
-        hf, hp = grid.features(*home), grid.passages(*home)
+        hf, hp = along_route(grid.features(*home)), grid.passages(*home)
         local_days = []
         local_fronts = [{"when": t.isoformat(timespec="minutes"), "strength": s}
                         for t, s in (hp or [])]
@@ -153,11 +168,17 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
     else:
         _members = ensemble                    # fan-out supplies it (or None)
 
-    _arr = arrival_forecast_wind(events, push_field, home[0], days_out=future)
+    # The flight sim marches in miles NORTH of the fields. On a slanted route
+    # a bird covers ground diagonally, so only cos(bearing) of each day's
+    # flight closes the latitude gap. Due north: factor 1, nothing changes.
+    cb = math.cos(math.radians(bearing))
+    from .front import daily_flight_mi
+    _arr = arrival_forecast_wind(events, push_field, home[0], days_out=future,
+                                 law=lambda p: daily_flight_mi(p) * cb)
     # Same birds, same wind, the old flight law. Recorded every day so the
     # season's counts can grade the two against each other (DECISIONS D21).
     _alt = arrival_forecast_wind(events, push_field, home[0], days_out=future,
-                                 law=linear_flight_mi)
+                                 law=lambda p: linear_flight_mi(p) * cb)
 
     # Replace the extrapolated ETA with the DETECTED arrival at the fields.
     # Match each tracked boundary to the strongest local passage that happens
@@ -187,6 +208,7 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
     return {
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "home": {"name": home_name, "lat": home[0], "lon": home[1]},
+        "flyway": flyway,
         "engine_version": ENGINE_VERSION,
         "arcs": {str(i): {k: a[k] for k in ("dist_mi", "north_mi", "label", "mean_lat", "half_width_mi", "width_mi", "usable")}
                  for i, a in arcs.items()},

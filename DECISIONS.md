@@ -842,3 +842,47 @@ with actions/deploy-pages. Git keeps what must be kept - the audit-trail
 forecasts, eBird snapshots, and the weather history cache. If the location
 build fails, restore_published.py re-publishes what is live, so a bad
 morning serves yesterday instead of an empty page.
+
+## D24 — Publish the Central Flyway; forecast every flyway in shadow; grade them all (2026-10-04)
+
+PUBLISHED: all ten Central Flyway states (TX OK KS NE SD ND NM CO WY MT),
+418 locations from real state outlines. The old bounding boxes had put
+locations in Chihuahua and the Gulf; Texas + Oklahoma go 152 -> 115 honest ones.
+The map widens to the whole flyway; search accepts any of the ten states.
+
+ROUTES (dove/geo.py ROUTES): each flyway has a corridor it may slide within
+and a bearing birds arrive from. Central -116..-90, due north (widened from
+the CMU's -104 so a Montana corridor is centred on Montana; verified that
+every location east of -100.5 gets bit-identical forecasts, and only the
+west-Texas/NM sites whose corridor was pinned at -104 change). Mississippi
+-98..-80 due north; Pacific -125..-108 due north; Atlantic -86..-66 from 35
+deg east of north, with tailwind measured along that bearing and the flight
+sim's progress scaled by cos(35). These three are a biologist's first sketch.
+Band labels now come from the ground under them ("Southern Nebraska",
+"Saskatchewan"), not one north-Texas hunter's names.
+
+SHADOW: Mississippi, Atlantic and Pacific (676 locations) are forecast every
+morning and NOT shown. Every location's call - published or not - is kept in
+data/sitelog/ (~230 KB/day), the record grade.py scores.
+
+THE PUBLISHING RULE (grade.py): per flyway, each forecast made 1-3 days ahead
+is correlated with the nearest eBird circle's mourning-dove anomaly, circles
+combined by Fisher z. PASSES needs >= 21 days of record, z >= 2.71 (p < .01
+after Bonferroni over 3 leads) AND the collared-dove control below z 1.64.
+Verified on synthetic records: a forecast equal to the counts passes (z 13-16);
+one equal to the collared-dove counts is flagged "control"; random noise is
+"no skill". The Central flyway is held to the same rule - it is published on
+one verified event, and the scorecard on the page says so. Both flight laws
+are scored, which is how D21's question gets answered.
+
+HISTORY: ECMWF keeps four days, so the ~1,650 new lattice nodes started
+empty. backfill_history.py spends idle Open-Meteo quota (12k location-days a
+morning, published flyway first) fetching 40 days per node; the Central
+Flyway was filled the same day, the shadow flyways fill over ~2-3 mornings.
+A location with fewer than 21 days says so on its page.
+
+NOT VALIDATED, AND THE PAGE SAYS SO: the north. Reservoir levels come out
+ordered sensibly (Saskatchewan ~0.2-0.3, Nebraska ~0.45 in early October)
+but the depletion constants are strawmen set for Texas. Billings, MT shows a
+mid-October push, which is later than Montana doves usually leave. The
+scorecard will say whether that is wrong.

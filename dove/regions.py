@@ -137,3 +137,24 @@ def tz_for(lat, lon):
     if lon < -88:
         return "America/Winnipeg" if lat > 49 else "America/Chicago"
     return "America/Toronto" if lat > 49 else "America/New_York"
+
+
+FULL = {v: k for k, v in ABBR.items()}
+
+
+def place_name(lat, lon):
+    """Plain-English name for a band's ground: the state, or the Canadian
+    province, under it. Used for band labels, which used to be hard-coded
+    for one hunter in north Texas ("Southern Kansas" is meaningless upstream
+    of Montana)."""
+    for dla, dlo in ((0, 0), (0, 0.5), (0, -0.5), (0.5, 0), (-0.5, 0), (0, 1.0), (0, -1.0)):
+        s = state_at(lat + dla, lon + dlo)
+        if s:
+            return FULL[s]
+    if lat > 48.5:
+        for edge, name in ((-120.0, "British Columbia"), (-110.0, "Alberta"),
+                           (-101.5, "Saskatchewan"), (-95.2, "Manitoba"), (-79.5, "Ontario")):
+            if lon < edge:
+                return name
+        return "Quebec"
+    return "open water"

@@ -25,6 +25,15 @@ def southward_push(speed_mph, dir_from_deg):
     return speed_mph * math.cos(math.radians(dir_from_deg))
 
 
+def route_push(speed_mph, dir_from_deg, bearing_deg):
+    """Tailwind along a route whose birds arrive FROM `bearing_deg`.
+    bearing 0 is southward_push exactly; 35 is a NE-to-SW seaboard route."""
+    return speed_mph * math.cos(math.radians(dir_from_deg - bearing_deg))
+
+
+ROUTE_BEARINGS = (35,)      # extra bearings cached per node besides due north
+
+
 def day_length_hours(lat, doy):
     decl = 0.4093 * math.sin(2 * math.pi * (doy - 81) / 365.0)
     cos_h = max(-1.0, min(1.0, -math.tan(math.radians(lat)) * math.tan(decl)))
@@ -72,7 +81,8 @@ def daily_features(h, daylight=(6, 14)):
         wd = (h.get("wind_direction_925hPa") or h["wind_direction_10m"])[i]
         if None in (t, ws, wd, sp, cc):
             continue
-        f = days.setdefault(d, {"temps": [], "push": [], "pres": [], "cloud_am": [], "day_t": []})
+        f = days.setdefault(d, {"temps": [], "push": [], "pres": [], "cloud_am": [], "day_t": [],
+                                **{f"push_{b}": [] for b in ROUTE_BEARINGS}})
         f["temps"].append(t)
         f["pres"].append(sp)
         if 10 <= hr < 18:
@@ -81,6 +91,8 @@ def daily_features(h, daylight=(6, 14)):
             f["day_t"].append(t)
         if daylight[0] <= hr < daylight[1]:
             f["push"].append(southward_push(ws, wd))
+            for b in ROUTE_BEARINGS:
+                f[f"push_{b}"].append(route_push(ws, wd, b))
         if 6 <= hr < 12:
             f["cloud_am"].append(cc)
     out = {}
@@ -94,6 +106,7 @@ def daily_features(h, daylight=(6, 14)):
             "p_mean": sum(f["pres"]) / len(f["pres"]),
             "cloud_am": sum(f["cloud_am"]) / len(f["cloud_am"]) if f["cloud_am"] else 50.0,
             "max_hourly_drop": max(drops) if drops else 0.0,
+            **{f"wind_push_{b}": max(f[f"push_{b}"]) for b in ROUTE_BEARINGS if f[f"push_{b}"]},
         }
     return out
 

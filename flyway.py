@@ -121,11 +121,12 @@ def build_geo_us(src=GEO_SRC, out="docs/data/geo_us.json"):
 
 
 # ---------------------------------------------------------------------------
-MAP_W, MAP_H = 480, 640
-MAP_BOX = (25.5, 49.5, -107.0, -89.0)          # the country the lattice covers
+MAP_W, MAP_H = 560, 576          # the Central Flyway box is near-square in Albers
+MAP_BOX = (25.5, 50.5, -117.5, -89.0)          # the published Central Flyway, plus its eastern edge
 DRAW_STATES = ["Texas", "Oklahoma", "Kansas", "Nebraska", "New Mexico", "Colorado",
                "Missouri", "Arkansas", "Louisiana", "South Dakota", "North Dakota",
-               "Iowa", "Minnesota", "Wyoming", "Montana"]
+               "Iowa", "Minnesota", "Wyoming", "Montana", "Idaho", "Utah", "Arizona",
+               "Nevada", "Wisconsin", "Illinois", "Mississippi"]
 OUT = "docs/data"
 
 
@@ -148,7 +149,10 @@ def export(cache, sites, dates, out=f"{OUT}/flow.json"):
     plains.
     """
     fit = Fit(MAP_BOX, MAP_W, MAP_H)
-    nodes = sorted(cache._feat)
+    # Only what the map frame shows: the cache now spans the whole country
+    # and southern Canada, and shipping that would triple the payload.
+    nodes = sorted(pt for pt in cache._feat
+                   if MAP_BOX[0] <= pt[0] <= MAP_BOX[1] and MAP_BOX[2] <= pt[1] <= MAP_BOX[3])
     lats = sorted({p[0] for p in nodes})
     lons = sorted({p[1] for p in nodes})
     li = {v: i for i, v in enumerate(lats)}
@@ -181,6 +185,8 @@ def export(cache, sites, dates, out=f"{OUT}/flow.json"):
     dset = set(dates)
     fronts = {}
     for pt, passes in cache._pass.items():
+        if pt not in node_idx:
+            continue
         for when, strength in passes:
             d = when.date().isoformat()
             if d in dset:

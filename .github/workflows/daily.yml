@@ -43,6 +43,12 @@ jobs:
         env:
           EBIRD_API_KEY: ${{ secrets.EBIRD_API_KEY }}
 
+      # New lattice nodes start with 4 days of history (ECMWF keeps no more);
+      # spend the now-idle Open-Meteo quota filling them in. Never fatal.
+      - name: Backfill weather history for new grid points
+        continue-on-error: true
+        run: python backfill_history.py
+
       # The public fan-out is best-effort. Weather comes from ECMWF open data
       # (one download, any number of locations); Open-Meteo fills gaps.
       - name: Build all locations
@@ -61,6 +67,11 @@ jobs:
 
       - name: Render page
         run: python dashboard.py
+
+      # Every flyway's forecasts against eBird counts - the publishing rule (D24).
+      - name: Grade forecasts
+        continue-on-error: true
+        run: python grade.py
 
       - name: Commit forecast and history
         if: always() && (steps.daily.outcome == 'success' || inputs.publish_only)
