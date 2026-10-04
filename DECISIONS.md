@@ -800,3 +800,45 @@ from the earlier day in every newer pull. Now:
 Rows and flyway heatmaps are now the MEAN OF EACH CIRCLE'S OWN ANOMALY, not
 an anomaly of pooled counts. Pooling raw counts puts a step in a row the day a
 new circle joins it.
+
+## D23 — Weather straight from ECMWF open data; the site is deployed, not committed (2026-10-04)
+
+WHY: Open-Meteo bills by location-days. Texas + Oklahoma already ran ~9k a
+day against a ~10k free ceiling; the Central Flyway needs ~19k, the lower 48
+~34k. ECMWF publishes the same model we pin (IFS 0.25) as free files
+(CC-BY-4.0): 3-hourly to 144 h, 6-hourly to 360 h, every field we read
+including 925 hPa wind. One download (~105 files' worth of byte ranges, ~45 s)
+serves any number of points.
+
+SIDE BY SIDE, same day, same history, all 152 locations:
+  raw hourly       temp 0.2-0.4 F, wind 0.1-0.3 mph, cloud 0 (median |diff|);
+                   surface pressure a CONSTANT 0-4 hPa offset (Open-Meteo's
+                   elevation correction) - the model only uses its changes,
+                   which agree to 0.3 hPa.
+  fronts           every strong passage at the same hour; differences only at
+                   the detection threshold.
+  arrivals         140/152 same peak day (the rest: near-equal twin peaks
+                   swapping, or +-1 day); curve correlation median 0.996;
+                   peaks ~4% larger.
+Open-Meteo's ecmwf_ifs025 is itself built from these 3-hourly files, which is
+why the "coarser time steps" risk did not materialise.
+
+BUG FOUND ON THE WAY: the disk cache merged frontal passages by exact
+timestamp, so a front re-timed by a few hours in a later run was stored twice
+and launched two flocks. 27% of stored passages were duplicates (3,978 ->
+2,922). Merge now: stored history before the fresh series can see, fresh run
+after, and never two passages inside the detector's own 36 h separation.
+
+ALSO: each node is now stamped in its own local time zone (Mountain-time
+nodes had been bucketed into Central-time days). ECMWF's horizon is 15 days
+against Open-Meteo's 16; the flight sim loses its last day of runway.
+
+Open-Meteo stays for: the single-location audit-trail run (season replay
+needs 50 past days; ECMWF keeps 4), the GFS ensemble, and as an automatic
+fallback for any node the ECMWF download misses.
+
+SITE: docs/ is no longer committed. The daily job builds it and deploys it
+with actions/deploy-pages. Git keeps what must be kept - the audit-trail
+forecasts, eBird snapshots, and the weather history cache. If the location
+build fails, restore_published.py re-publishes what is live, so a bad
+morning serves yesterday instead of an empty page.

@@ -15,7 +15,9 @@ shutil.copyfile(TPL, f"{OUT}/index.html")
 from dove.wavetrend import density, anomaly, propagation, summarise
 from dove.regions import nearest_flyway, FLYWAY_NAME
 from flyway import albers_box_fit_us, build_geo_us
+import flyway as _fw
 build_geo_us()          # geometry is rebuilt each run: docs/ is not committed
+_fw.build_geo(_fw.GEO_SRC)
 
 KEEP_DAYS = 45
 species = ["moudov", "whwdov", "eucdov"]

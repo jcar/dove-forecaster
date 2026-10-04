@@ -60,11 +60,43 @@ def snap(lat, lon):
     return (snap_lat(lat), snap_lon(lon))
 
 
+EDGE_HOURS = 12      # the detector needs 6 h either side; give the edge margin
+
+
+def merge_passages(old, fresh, fresh_start):
+    """Stored passages before the fresh series can see, fresh ones after.
+
+    Merging by exact timestamp kept both copies whenever a new run timed the
+    same front a few hours differently - e.g. 2026-10-01 22:00 and
+    2026-10-02 06:00 at one Oklahoma node - so the front was counted twice
+    and the flight model launched two flocks for it. Inside the window the
+    fresh run covers, it is authoritative; its first EDGE_HOURS are thin
+    (the detector's 6 h look-back is cut off), so stored history covers them.
+    """
+    cut = datetime.fromisoformat(fresh_start) + timedelta(hours=EDGE_HOURS)
+    out = [x for x in old if x[0] < cut] + [x for x in fresh if x[0] >= cut]
+    out.sort(key=lambda x: x[0])
+    # and never two passages closer than the detector itself allows
+    kept = []
+    for t, sc in out:
+        if kept and (t - kept[-1][0]).total_seconds() < 36 * 3600:
+            if sc > kept[-1][1]:
+                kept[-1] = (t, sc)
+            continue
+        kept.append((t, sc))
+    return kept
+
+
 class PointCache:
     """Per-lattice-point derivatives, fetched once and reused by every
     location whose bands touch that point."""
 
-    def __init__(self, past_days, forecast_days=16, model=None, cache_dir=None):
+    def __init__(self, past_days, forecast_days=16, model=None, cache_dir=None,
+                 source="open-meteo"):
+        # source="ecmwf" reads the same model straight from ECMWF's open-data
+        # files (dove/ecmwf.py): one download covers every node, so cost no
+        # longer grows with coverage. See DECISIONS D23.
+        self.source = source
         self.past_days, self.forecast_days = past_days, forecast_days
         self.model = model
         self._feat, self._pass = {}, {}
@@ -106,11 +138,16 @@ class PointCache:
         todo = sorted({snap(*p) for p in points} - set(self._feat))
         api = OpenMeteo() if self.model is None else OpenMeteo(model=self.model)
         self.failed = 0
-        for i in range(0, len(todo), BATCH):
-            chunk = todo[i:i + BATCH]
+        step = (len(todo) or 1) if self.source == "ecmwf" else BATCH
+        for i in range(0, len(todo), step):
+            chunk = todo[i:i + step]
             try:
-                series = api.hourly(chunk, past_days=self.past_days,
-                                    forecast_days=self.forecast_days)
+                if self.source == "ecmwf":
+                    from . import ecmwf
+                    series = ecmwf.hourly(chunk, past_days=self.past_days)
+                else:
+                    series = api.hourly(chunk, past_days=self.past_days,
+                                        forecast_days=self.forecast_days)
             except Exception as ex:
                 # Partial data beats no data for a daily job. Nodes that fail
                 # keep yesterday's cached history and are simply absent from
@@ -128,9 +165,7 @@ class PointCache:
                     if old_f:
                         self.from_disk += 1
                     merged_f = {**old_f, **feat}          # fresh data wins
-                    seen = {t for t, _ in passes}
-                    merged_p = sorted(passes + [x for x in old_p if x[0] not in seen],
-                                      key=lambda x: x[0])
+                    merged_p = merge_passages(old_p, passes, h["time"][0])
                     feat, passes = merged_f, merged_p
                     self._save_disk(pt, feat, passes)
                 self._feat[pt], self._pass[pt] = feat, passes

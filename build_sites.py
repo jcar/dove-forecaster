@@ -56,8 +56,16 @@ def main():
 
     # past_days is small because the disk cache carries the season's history;
     # only one new past day plus the forecast window is actually fetched.
-    cache = PointCache(past_days=2, cache_dir="data/wxcache")
+    # ECMWF open data first: one download covers every node at no per-point
+    # cost (D23). Open-Meteo - same model, metered - fills whatever it missed.
+    cache = PointCache(past_days=2, cache_dir="data/wxcache",
+                       source=os.environ.get("WX_SOURCE", "ecmwf"))
     cache.load(band_pts, progress=lambda d, t, r: print(f"  bands {d}/{t} ({r} req)", flush=True))
+    missing = [p for p in band_pts if not cache.covers([p])]
+    if missing and cache.source != "open-meteo":
+        print(f"  {len(missing)} nodes missing from ECMWF; falling back to Open-Meteo", flush=True)
+        cache.source = "open-meteo"
+        cache.load(missing)
 
     lreq = 0          # locations are lattice nodes now; no separate fetch
 

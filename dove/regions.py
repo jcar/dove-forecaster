@@ -100,3 +100,40 @@ def nearest_flyway(lat, lon, reach_deg=0.75):
             if f:
                 return f
     return None
+
+
+# Majority civil time zone per state. Days - and the daylight window doves
+# fly in - are LOCAL; a Montana node bucketed on Chicago time starts its day
+# an hour early. Points outside the US (band points in Canada) use longitude.
+STATE_TZ = {
+    "WA": "America/Los_Angeles", "OR": "America/Los_Angeles", "CA": "America/Los_Angeles",
+    "NV": "America/Los_Angeles", "ID": "America/Boise", "UT": "America/Denver",
+    "AZ": "America/Phoenix", "MT": "America/Denver", "WY": "America/Denver",
+    "CO": "America/Denver", "NM": "America/Denver",
+    "ND": "America/Chicago", "SD": "America/Chicago", "NE": "America/Chicago",
+    "KS": "America/Chicago", "OK": "America/Chicago", "TX": "America/Chicago",
+    "MN": "America/Chicago", "WI": "America/Chicago", "IA": "America/Chicago",
+    "IL": "America/Chicago", "MO": "America/Chicago", "AR": "America/Chicago",
+    "LA": "America/Chicago", "MS": "America/Chicago", "AL": "America/Chicago",
+    "TN": "America/Chicago", "KY": "America/New_York", "IN": "America/Indiana/Indianapolis",
+    "MI": "America/Detroit", "OH": "America/New_York",
+}
+
+
+def tz_for(lat, lon):
+    s = state_at(lat, lon)
+    if s in STATE_TZ:
+        return STATE_TZ[s]
+    if s:                                   # remaining states are all Eastern
+        return "America/New_York"
+    if lon < -115:
+        return "America/Los_Angeles"
+    if lat > 49 and lon < -110:
+        return "America/Edmonton"
+    if lat > 49 and lon < -101.5:
+        return "America/Regina"             # Saskatchewan: no daylight saving
+    if lon < -102:
+        return "America/Denver"
+    if lon < -88:
+        return "America/Winnipeg" if lat > 49 else "America/Chicago"
+    return "America/Toronto" if lat > 49 else "America/New_York"

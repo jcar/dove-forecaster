@@ -8,3 +8,6 @@ fields.json
 fields.yaml
 *.pins.json
 .env
+
+# built and deployed by the daily job, never committed (D23)
+docs/
