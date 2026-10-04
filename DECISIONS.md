@@ -771,3 +771,32 @@ DECISION: keep 925hPa + airspeed law live. Publish `arrival_challenger` (same
 birds, same wind, old linear law) in every audit-trail forecast, so the
 season's counts decide between them. After the fix both laws agree on the
 Oct 5 peak (231 vs 216): that peak comes from the weather, not the law.
+
+## D22 — Watch every flyway; fix how overlapping eBird pulls combine (2026-10-04)
+
+The wave grid goes from 21 plains circles to 128 across the lower 48 (same
+2.5 x 3 deg lattice, so the original 21 names and their history carry over).
+384 calls a morning, ~2 minutes with the existing adaptive pacing. Every
+flyway is WATCHED, including those we do not publish forecasts for, because
+those counts are the only way an unpublished forecast can ever be graded.
+
+State and flyway come from real state outlines (dove/regions.py,
+data/geo/us-states.json), not bounding boxes. Flyways are the four USFWS
+flyways by whole state.
+
+FOUND: eBird's geo/recent returns ONE record per location - its latest
+sighting (verified: 70 records, 70 locations, zero repeats over 30 days).
+So D20's "newest pull wins" was wrong: a hotspot birded again later vanishes
+from the earlier day in every newer pull. Now:
+  - snapshots keep per-location records; overlapping pulls are UNIONED by
+    (location, day);
+  - for older aggregate-only pulls, the pull that saw the day at the MOST
+    locations wins;
+  - a circle's first pull is trusted only from the day before it (its
+    week-long reach-back sees each spot only on its latest visit, which
+    would draw a fake rising trend);
+  - today is never published: it is always half-counted at 7am.
+
+Rows and flyway heatmaps are now the MEAN OF EACH CIRCLE'S OWN ANOMALY, not
+an anomaly of pooled counts. Pooling raw counts puts a step in a row the day a
+new circle joins it.

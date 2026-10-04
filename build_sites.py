@@ -12,6 +12,9 @@ from dove.weather import OpenMeteo
 from dove.local import LOCAL_HOURLY, LOCAL_DAILY
 from dove.engine import run, season_past_days
 import flyway
+from dove.regions import nearest_flyway
+
+US_FIT = flyway.albers_box_fit_us()
 
 OUT = "docs/data"
 DISPLAY_DAYS = 14
@@ -22,6 +25,8 @@ def slim(res, site):
     """What the page needs, and nothing else. ~4 KB instead of ~26 KB."""
     return {
         "id": site["id"], "lat": site["lat"], "lon": site["lon"],
+        "flyway": nearest_flyway(site["lat"], site["lon"]) or "central",
+        "us_xy": list(US_FIT(site["lat"], site["lon"])),     # on the national bird map
         "generated_at": res["generated_at"],
         "arcs": {k: {kk: v[kk] for kk in ("label", "north_mi", "mean_lat", "usable")}
                  for k, v in res["arcs"].items()},

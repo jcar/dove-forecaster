@@ -35,6 +35,7 @@ class Fit:
         pushes the southern tip off the bottom of the viewBox. Sample the
         whole perimeter instead."""
         (la0, la1, lo0, lo1) = box
+        self.w, self.h = w, h
         pts = []
         for i in range(n + 1):
             t = i / n
@@ -90,6 +91,33 @@ def geometry_paths(geojson, states, fit):
         if rings:
             paths[name] = " ".join(rings)
     return paths
+
+
+# The whole lower 48, for the bird-count map: every flyway is WATCHED even
+# where we do not publish forecasts, and the picture should say so.
+US_BOX = (24.5, 49.4, -124.8, -66.9)
+US_W, US_H = 960, 600
+GEO_SRC = "data/geo/us-states.json"
+
+
+def albers_box_fit_us():
+    return Fit(US_BOX, US_W, US_H, pad=8)
+
+
+def build_geo_us(src=GEO_SRC, out="docs/data/geo_us.json"):
+    """Lower-48 outlines plus each state's flyway, so the page can tint them."""
+    from dove.regions import ABBR, FLYWAY_OF
+    fit = albers_box_fit_us()
+    gj = json.load(open(src))
+    paths = geometry_paths(gj, set(ABBR), fit)
+    json.dump({"w": US_W, "h": US_H,
+               "paths": {ABBR[n]: d for n, d in paths.items()},
+               "flyway": {ABBR[n]: FLYWAY_OF.get(ABBR[n]) for n in paths},
+               # placed by hand in open country inside each flyway
+               "labels": {"pacific": fit(44.6, -119.8), "central": fit(47.4, -104.2),
+                          "mississippi": fit(46.6, -90.6), "atlantic": fit(42.9, -75.6)}},
+              open(out, "w"), separators=(",", ":"))
+    return out, os.path.getsize(out)
 
 
 # ---------------------------------------------------------------------------
