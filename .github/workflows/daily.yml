@@ -74,6 +74,7 @@ jobs:
         run: python restore_published.py
 
       - name: Render page
+        id: render
         run: python dashboard.py
 
       # Every flyway's forecasts against eBird counts - the publishing rule (D24).
@@ -86,7 +87,7 @@ jobs:
         run: |
           git config user.name  "dove-forecaster"
           git config user.email "actions@users.noreply.github.com"
-          git add data/ ':!data/wxcache'
+          git add data/        # data/wxcache is gitignored; it lives on its own branch
           if git diff --staged --quiet; then
             echo "no change"; exit 0
           fi
@@ -104,12 +105,16 @@ jobs:
           git add -A && git commit -q -m "weather cache $(date -u +%Y-%m-%d)"
           git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" wxcache
 
+      # Publishing never waits on the commit: a git hiccup must not take the site down.
       - uses: actions/configure-pages@v5
+        if: always() && steps.render.outcome == 'success'
       - uses: actions/upload-pages-artifact@v3
+        if: always() && steps.render.outcome == 'success'
         with:
           path: docs
       - name: Publish site
         id: deploy
+        if: always() && steps.render.outcome == 'success'
         uses: actions/deploy-pages@v4
 
       # Surface a partial build loudly rather than letting a green tick imply
