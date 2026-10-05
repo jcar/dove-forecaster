@@ -109,7 +109,15 @@ def build(cache, sites, every, us_fit=None, flow_fit=None):
                     if (f.get(d, {}).get("snow_cm") or 0) >= 2.54]
             fl.append({"date": d, "line": [flow_fit(la, lo) for lo, la in line.items()],
                        "snow": snow})
-        json.dump({"days": fl}, open(f"{OUT}/flow.json", "w"), separators=(",", ":"))
+        # new ducks landing at each published location, per group, by day -
+        # the duck counterpart of the dove arrival dots on the flyway map
+        fsites = []
+        for s in sites:
+            node = snap(s["lat"], s["lon"])
+            fsites.append({"id": s["id"], "xy": list(flow_fit(s["lat"], s["lon"])),
+                           "a": {k: [round(res[k]["arrivals"].get(d, {}).get(node, 0.0), 2) for d in days]
+                                 for k in DUCK_GROUPS}})
+        json.dump({"days": fl, "sites": fsites}, open(f"{OUT}/flow.json", "w"), separators=(",", ":"))
 
     print(f"  ducks: {len(index)} published, {len(log_rows)} logged, "
           f"replay from {res['duck_mallard']['start']}, {time.time() - t0:.0f}s")
