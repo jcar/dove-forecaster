@@ -27,6 +27,7 @@ CACHE_DIR = "data/wxcache"
 WANT_DAYS = 21                 # a full 16-day flight plus margin; the reservoir takes what exists
 PAST_DAYS = CACHE_KEEP_DAYS    # fetch the whole kept window in one go
 BUDGET = int(os.environ.get("BACKFILL_BUDGET", "12000"))    # location-days a morning
+TIME_BUDGET_S = int(os.environ.get("BACKFILL_SECONDS", "480"))   # never hold up the build
 CHUNK = 50          # 19 variables now: Open-Meteo weights each request ~2x heavier
 
 
@@ -61,8 +62,11 @@ def main():
           f"({sum(1 for p in need if p in pub)} in the published flyway)")
     per_node = PAST_DAYS + 1
     take = need[:max(0, BUDGET // per_node)]
-    done = 0
+    done, t0 = 0, time.time()
     for i in range(0, len(take), CHUNK):
+        if time.time() - t0 > TIME_BUDGET_S:
+            print(f"  stopped: {TIME_BUDGET_S}s time budget used; the rest waits for tomorrow")
+            break
         chunk = take[i:i + CHUNK]
         c = PointCache(past_days=PAST_DAYS, forecast_days=1, cache_dir=CACHE_DIR,
                        source="open-meteo")
