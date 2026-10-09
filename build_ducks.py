@@ -16,7 +16,7 @@ from datetime import date, timedelta
 from dove.duck import season
 from dove.geo import ROUTES
 from dove.grid import snap
-from dove.profiles import DUCK_GROUPS
+from dove.profiles import DUCK_SPECIES, GROUP_OF
 from dove.regions import nearest_flyway
 
 OUT = "docs/data/duck"
@@ -33,7 +33,21 @@ def routes_for(cache):
     return out
 
 
+GROUP_NAMES = {"duck_mallard": "Mallards & big ducks", "duck_teal": "Teal",
+               "duck_puddle": "Gadwall, wigeon & pintail"}
+
+
+def _q(vals, p):
+    v = sorted(x for x in vals if x > 1e-6)
+    return v[min(len(v) - 1, int(len(v) * p))] if v else 0.0
+
+
 def build(cache, sites, every, us_fit=None, flow_fit=None):
+    """Species are modelled one by one (D30). Each is expressed in units of its
+    OWN big push - the 82nd percentile of peak arrivals across published
+    locations - so a pintail push and a mallard push weigh the same; groups are
+    the sum of their species and "All ducks" the sum of the groups. The field
+    only knows RELATIVE numbers, so this is the honest way to add them up."""
     t0 = time.time()
     res = season(cache, routes_for(cache))
     F = res.pop("_field")
@@ -46,38 +60,51 @@ def build(cache, sites, every, us_fit=None, flow_fit=None):
         if f[:-5] not in pub_ids:
             os.remove(f"{OUT}/loc/{f}")
 
-    mall_ready = res["duck_mallard"]["ready"]
-    log_rows, index = {}, []
+    # raw arrivals per species per location, then each species' own scale
+    raw = {}
     for s in every:
         node = snap(s["lat"], s["lon"])
-        groups = {}
-        for key, g in DUCK_GROUPS.items():
-            r = res[key]
-            groups[key] = {
-                "name": g.name,
-                "arrival": [{"date": d, "arrival": round(r["arrivals"].get(d, {}).get(node, 0.0), 2)}
-                            for d in days],
-                "ground": [round(r["ground"].get(d, {}).get(node, 0.0), 1) for d in days],
-            }
-        log_rows.setdefault(s["id"], {"lat": s["lat"], "lon": s["lon"], "flyway": s["flyway"],
-                                      "published": s["id"] in pub_ids})
-        for key in DUCK_GROUPS:
-            log_rows[s["id"]][key] = [a["arrival"] for a in groups[key]["arrival"][SHOW_PAST:]]
-        if s["id"] not in pub_ids:
+        raw[s["id"]] = {k: [res[k]["arrivals"].get(d, {}).get(node, 0.0) for d in days]
+                        for k in DUCK_SPECIES}
+    unit = {k: _q([max(raw[i][k][SHOW_PAST:]) for i in pub_ids], 0.82) or 1.0 for k in DUCK_SPECIES}
+
+    def layers(sid):
+        sp = {k: [v / unit[k] for v in raw[sid][k]] for k in DUCK_SPECIES}
+        gr = {g: [sum(sp[k][i] for k in DUCK_SPECIES if GROUP_OF[k] == g) for i in range(len(days))]
+              for g in GROUP_NAMES}
+        al = [sum(gr[g][i] for g in GROUP_NAMES) for i in range(len(days))]
+        return sp, gr, al
+
+    mall_ready = res["mallar3"]["ready"]
+    log_rows, index = {}, []
+    r2 = lambda xs: [round(x, 2) for x in xs]
+    for s in every:
+        sid, node = s["id"], snap(s["lat"], s["lon"])
+        sp, gr, al = layers(sid)
+        row = {"lat": s["lat"], "lon": s["lon"], "flyway": s["flyway"], "published": sid in pub_ids,
+               "duck_all": r2(al[SHOW_PAST:])}
+        row.update({g: r2(v[SHOW_PAST:]) for g, v in gr.items()})
+        row.update({f"duck_{k}": r2(v[SHOW_PAST:]) for k, v in sp.items()})
+        log_rows[sid] = row
+        if sid not in pub_ids:
             continue
-        sev = F.sev.get(node, {})
-        feats = F.feat.get(node, {})
-        # how far south mallard-moving cold reaches, in this site's column
-        line = []
+        sev, feats = F.sev.get(node, {}), F.feat.get(node, {})
+        line = []                    # southernmost mallard-ready latitude in this column
         for d in days:
             rd = mall_ready.get(d, {})
             col = [pt[0] for pt, v in rd.items() if abs(pt[1] - node[1]) < 0.01 and v >= 0.5]
             line.append(min(col) if col else None)
         payload = {
-            "id": s["id"], "lat": s["lat"], "lon": s["lon"], "flyway": s["flyway"],
+            "id": sid, "lat": s["lat"], "lon": s["lon"], "flyway": s["flyway"],
             "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "untested": True, "dates": days, "today_index": SHOW_PAST,
-            "groups": groups,
+            "all": r2(al),
+            "groups": {g: {"name": GROUP_NAMES[g], "arrival": r2(v),
+                           "species": [k for k in DUCK_SPECIES if GROUP_OF[k] == g]}
+                       for g, v in gr.items()},
+            "species": {k: {"name": DUCK_SPECIES[k].name, "group": GROUP_OF[k], "arrival": r2(v),
+                            "trigger": DUCK_SPECIES[k].measure}
+                        for k, v in sp.items()},
             "freeze": {"wsi": [sev.get(d, {}).get("wsi") for d in days],
                        "tmean_c": [feats.get(d, {}).get("tmean_c") for d in days],
                        "snow_cm": [feats.get(d, {}).get("snow_cm") for d in days],
@@ -85,40 +112,42 @@ def build(cache, sites, every, us_fit=None, flow_fit=None):
             "fronts": [t.isoformat(timespec="minutes") for t, _ in (cache._pass.get(node) or [])
                        if t.date().isoformat() >= days[0]],
         }
-        json.dump(payload, open(f"{OUT}/loc/{s['id']}.json", "w"), separators=(",", ":"))
-        peaks = {k: max(groups[k]["arrival"][SHOW_PAST:], key=lambda a: a["arrival"]) for k in groups}
-        index.append({"id": s["id"], "lat": s["lat"], "lon": s["lon"],
-                      **{k: [p["date"], p["arrival"]] for k, p in peaks.items()}})
+        json.dump(payload, open(f"{OUT}/loc/{sid}.json", "w"), separators=(",", ":"))
 
-    # strength words from the data, per group, as for doves
-    scale = {}
-    for key in DUCK_GROUPS:
-        v = sorted(e[key][1] for e in index if e[key][1] > 0.05)
-        q = (lambda p: round(v[int(len(v) * p)], 2)) if v else (lambda p: 0)
-        scale[key] = {"few": q(0.25), "decent": q(0.55), "big": q(0.82)}
+        def peak(xs):
+            i = max(range(SHOW_PAST, len(days)), key=lambda j: xs[j])
+            return [days[i], round(xs[i], 2)]
+        index.append({"id": sid, "lat": s["lat"], "lon": s["lon"], "all": peak(al),
+                      **{g: peak(v) for g, v in gr.items()},
+                      **{k: peak(v) for k, v in sp.items()}})
+
+    # strength words per layer, from the data (as for doves)
+    keys = ["all"] + list(GROUP_NAMES) + list(DUCK_SPECIES)
+    scale = {k: {"few": round(_q([e[k][1] for e in index], 0.25), 3),
+                 "decent": round(_q([e[k][1] for e in index], 0.55), 3),
+                 "big": round(_q([e[k][1] for e in index], 0.82), 3)} for k in keys}
     json.dump({"generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-               "untested": True, "scale": scale, "sites": index},
+               "untested": True, "scale": scale,
+               "groups": {g: {"name": n, "species": [k for k in DUCK_SPECIES if GROUP_OF[k] == g]}
+                          for g, n in GROUP_NAMES.items()},
+               "species_names": {k: g.name for k, g in DUCK_SPECIES.items()},
+               "sites": index},
               open(f"{OUT}/index.json", "w"), separators=(",", ":"))
 
-    # map: freeze line per column and snow-covered nodes, by day
     if flow_fit is not None:
         fl = []
         for d in days:
             line = F.freeze_line(mall_ready.get(d, {}))
             snow = [flow_fit(*pt) for pt, f in F.feat.items()
                     if (f.get(d, {}).get("snow_cm") or 0) >= 2.54]
-            fl.append({"date": d, "line": [flow_fit(la, lo) for lo, la in line.items()],
-                       "snow": snow})
-        # new ducks landing at each published location, per group, by day -
-        # the duck counterpart of the dove arrival dots on the flyway map
+            fl.append({"date": d, "line": [flow_fit(la, lo) for lo, la in line.items()], "snow": snow})
         fsites = []
         for s in sites:
-            node = snap(s["lat"], s["lon"])
+            sp, gr, al = layers(s["id"])
             fsites.append({"id": s["id"], "xy": list(flow_fit(s["lat"], s["lon"])),
-                           "a": {k: [round(res[k]["arrivals"].get(d, {}).get(node, 0.0), 2) for d in days]
-                                 for k in DUCK_GROUPS}})
+                           "a": {"all": r2(al), **{g: r2(v) for g, v in gr.items()}}})
         json.dump({"days": fl, "sites": fsites}, open(f"{OUT}/flow.json", "w"), separators=(",", ":"))
 
     print(f"  ducks: {len(index)} published, {len(log_rows)} logged, "
-          f"replay from {res['duck_mallard']['start']}, {time.time() - t0:.0f}s")
+          f"replay from {res['mallar3']['start']}, {time.time() - t0:.0f}s")
     return log_rows, nxt

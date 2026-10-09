@@ -31,7 +31,7 @@ from datetime import date, timedelta
 
 from .freeze import wsi_series
 from .grid import LAT_STEP, LON_STEP, snap
-from .profiles import DUCK_GROUPS, NIGHT_GATE
+from .profiles import DUCK_SPECIES as DUCK_GROUPS, NIGHT_GATE   # D30: run per species
 
 STATE_DIR = "data/duckstate"
 CHECKPOINT_LAG = 3          # days back, where analysis has settled

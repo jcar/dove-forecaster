@@ -69,12 +69,19 @@ def combine(rs):
 FORECASTS = {
     "dove":         {"laws": ("arrival", "challenger", "dove_v2"), "species": ("moudov",),
                      "wave": "docs/data/wave.json", "dates": "dates", "live": "arrival"},
+    # ducks (D30): every species on its own, each group, and all ducks together
+    **{f"duck_{k}": {"laws": (f"duck_{k}",), "species": (k,), "wave": "docs/data/duck/wave.json",
+                     "dates": "duck_dates", "live": f"duck_{k}"}
+       for k in ("mallar3", "gnwtea", "buwtea", "gadwal", "amewig", "norpin")},
     "duck_mallard": {"laws": ("duck_mallard",), "species": ("mallar3",),
                      "wave": "docs/data/duck/wave.json", "dates": "duck_dates", "live": "duck_mallard"},
     "duck_teal":    {"laws": ("duck_teal",), "species": ("gnwtea", "buwtea"),
                      "wave": "docs/data/duck/wave.json", "dates": "duck_dates", "live": "duck_teal"},
     "duck_puddle":  {"laws": ("duck_puddle",), "species": ("gadwal", "amewig", "norpin"),
                      "wave": "docs/data/duck/wave.json", "dates": "duck_dates", "live": "duck_puddle"},
+    "duck_all":     {"laws": ("duck_all",),
+                     "species": ("mallar3", "gnwtea", "buwtea", "gadwal", "amewig", "norpin"),
+                     "wave": "docs/data/duck/wave.json", "dates": "duck_dates", "live": "duck_all"},
 }
 CONTROL = "eucdov"
 

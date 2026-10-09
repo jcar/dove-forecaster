@@ -1023,3 +1023,24 @@ cache lives on branch `wxcache`, force-pushed as ONE commit daily: the daily
 job restores it before building and saves it after. Master keeps what is an
 audit trail - forecasts, the forecast log, eBird snapshots, the duck-field
 checkpoint (data/duckstate/).
+
+## D30 — Ducks by species, rolled up to groups and "all ducks" (2026-10-09)
+
+The user wants every duck in one view, opening into each species. The field
+model now runs one profile PER SPECIES (mallard, green-winged and blue-winged
+teal, gadwall, wigeon, pintail), each with its own priors from the D25
+studies (Notaro et al. 2016 thresholds smoothed; blue-winged teal on the
+calendar per Baar et al. 2008 / Van Den Elsen 2016).
+
+Adding them up honestly: the field knows relative numbers only, so each
+species is expressed in units of ITS OWN big push (82nd percentile of peak
+arrivals across published locations). A group is the sum of its species and
+"All ducks" the sum of the groups. The page leads with All ducks as one
+stacked chart (fixed colours by group, validated for colour-blind separation
+in both themes; light-mode contrast relieved by direct labels and the list
+below), then a native <details> list per group that opens into its species -
+own bars, best morning, what makes it leave, and its own scorecard status.
+Phone-width screens draw the chart at phone size.
+
+grade.py scores every layer: each species against its own eBird counts, each
+group, and all ducks together.

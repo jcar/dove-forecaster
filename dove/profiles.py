@@ -125,6 +125,40 @@ DUCK_TEAL = DuckGroup(
 
 DUCK_GROUPS = {g.key: g for g in (DUCK_MALLARD, DUCK_PUDDLE, DUCK_TEAL)}
 
+# One profile PER SPECIES (D30), so the page can open a group and show each
+# bird. Thresholds are the species' own priors from the same studies - the
+# Notaro et al. 2016 values are sensitive to coefficient rounding, so they are
+# smoothed here and refit by the scorecard. The groups above are now roll-ups.
+DUCK_SPECIES = {g.key: g for g in (
+    DuckGroup(key="mallar3", name="Mallard", species=("mallar3",),
+              measure="wsi", theta=((35.0, 4.1), (40.0, 6.3), (45.0, 8.5)),
+              groundspeed_kmh=82.5),
+    DuckGroup(key="gnwtea", name="Green-winged teal", species=("gnwtea",),
+              # Notaro 2016 WSIMEAN zero-crossings ~-3.8 (35N), -8.0 (40N), -9.2 (45N)
+              measure="wsimean", theta=((35.0, -4.0), (40.0, -8.0), (45.0, -9.0)),
+              groundspeed_kmh=63.5),
+    DuckGroup(key="buwtea", name="Blue-winged teal", species=("buwtea",),
+              # no weather model (Van Den Elsen 2016: photoperiod); TX playas
+              # Aug 16 - Sep 15, almost none by October (Baar et al. 2008)
+              measure="none", calendar_peak_doy=245.0, calendar_width_d=14.0,
+              groundspeed_kmh=63.5),
+    DuckGroup(key="gadwal", name="Gadwall", species=("gadwal",),
+              # Notaro 2016 ~-7.7 / -7.1 / -3.9
+              measure="wsimean", theta=((35.0, -7.5), (40.0, -7.0), (45.0, -5.0)),
+              groundspeed_kmh=70.6),
+    DuckGroup(key="amewig", name="American wigeon", species=("amewig",),
+              # Notaro 2016 ~-4.6 / -10.9 / -9.1; DU press quotes ~-10
+              measure="wsimean", theta=((35.0, -8.0), (40.0, -10.0), (45.0, -10.0)),
+              groundspeed_kmh=52.0),
+    DuckGroup(key="norpin", name="Northern pintail", species=("norpin",),
+              # Notaro 2016: 7-day max WSI, zero-crossing ~-0.3 to -0.6
+              measure="wsi7max", theta=((35.0, -0.5),),
+              groundspeed_kmh=79.0),
+)}
+# which species roll up into which hunter's group
+GROUP_OF = {"mallar3": "duck_mallard", "gnwtea": "duck_teal", "buwtea": "duck_teal",
+            "gadwal": "duck_puddle", "amewig": "duck_puddle", "norpin": "duck_puddle"}
+
 # O'Neal et al. 2018 (Mov. Ecol. 6:23), departure odds at a stopover:
 # following wind aloft OR 35.2, no rain 13.2, not overcast 2.8; P = 0.76 when
 # all favourable -> intercept logit(0.76) - ln(35.2) - ln(13.2) - ln(2.8).

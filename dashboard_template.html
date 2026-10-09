@@ -66,6 +66,21 @@ body[data-game="duck"] .only-dove, body:not([data-game="duck"]) .only-duck{displ
 .game button{border-radius:0}
 .game button:first-child{border-radius:2px 0 0 2px}
 .game button:last-child{border-radius:0 2px 2px 0; margin-left:-1px}
+.dgroup{border:1px solid var(--line); border-radius:3px; margin-top:10px; background:var(--surface)}
+.dgroup>summary{display:grid; grid-template-columns:12px minmax(0,1fr) auto 14px; gap:6px 12px; align-items:center;
+  padding:13px 14px; cursor:pointer; list-style:none; min-height:44px}
+.dgroup>summary::-webkit-details-marker{display:none}
+.dgroup>summary::after{content:"\25B8"; color:var(--ink3); transition:transform .15s}
+.dgroup[open]>summary::after{transform:rotate(90deg)}
+.dgroup .chip{width:12px; height:12px; border-radius:3px}
+.dgroup .nm{font-weight:600}
+.dgroup .bd{font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--ink2); text-align:right}
+.dgroup .spark{grid-column:2 / 4; width:100%; height:38px; display:block}
+.dsp{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 12px; padding:12px 14px 12px 40px; border-top:1px solid var(--line2)}
+.dsp .nm{font-weight:600; font-size:14px}
+.dsp .why{grid-column:1 / 3; font-size:12.5px; color:var(--ink3)}
+.dsp .spark{grid-column:1 / 3; width:100%; height:34px; display:block}
+@media (max-width:520px){ .dsp{padding-left:16px} .dgroup>summary{padding:12px} }
 .untested{margin-top:14px; padding:11px 15px; border:1px dashed var(--wheat); border-radius:3px; font-size:13.5px; line-height:1.55}
 .untested b{color:var(--wheat)}
 .where .cur{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--ink2)}
@@ -260,12 +275,11 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
       <p id="dPlain"></p>
       <div class="untested" id="dUntested"></div>
     </div>
-    <div class="row" style="margin-top:20px" id="dGroups" role="group" aria-label="Which ducks"></div>
     <div class="verdict">
       <div><div class="k">Best morning</div><div class="v mono" id="dDay">&mdash;</div></div>
       <div><div class="k">How many</div><div class="v mono" id="dStr">&mdash;</div></div>
+      <div><div class="k">Mostly</div><div class="v mono" id="dMostly">&mdash;</div></div>
       <div><div class="k">Freeze line</div><div class="v mono" id="dLine">&mdash;</div></div>
-      <div><div class="k">Days of notice</div><div class="v mono" id="dLead">&mdash;</div></div>
     </div>
     <div class="howto">
       <div class="hd">How the duck forecast works</div>
@@ -279,12 +293,19 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
       </ol>
     </div>
     <section>
-      <h2>New ducks, by morning</h2>
-      <p class="sub">Bars are birds landing near you at dawn; faded bars are the last week, for context. Dashed lines are
-         cold fronts reaching you. The strip below is how hard winter is pressing at your own spot.</p>
-      <figure class="scroll"><svg id="dArrival" viewBox="0 0 1000 300" role="img" aria-label="Forecast duck arrivals by morning"></svg></figure>
+      <h2>All ducks, by morning</h2>
+      <p class="sub">New ducks landing near you at dawn, every species together, split by group. Faded bars are the last
+         week, for context; dashed lines are cold fronts reaching you. Open a group below to see each species.</p>
+      <div class="leg" id="dKey" style="margin:4px 0 6px"></div>
+      <figure class="scroll"><svg id="dArrival" viewBox="0 0 1000 300" role="img" aria-label="Forecast duck arrivals by morning, all species, stacked by group"></svg></figure>
       <figure class="scroll"><svg id="dFreeze" viewBox="0 0 1000 96" role="img" aria-label="Freeze line distance and weather severity by day"></svg></figure>
       <div class="leg" id="dLeg"></div>
+    </section>
+    <section>
+      <h2>By group and species</h2>
+      <p class="sub">Tap a group to open it. Each species is forecast on its own &mdash; they leave on different
+         triggers &mdash; and sized against its own big push, so a bar means the same thing for every bird.</p>
+      <div id="dList"></div>
     </section>
   </div>
 
@@ -1160,8 +1181,8 @@ function drawNear(){
   s.appendChild(el('line',{x1:L,x2:L+iw,y1:T+ih,y2:T+ih,stroke:tok('--line'),'stroke-width':1}));
   let fc='';
   if(GAME==='duck'&&DSITE){
-    const G=DSITE.groups[DGROUP], nx=G.arrival.slice(DSITE.today_index), pk=nx.reduce((a,b)=>b.arrival>a.arrival?b:a,nx[0]);
-    if(pk&&dStrength(pk.arrival)!=='Nothing new') fc='<span class="dim">Counts end yesterday. Next forecast '+G.name.toLowerCase()+' push at your spot: <b>'+nice(pk.date)+'</b>.</span>';
+    const ti=DSITE.today_index, p=peakOf(DSITE.all,ti);
+    if(dStrength(DSITE.all[p],'all')!=='Nothing new') fc='<span class="dim">Counts end yesterday. Next forecast duck push at your spot: <b>'+nice(DSITE.dates[p])+'</b>.</span>';
   } else if(SITE&&SITE.arrival&&SITE.arrival.length){
     const pk=SITE.arrival.reduce((a,b)=>b.arrival>a.arrival?b:a);
     if(pk.arrival>0) fc='<span class="dim">Counts end yesterday. Next forecast push at your fields: <b>'+nice(pk.date)+'</b> &mdash; watch for the line to climb then.</span>';
@@ -1249,8 +1270,8 @@ const SPP={dove:[['moudov','Mourning dove'],['whwdov','White-winged'],['eucdov',
 const NEAR_SER={dove:[['moudov','Mourning','--s1',2.6],['whwdov','White-wing','--s2',2],['eucdov','Collared (the check)','--s3',1.4]],
   duck:[['mallar3','Mallard','--s1',2.6],['gnwtea','Green-winged teal','--s2',2],['gadwal','Gadwall','--wheat',2],
         ['eucdov','Collared (the check)','--s3',1.4]]};
-const DGROUPS=[['duck_mallard','Mallards & big ducks'],['duck_teal','Teal'],['duck_puddle','Gadwall, wigeon & pintail']];
-let GAME='dove', DOVEWAVE=null, DUCKWAVE=null, DINDEX=null, DSITE=null, DFLOW=null, DGROUP='duck_mallard', GRADES=null;
+const DGROUPS=[['all','All ducks'],['duck_mallard','Mallards & big ducks'],['duck_teal','Teal'],['duck_puddle','Gadwall, wigeon & pintail']];
+let GAME='dove', DOVEWAVE=null, DUCKWAVE=null, DINDEX=null, DSITE=null, DFLOW=null, DGROUP='all', GRADES=null;
 
 const BIRDW=()=>GAME==='duck'?'ducks':'doves';
 function drawOvGroups(){
@@ -1282,55 +1303,88 @@ async function loadDuck(id){
   }catch(e){ DSITE=null; $('#dHeadline').textContent='Duck forecast not published for this spot yet.'; return; }
   drawDuck();
 }
-function dStrength(v){
-  const sc=(DINDEX&&DINDEX.scale&&DINDEX.scale[DGROUP])||{few:0.1,decent:1,big:5};
-  return v<sc.few*0.5?'Nothing new':v<sc.few?'A few new birds':v<sc.decent?'A few':v<sc.big?'Decent push':'Big push';
+let _dResize=null;
+addEventListener('resize',()=>{clearTimeout(_dResize);_dResize=setTimeout(()=>{if(GAME==='duck'&&DSITE) drawDuck();},200);});
+const DCOL={duck_mallard:'--s1',duck_puddle:'--s2',duck_teal:'--s3'};      // fixed order, never by rank
+const DSTACK=['duck_mallard','duck_puddle','duck_teal'];                      // bottom to top
+const DWHY={wsi:'Leaves when its water freezes or snows over up north',
+  wsimean:'Leaves when the week turns cold up north — well before the hard freeze',
+  wsi7max:'Leaves at the first real freeze up north',
+  none:'Leaves on the calendar, not the weather — most are past Texas by mid-October'};
+function dStrength(v,key){
+  const sc=(DINDEX&&DINDEX.scale&&DINDEX.scale[key||'all'])||{few:0.3,decent:1,big:2};
+  return v<sc.few*0.5?'Nothing new':v<sc.decent?'A few':v<sc.big?'Decent push':'Big push';
+}
+function gradeOf(key){
+  return GRADES&&GRADES.forecasts&&GRADES.forecasts[key]&&DSITE&&GRADES.forecasts[key][DSITE.flyway];
+}
+function gradeWord(g){
+  if(!g) return 'building a record';
+  return g.status==='passes'?'passing the scorecard':g.status==='building'?'building its record — '+g.days+' of '+g.need_days+' days':
+    g.status==='control'?'void right now (the control tracks it too)':'not yet beating the calendar';
 }
 function duckBanner(){
-  const g=GRADES&&GRADES.forecasts&&GRADES.forecasts[DGROUP]&&DSITE&&GRADES.forecasts[DGROUP][DSITE.flyway];
-  let st='building a record';
-  if(g){ st=g.status==='passes'?'<b>passing</b> the scorecard':g.status==='building'?'building its record &mdash; '+g.days+' of '+g.need_days+' days':
-    g.status==='control'?'void right now (the control tracks it too)':'not yet tracking the counts'; }
   return '<b>Untested.</b> This duck forecast is new. It is built from published duck research, but it has not yet been checked against real birds here &mdash; '+
-    'the scorecard grades it every morning, and it is currently '+st+'. Treat it as an informed guess.';
+    'the scorecard grades it every morning, and it is currently '+gradeWord(gradeOf('duck_all'))+'. Treat it as an informed guess.';
+}
+function peakOf(arr,ti){ let i=ti; for(let j=ti;j<arr.length;j++) if(arr[j]>arr[i]) i=j; return i; }
+function spark(arr,ti,colour,mx){
+  // mini bars: faded history, today marked, same scale within a group
+  const W=300,H=34,n=arr.length,st=W/n,bw=Math.max(2,st*0.62);
+  const sv=el('svg',{viewBox:'0 0 '+W+' '+H,preserveAspectRatio:'none',class:'spark','aria-hidden':'true'});
+  sv.appendChild(el('line',{x1:0,x2:W,y1:H-0.5,y2:H-0.5,stroke:tok('--line2'),'stroke-width':1}));
+  arr.forEach(function(v,i){ const h=mx>0?Math.max(v>0?1.5:0,(v/mx)*(H-4)):0;
+    if(h>0) sv.appendChild(el('rect',{x:st*i+(st-bw)/2,y:H-h,width:bw,height:h,rx:1.5,fill:colour,opacity:i<ti?0.35:1}));});
+  sv.appendChild(el('line',{x1:st*ti,x2:st*ti,y1:0,y2:H,stroke:tok('--ink3'),'stroke-width':0.8,'stroke-dasharray':'2 2'}));
+  return sv;
 }
 function drawDuck(){
-  if(!DSITE) return;
-  const G=DSITE.groups[DGROUP], ti=DSITE.today_index, days=DSITE.dates;
-  const box=$('#dGroups'); box.innerHTML='';
-  DGROUPS.forEach(function(q){ const b=document.createElement('button'); b.textContent=q[1];
-    b.setAttribute('aria-pressed',q[0]===DGROUP); b.onclick=()=>{DGROUP=q[0]; drawDuck(); drawOvGroups(); drawNear();}; box.appendChild(b);});
-  const next=G.arrival.slice(ti), pk=next.reduce((a,b)=>b.arrival>a.arrival?b:a,next[0]);
-  const lead=Math.round((dt(pk.date)-dt(next[0].date))/864e5);
-  const strong=dStrength(pk.arrival);
-  $('#dEyebrow').textContent=G.name+' \u00B7 '+FW_NAME[DSITE.flyway||'central']+' flyway';
-  $('#dHeadline').textContent=strong==='Nothing new'?'No new '+G.name.toLowerCase()+' due in the next two weeks':
-    'New birds most likely '+DOW[dt(pk.date).getDay()]+' morning';
+  if(!DSITE||!DSITE.all) return;
+  const ti=DSITE.today_index, days=DSITE.dates, A=DSITE.all, G=DSITE.groups, SP=DSITE.species;
+  const pk=peakOf(A,ti), strong=dStrength(A[pk],'all'), lead=pk-ti;
+  // which species carries the best morning
+  const top=Object.keys(SP).reduce((a,b)=>SP[b].arrival[pk]>SP[a].arrival[pk]?b:a,Object.keys(SP)[0]);
+  $('#dEyebrow').textContent='All ducks · '+FW_NAME[DSITE.flyway||'central']+' flyway';
+  $('#dHeadline').textContent=strong==='Nothing new'?'No new ducks due in the next two weeks':
+    'New ducks most likely '+(lead===0?'this morning':DOW[dt(days[pk]).getDay()]+' morning');
   $('#dPlain').textContent=strong==='Nothing new'?'Nothing upstream is pushing them yet. Watch the freeze line below.':
-    'That is '+nice(pk.date)+'. '+strong+' for this time of year, relative to the rest of the flyway.';
+    'That is '+nice(days[pk])+' — mostly '+SP[top].name.toLowerCase()+'. '+strong+' for this time of year, relative to the rest of the flyway.';
   $('#dUntested').innerHTML=duckBanner();
-  $('#dDay').textContent=strong==='Nothing new'?'\u2014':DOW3[dt(pk.date).getDay()]+' '+nice(pk.date);
+  $('#dDay').textContent=strong==='Nothing new'?'—':DOW3[dt(days[pk]).getDay()]+' '+nice(days[pk]);
   $('#dStr').textContent=strong;
+  $('#dMostly').textContent=strong==='Nothing new'?'—':SP[top].name;
   const ln=DSITE.freeze.line_lat[ti];
   $('#dLine').textContent=ln==null?'none yet':(ln<=DSITE.lat+0.4?'at you':Math.round((ln-DSITE.lat)*69)+' mi N');
-  $('#dLead').textContent=strong==='Nothing new'?'\u2014':lead+(lead===1?' day':' days');
-  // bars
+
+  // stacked bars: every species, split by group
   const s=$('#dArrival'); s.innerHTML='';
-  const W=1000,H=300,L=30,R=18,T=40,B=46,iw=W-L-R,ih=H-T-B, n=days.length, step=iw/n, bw=Math.min(34,step*0.6);
-  const vals=G.arrival.map(a=>a.arrival), mx=Math.max(1e-6,...vals)*1.12, y=v=>T+ih-(v/mx)*ih;
-  const pkI=ti+next.indexOf(pk);
-  G.arrival.forEach(function(a,i){
-    const cx=L+step*i+step/2, h=a.arrival>0?Math.max(1.5,ih-(y(a.arrival)-T)):0, past=i<ti;
-    if(h>0) s.appendChild(el('rect',{x:cx-bw/2,y:y(a.arrival),width:bw,height:h,rx:3,
-      fill:i===pkI&&strong!=='Nothing new'?tok('--barPeak'):tok('--bar'),opacity:past?0.35:1}));
-    if(i%2===0||i===ti){ const t=el('text',{x:cx,y:H-26,'text-anchor':'middle','font-size':11,fill:i===ti?tok('--ink'):tok('--ink3'),
-      'font-weight':i===ti?600:400}); t.textContent=i===ti?'Today':DOW3[dt(a.date).getDay()]; s.appendChild(t);
-      const t2=el('text',{x:cx,y:H-11,'text-anchor':'middle','font-size':10,fill:tok('--ink3')}); t2.textContent=md(a.date); s.appendChild(t2);}
+  // Phone-sized drawing on narrow screens: the same 1000-unit chart squeezed
+  // onto a phone shrinks every label to unreadable.
+  const narrow=(s.parentNode.clientWidth||1000)<600, W=narrow?560:1000, H=narrow?320:300, every=narrow?3:2;
+  s.setAttribute('viewBox','0 0 '+W+' '+H); $('#dFreeze').setAttribute('viewBox','0 0 '+W+' 96');
+  const L=30,R=18,T=40,B=46,iw=W-L-R,ih=H-T-B,n=days.length,step=iw/n,bw=Math.min(34,step*0.6);
+  const mx=Math.max(1e-6,...A)*1.12, y=v=>T+ih-(v/mx)*ih, GAP=2;
+  for(let i=0;i<n;i++){
+    const cx=L+step*i+step/2, past=i<ti;
+    let base=0;
+    DSTACK.forEach(function(g,k){
+      const v=G[g].arrival[i]; if(!(v>0)) return;
+      const y0=y(base), y1=y(base+v), h=Math.max(1.2,y0-y1-(base>0?GAP:0));
+      const top=k===DSTACK.length-1||DSTACK.slice(k+1).every(q=>!(G[q].arrival[i]>0));
+      s.appendChild(el('rect',{x:cx-bw/2,y:y0-(base>0?GAP:0)-h,width:bw,height:h,rx:top?3:0,
+        fill:tok(DCOL[g]),opacity:past?0.35:1}));
+      base+=v;
+    });
+    if((i-ti)%every===0){ const t=el('text',{x:cx,y:H-26,'text-anchor':'middle','font-size':11,fill:i===ti?tok('--ink'):tok('--ink3'),
+      'font-weight':i===ti?600:400}); t.textContent=i===ti?'Today':DOW3[dt(days[i]).getDay()]; s.appendChild(t);
+      const t2=el('text',{x:cx,y:H-11,'text-anchor':'middle','font-size':10,fill:tok('--ink3')}); t2.textContent=md(days[i]); s.appendChild(t2);}
     const hit=el('rect',{x:L+step*i,y:T,width:step,height:ih,fill:'transparent'});
-    hit.addEventListener('pointermove',e=>show(e,DOW[dt(a.date).getDay()]+', '+nice(a.date)+'\n'+dStrength(a.arrival)+
-      (G.ground[i]!=null?'\nbirds around (relative): '+G.ground[i]:'')));
+    hit.addEventListener('pointermove',e=>show(e,DOW[dt(days[i]).getDay()]+', '+nice(days[i])+'\nAll ducks: '+dStrength(A[i],'all')+'\n'+
+      DSTACK.slice().reverse().map(g=>'  '+G[g].name+': '+dStrength(G[g].arrival[i],g)).join('\n')));
     hit.addEventListener('pointerleave',hide); s.appendChild(hit);
-  });
+  }
+  if(strong!=='Nothing new'){ const cx=L+step*pk+step/2;
+    const t=el('text',{x:cx,y:y(A[pk])-8,'text-anchor':'middle','font-size':11.5,'font-weight':600,fill:tok('--ink')}); t.textContent=strong; s.appendChild(t);}
   s.appendChild(el('line',{x1:L+step*ti,x2:L+step*ti,y1:T-6,y2:T+ih,stroke:tok('--line'),'stroke-width':1}));
   (DSITE.fronts||[]).forEach(function(f){
     const i=days.indexOf(f.slice(0,10)); if(i<0) return;
@@ -1338,23 +1392,49 @@ function drawDuck(){
     s.appendChild(el('line',{x1:x,x2:x,y1:T-10,y2:T+ih,stroke:tok('--ink2'),'stroke-width':1.3,'stroke-dasharray':'5 4'}));
     const t=el('text',{x:x,y:T-14,'text-anchor':'middle','font-size':10.5,fill:tok('--ink2')}); t.textContent='front'; s.appendChild(t);});
   s.appendChild(el('line',{x1:L,x2:W-R,y1:T+ih,y2:T+ih,stroke:tok('--line'),'stroke-width':1}));
-  // freeze strip: how far north the mallard-moving cold is, and WSI here
+  $('#dKey').innerHTML=DSTACK.slice().reverse().map(g=>'<span><i style="background:'+tok(DCOL[g])+'"></i>'+G[g].name+'</span>').join('')+
+    '<span class="dim">sizes are relative, not head counts</span>';
+
+  // freeze strip (unchanged meaning: how close the mallard-moving cold is)
   const f=$('#dFreeze'); f.innerHTML='';
-  const FH=96, fy=30;
+  const fy=30;
   const t0=el('text',{x:L,y:14,'font-size':10.5,fill:tok('--ink3')}); t0.textContent='Freeze line (where mallards are ready to leave), miles north of you'; f.appendChild(t0);
   DSITE.freeze.line_lat.forEach(function(la,i){ const cx=L+step*i+step/2;
-    if(la==null){ const t=el('text',{x:cx,y:fy+14,'text-anchor':'middle','font-size':10,fill:tok('--ink3')}); t.textContent='\u2014'; f.appendChild(t); return;}
+    if(la==null){ const t=el('text',{x:cx,y:fy+14,'text-anchor':'middle','font-size':10,fill:tok('--ink3')}); t.textContent='—'; f.appendChild(t); return;}
     const mi=Math.max(0,Math.round((la-DSITE.lat)*69)), q=Math.max(0,Math.min(1,1-mi/900));
     f.appendChild(el('rect',{x:cx-bw/2,y:fy,width:bw,height:22,rx:3,fill:mix(tok('--wmid'),tok('--wgo'),q),opacity:i<ti?0.45:1}));
-    const t=el('text',{x:cx,y:fy+15,'text-anchor':'middle','font-size':9.5,fill:tok('--ink'),'font-weight':600}); t.textContent=mi<30?'here':mi; f.appendChild(t);});
-  const w=DSITE.freeze.wsi;
+    const t=el('text',{x:cx,y:fy+15,'text-anchor':'middle','font-size':9.5,fill:tok('--ink'),'font-weight':600});
+    t.textContent=mi<30?'here':mi>900?'far':mi; f.appendChild(t);});
+  const wi=DSITE.freeze.wsi[ti];
   const t1=el('text',{x:L,y:fy+44,'font-size':10.5,fill:tok('--ink3')});
-  const wi=w[ti];
   t1.textContent='Weather severity at your spot today: '+(wi==null?'no data':wi.toFixed(1))+
-    ' \u00B7 mallards here start leaving above ~'+(DSITE.lat<37.5?'4\u20136':DSITE.lat<42.5?'6\u20137':'7\u20139')+' (Schummer 2010; Notaro 2016)';
+    ' · mallards here start leaving above ~'+(DSITE.lat<37.5?'4–6':DSITE.lat<42.5?'6–7':'7–9')+' (Schummer 2010; Notaro 2016)';
   f.appendChild(t1);
-  $('#dLeg').innerHTML='<span><i style="background:'+tok('--barPeak')+'"></i>best morning</span><span><i style="background:'+tok('--bar')+'"></i>new birds</span>'+
-    '<span><i style="background:'+mix(tok('--wmid'),tok('--wgo'),0.8)+'"></i>freeze line close</span><span class="dim">sizes are relative, not head counts</span>';
+  $('#dLeg').innerHTML='<span><i style="background:'+mix(tok('--wmid'),tok('--wgo'),0.8)+'"></i>freeze line close</span>';
+
+  // groups that open into species
+  const box=$('#dList'), open={}; box.querySelectorAll('details[open]').forEach(d=>open[d.dataset.g]=1);
+  box.innerHTML='';
+  DSTACK.slice().reverse().forEach(function(g){
+    const grp=G[g], c=tok(DCOL[g]), gp=peakOf(grp.arrival,ti), gw=dStrength(grp.arrival[gp],g);
+    const d=document.createElement('details'); d.className='dgroup'; d.dataset.g=g; if(open[g]) d.open=true;
+    const sm=document.createElement('summary');
+    sm.innerHTML='<span class="chip" style="background:'+c+'"></span><span class="nm">'+grp.name+'</span>'+
+      '<span class="bd">'+(gw==='Nothing new'?'nothing new':gw+' · '+DOW3[dt(days[gp]).getDay()]+' '+md(days[gp]))+'</span>';
+    // one scale floor for every group: a full bar is at least one species' big
+    // push, so near-zero noise never looks like birds
+    const gmx=Math.max(1,...grp.species.flatMap(k=>SP[k].arrival),...grp.arrival);
+    sm.appendChild(spark(grp.arrival,ti,c,gmx)); d.appendChild(sm);
+    grp.species.forEach(function(k){
+      const sp=SP[k], p=peakOf(sp.arrival,ti), w=dStrength(sp.arrival[p],k);
+      const row=document.createElement('div'); row.className='dsp';
+      row.innerHTML='<span class="nm">'+sp.name+'</span><span class="bd">'+(w==='Nothing new'?'nothing new':w+' · '+DOW3[dt(days[p]).getDay()]+' '+md(days[p]))+'</span>'+
+        '<span class="why">'+(DWHY[sp.trigger]||'')+' · scorecard: '+gradeWord(gradeOf('duck_'+k))+'</span>';
+      row.appendChild(spark(sp.arrival,ti,c,gmx));
+      d.appendChild(row);
+    });
+    box.appendChild(d);
+  });
 }
 function drawDuckLayer(day){
   const s=$('#fly'); if(!s) return;
@@ -1393,7 +1473,7 @@ async function loadGrades(){try{
     const f=F.dove[k];
     return row('Doves, '+FW_NAME[k]+(k==='central'?' (published)':' (watched)'),f,
       f.best_law?' &middot; the '+(LAW[f.best_law]||f.best_law)+' scores best':'');}).join('');
-  DGROUPS.forEach(function(q){ const f=F[q[0]]&&F[q[0]].central;
+  DGROUPS.forEach(function(q){ const k=q[0]==='all'?'duck_all':q[0], f=F[k]&&F[k].central;
     if(f) h+=row(q[1]+', Central (published, untested)',f,'','only-duck'); });
   if(GRADES&&DSITE) $('#dUntested').innerHTML=duckBanner();
   $('#grades').innerHTML=h;
