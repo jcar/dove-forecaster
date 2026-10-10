@@ -121,10 +121,10 @@ svg text{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-num
 #play{min-width:82px}
 .flyrow{display:flex; gap:22px; align-items:flex-start; flex-wrap:wrap}
 .flyrow figure{flex:1 1 340px; min-width:0}
-.flymap{position:relative; width:100%; max-width:600px; aspect-ratio:560/576; margin-inline:auto}
+.flymap{position:relative; width:100%; max-width:470px; aspect-ratio:560/871; margin-inline:auto}
 .flymap canvas,.flymap svg{position:absolute; inset:0; width:100%; height:100%}
 .flymap canvas{border-radius:4px}
-.usmap{position:relative; width:100%; aspect-ratio:960/600}
+.usmap{position:relative; width:100%; max-width:470px; aspect-ratio:560/871; margin-inline:auto}
 .usmap svg{position:absolute; inset:0; width:100%; height:100%}
 .flykey{flex:0 1 260px; font-size:13px; color:var(--ink2)}
 .flykey h4{margin:0 0 6px; font-size:10.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink3); font-weight:600}
@@ -212,7 +212,7 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
       <p class="sub only-dove">Cold fronts sweep south down the plains. Birds leave when one reaches them, ride the
          north wind while it holds, and sit down when it quits. Press play and watch it happen.</p>
       <div class="flyrow">
-        <figure><div class="flymap"><canvas id="wind" width="560" height="576"></canvas><svg id="fly" viewBox="0 0 560 576" role="img" aria-label="Wind and expected arrivals across the Central Flyway, animated by day"></svg></div></figure>
+        <figure><div class="flymap"><canvas id="wind" width="560" height="871"></canvas><svg id="fly" viewBox="0 0 560 871" role="img" aria-label="Wind and expected arrivals across the Central Flyway, animated by day"></svg></div></figure>
         <div class="flykey only-duck">
           <h4>What you're watching</h4>
           <svg viewBox="0 0 240 92" style="width:100%;max-width:240px;margin:2px 0 10px">
@@ -361,7 +361,7 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
   <section>
     <h2>Are the birds actually moving?</h2>
     <p class="sub"><span class="only-dove">Real dove counts</span><span class="only-duck">Real duck counts</span> from Cornell's
-       eBird at 128 spots across the lower 48, every morning. Each spot is compared only to <b>its own</b> last week &mdash; a quiet
+       eBird at 46 spots across the Central Flyway, every morning. Each spot is compared only to <b>its own</b> last week &mdash; a quiet
        Montana county isn't judged against busy Dallas. Glowing means more <span class="only-dove">doves</span><span class="only-duck">ducks</span>
        than usual there; dark means fewer.<span class="only-duck"> Duck counting began Oct 4, so the history is short for now.</span>
        <b>A migration shows up as a glow that slides south over days.</b></p>
@@ -372,10 +372,10 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
       <figure class="scroll"><svg id="near" viewBox="0 0 1000 280" role="img" aria-label="Bird counts at the eBird circles nearest you, by day"></svg></figure>
       <div class="leg" id="nearLeg" style="margin-bottom:22px"></div>
     </div>
-    <h3 style="margin:8px 0 8px">The whole country</h3>
+    <h3 style="margin:8px 0 8px">Across the Central Flyway</h3>
     <div class="row" style="margin-bottom:12px" id="birdSpp" role="group" aria-label="Species">
     </div>
-    <figure><div class="usmap"><svg id="bmap" viewBox="0 0 960 600" role="img" aria-label="Bird counts at eBird circles across the lower 48, each against its own normal, by day"></svg></div></figure>
+    <figure><div class="usmap"><svg id="bmap" viewBox="0 0 560 871" role="img" aria-label="Bird counts at eBird circles across the Central Flyway, each against its own normal, by day"></svg></div></figure>
     <div class="transport">
       <button id="bplay">&#9654; Play</button>
       <input type="range" id="bscrub" min="0" max="0" value="0" step="1" aria-label="Day">
@@ -385,11 +385,9 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
       <span><i style="background:var(--bird)"></i>more <span class="only-dove">doves</span><span class="only-duck">ducks</span> than usual for that spot</span>
       <span><i style="background:var(--whold)"></i>fewer</span>
       <span><i style="background:none;border:1px dashed var(--ink3)"></i>no counts that day</span>
-      <span class="dim">Circles are 50 km eBird search areas at true size; each day is a 3-day average. One spot flickers &mdash; trust patterns across several.
-        We forecast the Central flyway; the others are watched so their forecasts can be graded before they're published.</span>
+      <span class="dim">Circles are 50 km eBird search areas at true size; each day is a 3-day average. One spot flickers &mdash; trust patterns across several.</span>
     </div>
-    <h3 style="margin:28px 0 8px">By latitude, one flyway at a time</h3>
-    <div class="row" style="margin-bottom:12px" id="birdFw" role="group" aria-label="Flyway"></div>
+    <h3 style="margin:28px 0 8px">North to south, by latitude</h3>
     <figure class="scroll"><svg id="birds" viewBox="0 0 1000 330" role="img" aria-label="Bird counts by latitude and day in one flyway, against each spot's own normal"></svg></figure>
     <p class="sub" id="birdVerdict" style="margin-top:12px"></p>
     <div class="leg" id="birdLeg"></div>
@@ -398,7 +396,7 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
   <section>
     <h2>How much to trust this</h2>
     <p class="sub">The weather half has been checked against eleven years of records. The bird half is now graded every
-       morning against what eBird birders counted &mdash; that scorecard is below, and it is the rule for publishing a flyway.</p>
+       morning against what eBird birders counted &mdash; that scorecard is below.</p>
     <div class="ledger only-duck">
       <div><h3>Checked and working</h3><ul class="ok">
         <li>The weather severity index reproduces the published worked example exactly (Schummer et al. 2010)</li>
@@ -430,8 +428,7 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
     <p class="sub" style="margin-bottom:10px">Each forecast is checked 1&ndash;3 days later against
        <span class="only-dove">dove (mourning and white-winged together)</span><span class="only-duck">duck</span> counts at the
        nearest eBird circle, with collared doves (which don't migrate) as the check on birdwatcher effort. It has to beat
-       the calendar, not just chance. A flyway is published only after it passes on at least three weeks
-       of record &mdash; and the Central flyway is held to that same bar.</p>
+       the calendar, not just chance. It needs at least three weeks of record before it can pass; until then, read the forecast as unproven.</p>
     <ul id="grades" style="list-style:none;padding:0;line-height:1.9"><li class="dim">Loading&hellip;</li></ul>
   </section>
 
@@ -498,7 +495,7 @@ async function search(){
   try{
     const r=await (await fetch('https://geocoding-api.open-meteo.com/v1/search?count=20&country=US&name='+encodeURIComponent(q))).json();
     const res=(r.results||[]).filter(x=>CENTRAL.includes(x.admin1)).slice(0,8);
-    if(!res.length){$('#finderNote').textContent='No match in the Central Flyway. We publish for TX, OK, KS, NE, SD, ND, NM, CO, WY and MT; the other flyways are being tested first.';return;}
+    if(!res.length){$('#finderNote').textContent='No match in the Central Flyway. This covers TX, OK, KS, NE, SD, ND, NM, CO, WY and MT.';return;}
     $('#finderNote').textContent='';
     $('#hits').innerHTML=res.map((x,i)=>'<li data-i="'+i+'"><span>'+x.name+(x.admin2?', '+x.admin2:'')+', '+x.admin1+
       '</span><span class="sub">'+x.latitude.toFixed(2)+', '+x.longitude.toFixed(2)+'</span></li>').join('');
@@ -587,6 +584,7 @@ function paintWind(frac){
   const a=FLOW.wind[i0], b=FLOW.wind[i1];
   const [cw,ch]=FLOW.grid.cell, r=Math.max(cw,ch)*1.45;
   const sp=sprite();
+  x.save(); const cl=clip2d(); if(cl) x.clip(cl);
   x.globalCompositeOperation='lighter';
   FLOW.grid.xy.forEach(function(p,k){
     const va=a[k], vb=b[k];
@@ -597,6 +595,7 @@ function paintWind(frac){
     x.drawImage(tinted(col.c),p[0]-r,p[1]-r,r*2,r*2);
   });
   x.globalAlpha=1; x.globalCompositeOperation='source-over';
+  x.restore();
 }
 
 async function loadFlow(){
@@ -616,7 +615,19 @@ async function loadFlow(){
   drawFlights();
 }
 
-let DOTS=[], HALOS=[], RINGS=null;
+let DOTS=[], HALOS=[], RINGS=null, CLIP2D=null;
+// Everything on a map is cut to the ten Central states' outline (D35): wind,
+// fronts, dots, count circles. Nothing outside the flyway is drawn.
+function clipDefs(svg,id){
+  const defs=el('defs',{}), cp=el('clipPath',{id:id});
+  Object.values(GEO.paths).forEach(d=>cp.appendChild(el('path',{d:d})));
+  defs.appendChild(cp); svg.appendChild(defs);
+  return 'url(#'+id+')';
+}
+function clip2d(){
+  if(!CLIP2D&&GEO){CLIP2D=new Path2D(); Object.values(GEO.paths).forEach(d=>CLIP2D.addPath(new Path2D(d)));}
+  return CLIP2D;
+}
 function buildFly(){
   const s=$('#fly'); if(!s||!FLOW) return;
   if(RAF){cancelAnimationFrame(RAF); RAF=null;}
@@ -633,9 +644,10 @@ function buildFly(){
         'stroke-width':0.5,'stroke-linejoin':'round',opacity:0.35}));
     });
   }
-  RINGS=el('g',{}); s.appendChild(RINGS);
+  const cp=GEO?clipDefs(s,'cfClip'):null;
+  RINGS=el('g',cp?{'clip-path':cp}:{}); s.appendChild(RINGS);
 
-  const gd=el('g',{}); s.appendChild(gd);
+  const gd=el('g',cp?{'clip-path':cp}:{}); s.appendChild(gd);
   FLOW.sites.forEach(function(st){
     const h=el('circle',{cx:st.xy[0],cy:st.xy[1],r:0,fill:tok('--bird2'),opacity:0});
     gd.appendChild(h); HALOS.push(h);
@@ -1006,9 +1018,9 @@ async function loadLocal(){
 }
 
 async function loadBirds(){try{
-  const r=await Promise.all([fetch('data/wave.json').then(x=>x.json()),fetch('data/geo_us.json').then(x=>x.json()).catch(()=>null),
+  const r=await Promise.all([fetch('data/wave.json').then(x=>x.json()),
     fetch('data/duck/wave.json').then(x=>x.json()).catch(()=>null)]);
-  DOVEWAVE=r[0]; GEOUS=r[1]; DUCKWAVE=r[2]; WAVE=(GAME==='duck'&&DUCKWAVE)?DUCKWAVE:DOVEWAVE;
+  DOVEWAVE=r[0]; DUCKWAVE=r[1]; WAVE=(GAME==='duck'&&DUCKWAVE)?DUCKWAVE:DOVEWAVE;
   drawSppButtons(); drawBirds(); drawNear(); drawBmap();}catch(e){console.error(e)}}
 
 /* Restored 2026-09-27: deleted by accident in 0c5ec76 while its callers stayed,
@@ -1054,7 +1066,9 @@ function drawFlights(){
 }
 
 
-let BFRAME=null, BTIMER=null, GEOUS=null, BIRD_SP='doves', BIRD_FW=null;
+let BFRAME=null, BTIMER=null, BIRD_SP='doves';
+const BIRD_FW='central';            // the site is the Central Flyway only (D35)
+const inCF=c=>c.flyway==='central';
 const FW_NAME={pacific:'Pacific',central:'Central',mississippi:'Mississippi',atlantic:'Atlantic'};
 // Plain names where hunters use them; elsewhere the latitude speaks for itself.
 const ROW_NAME={central:{26.0:'Rio Grande Valley',28.5:'South Texas',31.0:'Central Texas',33.5:'North Texas',
@@ -1067,43 +1081,40 @@ function rollMedian(a,win){ return a.map((v,i)=>{ if(v==null) return null;
   return w.length>=3?w[w.length>>1]:null; }); }
 
 function drawBmap(){
-  /* Every circle in the lower 48, where it really is. Each is read only
-     against its own history, smoothed over 3 days so one birder's outing
-     cannot flash a spot. We WATCH every flyway; we only PUBLISH forecasts
-     for the Central one - the rest are counted so they can be graded. */
-  const s=$('#bmap'); if(!s||!WAVE||!WAVE.map) return;
-  const M=WAVE.map, days=WAVE.days, n=days.length, mine=placeFw();
+  /* The Central Flyway's eBird circles, where they really are, on the same
+     map as the forecast. Each is read only against its own history, smoothed
+     over 3 days so one birder's outing cannot flash a spot. */
+  const s=$('#bmap'); if(!s||!WAVE||!WAVE.map||!GEO) return;
+  const M={circles:WAVE.map.circles.filter(inCF)}, days=WAVE.days, n=days.length;
   if(BFRAME==null||BFRAME>n-1) BFRAME=n-1;
   const sc=$('#bscrub'); sc.max=n-1; sc.value=BFRAME;
-  s.setAttribute('viewBox','0 0 '+M.w+' '+M.h); s.innerHTML='';
-  if(GEOUS){ const g=el('g',{}); s.appendChild(g);
-    Object.keys(GEOUS.paths).forEach(function(ab){ const d=GEOUS.paths[ab], home=GEOUS.flyway[ab]===mine;
-      g.appendChild(el('path',{d:d,fill:tok('--ink'),opacity:home?0.075:0.035}));
-      g.appendChild(el('path',{d:d,fill:'none',stroke:tok('--ink2'),'stroke-width':0.5,'stroke-linejoin':'round',opacity:home?0.45:0.25}));});
-    Object.keys(GEOUS.labels||{}).forEach(function(fw){ const p=GEOUS.labels[fw];
-      const t=el('text',{x:p[0],y:p[1],'text-anchor':'middle','font-size':11,'letter-spacing':'0.14em',
-        fill:tok(fw===mine?'--ink2':'--ink3'),'font-weight':600,opacity:0.8});
-      t.textContent=FW_NAME[fw].toUpperCase()+(fw===mine?'':' · watched'); s.appendChild(t);});}
+  s.setAttribute('viewBox','0 0 '+GEO.w+' '+GEO.h); s.innerHTML='';
+  const g0=el('g',{}); s.appendChild(g0);
+  Object.values(GEO.paths).forEach(function(d){
+    g0.appendChild(el('path',{d:d,fill:tok('--ink'),opacity:0.06}));
+    g0.appendChild(el('path',{d:d,fill:'none',stroke:tok('--ink2'),'stroke-width':0.5,'stroke-linejoin':'round',opacity:0.4}));});
+  const layer=el('g',{'clip-path':clipDefs(s,'cfClipB')}); s.appendChild(layer);
   const A=M.circles.map(c=>smooth3(c.anomaly[BIRD_SP]));
   const vals=A.flat().filter(v=>v!=null).map(Math.abs).sort((a,b)=>a-b);
   const mx=Math.max(0.5, vals.length?vals[Math.floor(vals.length*0.95)]:1);
   M.circles.forEach(function(c,i){
     const v=A[i][BFRAME], b=c.birds[BIRD_SP][BFRAME], k=c.counted[BIRD_SP][BFRAME], x=c.xy[0], y=c.xy[1], r=c.r;
     if(v==null){
-      s.appendChild(el('circle',{cx:x,cy:y,r:r,fill:'none',stroke:tok('--ink3'),'stroke-width':0.7,'stroke-dasharray':'2 2',opacity:0.6}));
+      layer.appendChild(el('circle',{cx:x,cy:y,r:r,fill:'none',stroke:tok('--ink3'),'stroke-width':0.7,'stroke-dasharray':'2 2',opacity:0.6}));
     } else {
       const q=Math.max(-1,Math.min(1,v/mx));
-      if(q>0.15) s.appendChild(el('circle',{cx:x,cy:y,r:r*(1.3+0.9*q),fill:tok('--bird2'),opacity:0.12+0.2*q}));
-      s.appendChild(el('circle',{cx:x,cy:y,r:r,fill:q>=0?mix(tok('--wmid'),tok('--bird'),q):mix(tok('--wmid'),tok('--whold'),-q),
+      if(q>0.15) layer.appendChild(el('circle',{cx:x,cy:y,r:r*(1.3+0.9*q),fill:tok('--bird2'),opacity:0.12+0.2*q}));
+      layer.appendChild(el('circle',{cx:x,cy:y,r:r,fill:q>=0?mix(tok('--wmid'),tok('--bird'),q):mix(tok('--wmid'),tok('--whold'),-q),
         stroke:tok('--ground'),'stroke-width':0.8}));
     }
     const hit=el('circle',{cx:x,cy:y,r:r+3,fill:'transparent'});
-    hit.addEventListener('pointermove',e=>show(e,FW_NAME[c.flyway]+' flyway, '+c.lat+'°N '+Math.abs(c.lon)+'°W\n'+nice(days[BFRAME])+'\n'+
+    hit.addEventListener('pointermove',e=>show(e,(rowName('central',c.lat))+', '+c.lat+'°N '+Math.abs(c.lon)+'°W\n'+nice(days[BFRAME])+'\n'+
       (k?(b/k).toFixed(1)+' '+BIRDW()+' per counting stop ('+k+' stops)':'no counts that day')+
       (v!=null?'\n'+(v>=0?'+':'')+v.toFixed(1)+' vs its own normal (3-day)':'')));
     hit.addEventListener('pointerleave',hide); s.appendChild(hit);
   });
-  if(PLACE&&SITE&&SITE.us_xy){ const p=SITE.us_xy;
+  const me=PLACE&&((SITE&&SITE.map_xy)||(FLOW&&(FLOW.sites.find(x=>x.id===PLACE.id)||{}).xy));
+  if(me){ const p=me;
     s.appendChild(el('circle',{cx:p[0],cy:p[1],r:4.5,fill:'none',stroke:tok('--ink'),'stroke-width':1.6}));
     s.appendChild(el('circle',{cx:p[0],cy:p[1],r:1.6,fill:tok('--ink')}));
     const t=el('text',{x:p[0]+8,y:p[1]+4,'font-size':12,fill:tok('--ink'),'font-weight':600}); t.textContent='you'; s.appendChild(t);}
@@ -1127,7 +1138,7 @@ function nearCircles(){
      longitude, that have counts on most days. Pooling only steady circles
      keeps a newly added circle from putting a step in the line the day it
      joins. */
-  const C=WAVE.map.circles, n=WAVE.days.length;
+  const C=WAVE.map.circles.filter(inCF), n=WAVE.days.length;
   const near=C.filter(c=>Math.abs(c.lon-PLACE.lon)<=4.6);
   if(!near.length) return [];
   const lat=near.reduce((b,c)=>Math.abs(c.lat-PLACE.lat)<Math.abs(b-PLACE.lat)?c.lat:b,near[0].lat);
@@ -1211,20 +1222,11 @@ function drawNear(){
     '<span><i style="background:'+tok('--s3')+'"></i>collared doves don’t migrate &mdash; they’re the check: if they rise with the '+BIRDW()+', it’s more birders, not more birds</span>'+fc;
 }
 
-function drawFwButtons(){
-  const box=$('#birdFw'); if(!box||!WAVE||!WAVE.flyways) return;
-  if(!BIRD_FW) BIRD_FW=placeFw();
-  box.innerHTML='';
-  ['pacific','central','mississippi','atlantic'].forEach(function(fw){ if(!WAVE.flyways[fw]) return;
-    const b=document.createElement('button'); b.textContent=FW_NAME[fw]; b.setAttribute('aria-pressed',fw===BIRD_FW);
-    b.onclick=function(){BIRD_FW=fw; drawFwButtons(); drawBirds();}; box.appendChild(b);});
-}
 function drawBirds(){
   /* One flyway at a time, latitude down the side, north on top. Each cell is
      the average of that row's circles, each circle measured against ITS OWN
      rolling median - rows are never compared with each other. */
   const s=$('#birds'); if(!WAVE||!WAVE.flyways) return; s.innerHTML='';
-  drawFwButtons();
   const F=WAVE.flyways[BIRD_FW];
   const rows=F.rows.slice().reverse(), A=F.anomaly[BIRD_SP].slice().reverse(), nc=F.circles_per_row.slice().reverse();
   const days=WAVE.days, W=1000, rh=Math.max(18,Math.min(36,280/rows.length)), L=150,R=14,T=14,B=40, H=T+B+rh*rows.length;
@@ -1263,7 +1265,7 @@ function drawBirds(){
   const P=F.propagation[BIRD_SP]||{}, v=$('#birdVerdict');
   const pass=(P.pairs||[]).filter(p=>p.passes);
   const nm=i=>rowName(BIRD_FW,F.rows[F.rows.length-1-i]);
-  const pre=BIRD_FW===placeFw()?'':'<b>'+FW_NAME[BIRD_FW]+' flyway (watched, not forecast):</b> ';
+  const pre='';
   if(P.status==='thin') v.innerHTML=pre+'<b>Not enough history yet.</b> '+P.days+' days collected; a speed needs at least '+P.need+'.';
   else if(P.status==='control_fails') v.innerHTML=pre+'<b>Can’t trust this right now.</b> The collared doves &mdash; which don’t migrate &mdash; show the same pattern, so this is birders moving, not birds.';
   else if(P.status==='wave') v.innerHTML=pre+'<b>The birds are moving south</b> at about <b>'+P.mi_per_day+' miles a day</b>, measured from the counts alone &mdash; '+
@@ -1467,7 +1469,7 @@ function drawDuckLayer(day){
   DOTS.forEach(d=>d.style.display=on?'none':''); HALOS.forEach(d=>d.style.display=on?'none':'');
   if(!on||!DFLOW) return;
   const fr=DFLOW.days.find(x=>x.date===day); if(!fr) return;
-  g=el('g',{id:'duckLayer'}); s.appendChild(g);
+  g=el('g',GEO?{id:'duckLayer','clip-path':'url(#cfClip)'}:{id:'duckLayer'}); s.appendChild(g);
   if(DFLOW.sites){
     const di=DFLOW.days.indexOf(fr), all=DFLOW.sites.flatMap(x=>x.a[DGROUP]||[]), mx=Math.max(1e-6,...all);
     DFLOW.sites.forEach(function(st){ const v=(st.a[DGROUP]||[])[di]||0, q=Math.max(0,Math.min(1,v/mx));
@@ -1493,12 +1495,12 @@ async function loadGrades(){try{
   const F=g.forecasts||{dove:g.flyways};
   const row=(label,f,extra,cls)=>'<li class="'+(cls||'only-dove')+'"><b>'+label+'</b>: '+(say[f.status]||(()=>f.status))(f)+(extra||'')+
     ' <span class="dim">&middot; '+f.circles_paired+' circles, '+f.locations+' locations</span></li>';
-  let h=['central','mississippi','atlantic','pacific'].filter(k=>F.dove&&F.dove[k]).map(function(k){
+  let h=['central'].filter(k=>F.dove&&F.dove[k]).map(function(k){
     const f=F.dove[k];
-    return row('Doves, '+FW_NAME[k]+(k==='central'?' (published)':' (watched)'),f,
+    return row('Doves',f,
       f.best_law?' &middot; the '+(LAW[f.best_law]||f.best_law)+' scores best':'');}).join('');
   DGROUPS.forEach(function(q){ const k=q[0]==='all'?'duck_all':q[0], f=F[k]&&F[k].central;
-    if(f) h+=row(q[1]+', Central (published, untested)',f,'','only-duck'); });
+    if(f) h+=row(q[1]+' (untested)',f,'','only-duck'); });
   if(GRADES&&DSITE) $('#dUntested').innerHTML=duckBanner();
   $('#grades').innerHTML=h;
 }catch(e){$('#grades').innerHTML='<li class="dim">No scorecard yet.</li>';}}

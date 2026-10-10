@@ -15,7 +15,6 @@ from dove.engine import run, season_past_days
 import flyway
 from dove.regions import nearest_flyway
 
-US_FIT = flyway.albers_box_fit_us()
 
 OUT = "docs/data"
 DISPLAY_DAYS = 14
@@ -38,7 +37,7 @@ def slim(res, site, hist=None):
         "id": site["id"], "lat": site["lat"], "lon": site["lon"],
         "flyway": nearest_flyway(site["lat"], site["lon"]) or "central",
         "history_days": hist,
-        "us_xy": list(US_FIT(site["lat"], site["lon"])),     # on the national bird map
+        "map_xy": list(flyway.map_fit()(site["lat"], site["lon"])),   # on the Central map
         "generated_at": res["generated_at"],
         "arcs": {k: {kk: v[kk] for kk in ("label", "north_mi", "mean_lat", "usable")}
                  for k, v in res["arcs"].items()},
@@ -155,7 +154,7 @@ def main():
         import build_ducks
         drows, duck_dates = build_ducks.build(
             cache, sites, every,
-            flow_fit=flyway.Fit(flyway.MAP_BOX, flyway.MAP_W, flyway.MAP_H))
+            flow_fit=flyway.map_fit())
         for sid, row in drows.items():
             if sid in log_rows:
                 log_rows[sid].update({k: v for k, v in row.items() if k.startswith("duck_")})

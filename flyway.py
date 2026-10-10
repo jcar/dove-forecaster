@@ -53,6 +53,28 @@ class Fit:
         self.dx = pad + ((w - 2 * pad) - self.s * (self.x1 - self.x0)) / 2
         self.dy = pad + ((h - 2 * pad) - self.s * (self.y1 - self.y0)) / 2
 
+    @classmethod
+    def to_states(cls, geojson, names, w, pad=12):
+        """Frame exactly these states: projected bounds of their outlines, the
+        height following from the width so nothing is letterboxed (D35)."""
+        xs, ys = [], []
+        for feat in geojson["features"]:
+            p = feat.get("properties", {})
+            if (p.get("name") or p.get("NAME")) not in names:
+                continue
+            g = feat["geometry"]
+            for poly in ([g["coordinates"]] if g["type"] == "Polygon" else g["coordinates"]):
+                for ring in poly:
+                    for lon, lat in ring:
+                        x, y = albers(lat, lon)
+                        xs.append(x); ys.append(y)
+        f = cls.__new__(cls)
+        f.x0, f.x1, f.y0, f.y1 = min(xs), max(xs), min(ys), max(ys)
+        f.s = (w - 2 * pad) / (f.x1 - f.x0)
+        f.w, f.h = w, int(round(2 * pad + f.s * (f.y1 - f.y0)))
+        f.dx = f.dy = pad
+        return f
+
     def __call__(self, lat, lon):
         x, y = albers(lat, lon)
         # SVG y grows downward; projected y grows north, so flip
@@ -93,49 +115,35 @@ def geometry_paths(geojson, states, fit):
     return paths
 
 
-# The whole lower 48, for the bird-count map: every flyway is WATCHED even
-# where we do not publish forecasts, and the picture should say so.
-US_BOX = (24.5, 49.4, -124.8, -66.9)
-US_W, US_H = 960, 600
 GEO_SRC = "data/geo/us-states.json"
 
 
-def albers_box_fit_us():
-    return Fit(US_BOX, US_W, US_H, pad=8)
-
-
-def build_geo_us(src=GEO_SRC, out="docs/data/geo_us.json"):
-    """Lower-48 outlines plus each state's flyway, so the page can tint them."""
-    from dove.regions import ABBR, FLYWAY_OF
-    fit = albers_box_fit_us()
-    gj = json.load(open(src))
-    paths = geometry_paths(gj, set(ABBR), fit)
-    json.dump({"w": US_W, "h": US_H,
-               "paths": {ABBR[n]: d for n, d in paths.items()},
-               "flyway": {ABBR[n]: FLYWAY_OF.get(ABBR[n]) for n in paths},
-               # placed by hand in open country inside each flyway
-               "labels": {"pacific": fit(44.6, -119.8), "central": fit(47.4, -104.2),
-                          "mississippi": fit(46.6, -90.6), "atlantic": fit(42.9, -75.6)}},
-              open(out, "w"), separators=(",", ":"))
-    return out, os.path.getsize(out)
-
-
 # ---------------------------------------------------------------------------
-MAP_W, MAP_H = 560, 576          # the Central Flyway box is near-square in Albers
-MAP_BOX = (25.5, 50.5, -117.5, -89.0)          # the published Central Flyway, plus its eastern edge
-DRAW_STATES = ["Texas", "Oklahoma", "Kansas", "Nebraska", "New Mexico", "Colorado",
-               "Missouri", "Arkansas", "Louisiana", "South Dakota", "North Dakota",
-               "Iowa", "Minnesota", "Wyoming", "Montana", "Idaho", "Utah", "Arizona",
-               "Nevada", "Wisconsin", "Illinois", "Mississippi"]
+# The site shows the Central Flyway and nothing else (D35): both maps are
+# framed on its ten states, and the page clips every layer to their outline.
+CENTRAL_STATES = ["Montana", "Wyoming", "Colorado", "New Mexico", "North Dakota",
+                  "South Dakota", "Nebraska", "Kansas", "Oklahoma", "Texas"]
+MAP_W = 560
+MAP_BOX = (25.5, 49.5, -116.5, -93.0)   # lattice nodes shipped: the ten states' extent
+DRAW_STATES = CENTRAL_STATES
 OUT = "docs/data"
+_FIT = None
+
+
+def map_fit():
+    """The one projection both maps use, fitted to the Central states."""
+    global _FIT
+    if _FIT is None:
+        _FIT = Fit.to_states(json.load(open(GEO_SRC)), set(CENTRAL_STATES), MAP_W)
+    return _FIT
 
 
 def build_geo(src, out=f"{OUT}/geo.json"):
     """Project the state outlines once. Geometry never changes, so this is not
     part of the daily build and the page never loads a mapping library."""
-    fit = Fit(MAP_BOX, MAP_W, MAP_H)
+    fit = map_fit()
     paths = geometry_paths(json.load(open(src)), set(DRAW_STATES), fit)
-    json.dump({"w": MAP_W, "h": MAP_H, "box": MAP_BOX, "paths": paths},
+    json.dump({"w": fit.w, "h": fit.h, "paths": paths},
               open(out, "w"), separators=(",", ":"))
     return out, os.path.getsize(out), len(paths)
 
@@ -148,7 +156,7 @@ def export(cache, sites, dates, out=f"{OUT}/flow.json"):
     dates, and would silently paint one hunter's local wind across the entire
     plains.
     """
-    fit = Fit(MAP_BOX, MAP_W, MAP_H)
+    fit = map_fit()
     # Only what the map frame shows: the cache now spans the whole country
     # and southern Canada, and shipping that would triple the payload.
     nodes = sorted(pt for pt in cache._feat
@@ -197,7 +205,7 @@ def export(cache, sites, dates, out=f"{OUT}/flow.json"):
             "xy": [fit(la, lo) for (la, lo) in nodes],
             "cell": [round(abs(fit(lats[0], lons[0])[0] - fit(lats[0], lons[1])[0]), 1),
                      round(abs(fit(lats[0], lons[0])[1] - fit(lats[1], lons[0])[1]), 1)]}
-    payload = {"w": MAP_W, "h": MAP_H, "dates": dates, "grid": grid,
+    payload = {"w": fit.w, "h": fit.h, "dates": dates, "grid": grid,
                "mask": mask, "wind": wind, "sites": site_out,
                "traces": traces(cache, dates),
                "fronts": [{"date": d, "n": sorted(set(v))} for d, v in sorted(fronts.items())]}

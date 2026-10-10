@@ -1162,3 +1162,19 @@ the species one tap down; neither is favoured.
   settings come from mourning-dove studies - white-wing movement is barely
   studied - and the page says so. The scorecard is where a white-wing
   mismatch would show.
+
+## D35 — The site is the Central Flyway, and only that (2026-10-10)
+
+The user: focus on the Central Flyway; show nothing outside it on any map.
+
+- Both maps (the moving forecast and the eBird counts) share one projection
+  fitted to the ten Central states' outlines (`flyway.map_fit()`, 560 x 871;
+  the old box ran to the Mississippi and the count map was the lower 48).
+  Every layer - wind, fronts, forecast dots, count circles, freeze line - is
+  clipped to the ten states, so a border circle or a front is cut at the
+  flyway's edge rather than drawn past it.
+- The count map, latitude heatmap, "near you" and the scorecard show Central
+  only; the flyway buttons and the "watched" labels are gone.
+- Behind the scenes the other flyways are still forecast, pulled from eBird
+  and graded (D24). Nothing of them is shown. Whether to keep paying for
+  them (eBird calls, build minutes) is the user's call.

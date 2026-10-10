@@ -14,10 +14,8 @@ shutil.copyfile(TPL, f"{OUT}/index.html")
 # the national grid (2026-10-04) added ~100 circles with no history.
 from dove.wavetrend import density, anomaly, propagation, summarise
 from dove.regions import nearest_flyway, FLYWAY_NAME
-from flyway import albers_box_fit_us, build_geo_us
 import flyway as _fw
-build_geo_us()          # geometry is rebuilt each run: docs/ is not committed
-_fw.build_geo(_fw.GEO_SRC)
+_fw.build_geo(_fw.GEO_SRC)   # geometry is rebuilt each run: docs/ is not committed
 
 KEEP_DAYS = 45
 from dove.ebird import SPECIES as _DOVES, DUCKS as _DUCKS, CONTROL
@@ -94,7 +92,7 @@ for key, parts in COMBINED.items():
 # counted day reads as a crash. The page says "counts end yesterday"; make it so.
 newest_pull = max(run_dates, default="9999-12-31")
 all_days = sorted({k[2] for k in cells if k[2] < newest_pull})[-KEEP_DAYS:]
-fit = albers_box_fit_us()
+fit = _fw.map_fit()           # the Central map (D35)
 
 
 def row_mean(vals):
