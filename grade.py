@@ -7,7 +7,8 @@ event and nothing more.
 
 For each eBird circle, take the forecast location nearest its centre. Pair
 the arrival that location was forecast to get on day D - made 1, 2 or 3 days
-earlier - with the circle's mourning-dove count on day D, measured against
+earlier - with the circle's dove count on day D (mourning and white-winged
+together, D34), measured against
 that circle's own rolling normal. Correlate per circle, then combine circles
 with Fisher's z, weighted by how many days each contributes.
 
@@ -15,7 +16,7 @@ The collared dove is the control. It does not migrate, so a forecast that
 "predicts" collared doves too is predicting birders, not birds.
 
     building    fewer than MIN_DAYS forecast days on record
-    passes      mourning-dove skill (z >= Z_PASS) and the control stays quiet
+    passes      dove skill (z >= Z_PASS) and the control stays quiet
     control     the control correlates as well - we are measuring observers
     no skill    the record is long enough and the forecasts do not track birds
 
@@ -67,7 +68,7 @@ def combine(rs):
 # predicts (summed when a group), the wave file those counts live in, and
 # which log date list its arrays follow.
 FORECASTS = {
-    "dove":         {"laws": ("arrival", "challenger", "dove_v2"), "species": ("moudov",),
+    "dove":         {"laws": ("arrival", "challenger", "dove_v2"), "species": ("doves",),
                      "wave": "docs/data/wave.json", "dates": "dates", "live": "arrival"},
     # ducks (D30): every species on its own, each group, and all ducks together
     **{f"duck_{k}": {"laws": (f"duck_{k}",), "species": (k,), "wave": "docs/data/duck/wave.json",

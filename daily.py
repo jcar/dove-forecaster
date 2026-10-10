@@ -30,7 +30,8 @@ def main():
         try:
             g = daily_index("US-TX-113", d)
             print(f"  ebird {d}: {g['n_complete']} lists, "
-                  f"moudov {g['species']['moudov']['per_hour']}/hr")
+                  f"moudov {g['species']['moudov']['per_hour']}/hr, "
+                  f"whwdov {g['species']['whwdov']['per_hour']}/hr")
         except Exception as e:
             print(f"  ebird {d}: skipped ({type(e).__name__})")
 
@@ -41,10 +42,18 @@ def main():
     try:
         w = snapshot(date.today().isoformat())
         tot = sum(v["birds"] for sp in w["counts"].values()
-                  for d in sp.get("moudov", {}).values() for v in [d])
-        print(f"  wave: {len(w['counts'])} circles, {tot} mourning doves logged")
+                  for s_ in ("moudov", "whwdov") for d in sp.get(s_, {}).values() for v in [d])
+        print(f"  wave: {len(w['counts'])} circles, {tot} doves logged")
     except Exception as e:
         print(f"  wave skipped ({type(e).__name__})")
+
+    # Whole checklists for one settled day (D33): effort-corrected counts with
+    # real zeros. Last, and on a time budget, so it never costs the forecast.
+    try:
+        from dove.checklists import run as pull_checklists
+        pull_checklists()
+    except Exception as e:
+        print(f"  checklists skipped ({type(e).__name__})")
 
     peak = max(result["arrival"], key=lambda r: r["arrival"])
     print(f"wrote {path}")

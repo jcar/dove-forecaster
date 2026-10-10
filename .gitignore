@@ -14,3 +14,6 @@ docs/
 
 # lives on the wxcache branch, force-pushed daily (D29)
 data/wxcache/
+
+# hindcast runs (hindcast.py) are scratch, not audit trail
+data/hindcast/

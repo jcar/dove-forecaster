@@ -368,6 +368,7 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
     <div id="nearWrap" hidden>
       <h3 style="margin:18px 0 4px"><span class="only-dove">Doves</span><span class="only-duck">Ducks</span> near you</h3>
       <p class="sub" id="nearSub"></p>
+      <div class="row" style="margin-bottom:8px"><button id="nearBy" aria-pressed="false">By species</button></div>
       <figure class="scroll"><svg id="near" viewBox="0 0 1000 280" role="img" aria-label="Bird counts at the eBird circles nearest you, by day"></svg></figure>
       <div class="leg" id="nearLeg" style="margin-bottom:22px"></div>
     </div>
@@ -421,12 +422,13 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
         <li>How far a dove really covers on a given tailwind &mdash; that number sets the arrival day</li>
         <li>How fast the birds up north run out over a season</li>
         <li>Strength labels aren't calibrated &mdash; read them as bigger-vs-smaller, not as counts</li>
+        <li class="only-dove">White-winged doves &mdash; the forecast counts them the same as mourning doves, but how far and how fast they travel on a front comes from mourning-dove studies; white-wing movement is barely studied. The scorecard grades against both together, so a gap would show up there</li>
         <li>Whether any of this has ever correctly predicted a single bird &mdash; one promising day so far (Collin County, Sep 22)</li>
       </ul></div>
     </div>
     <h3 style="margin:26px 0 6px">The scorecard</h3>
     <p class="sub" style="margin-bottom:10px">Each forecast is checked 1&ndash;3 days later against
-       <span class="only-dove">mourning-dove</span><span class="only-duck">duck</span> counts at the
+       <span class="only-dove">dove (mourning and white-winged together)</span><span class="only-duck">duck</span> counts at the
        nearest eBird circle, with collared doves (which don't migrate) as the check on birdwatcher effort. It has to beat
        the calendar, not just chance. A flyway is published only after it passes on at least three weeks
        of record &mdash; and the Central flyway is held to that same bar.</p>
@@ -606,7 +608,7 @@ async function loadFlow(){
   }catch(e){ $('#flyDay').textContent='unavailable'; return; }
   if(FLOW.synthetic) $('#synthBanner').hidden=false;
   buildFly();
-  const today=new Date().toISOString().slice(0,10);
+  const n0=new Date(), today=n0.getFullYear()+'-'+String(n0.getMonth()+1).padStart(2,'0')+'-'+String(n0.getDate()).padStart(2,'0');
   const i=Math.max(0, FLOW.dates.findIndex(d=>d>=today));
   $('#scrub').max=FLOW.dates.length-1;
   if(REDUCED()) $('#play').innerHTML='&#9654; Step a day';
@@ -897,7 +899,7 @@ function drawSite(){
       if(f.skipped_bands&&f.skipped_bands.length)
         where+='<br><span class="dim">'+f.skipped_bands.map(bandName).join(', ')+
                ' not detected &mdash; crossing assumed</span>';
-      const eta=f.reaches_home?DOW3[new Date(f.reaches_home).getDay()]+' '+new Date(f.reaches_home).toISOString().slice(5,16).replace('T',' ')
+      const eta=f.reaches_home?DOW3[new Date(f.reaches_home).getDay()]+' '+f.reaches_home.slice(5,16).replace('T',' ')
         :'did not make it this far';
       const c=f.confidence;
       const sure=c?'<b>'+c.agreeing+' of '+c.members+'</b> models agree<br><span class="dim">likely '+
@@ -1052,7 +1054,7 @@ function drawFlights(){
 }
 
 
-let BFRAME=null, BTIMER=null, GEOUS=null, BIRD_SP='moudov', BIRD_FW=null;
+let BFRAME=null, BTIMER=null, GEOUS=null, BIRD_SP='doves', BIRD_FW=null;
 const FW_NAME={pacific:'Pacific',central:'Central',mississippi:'Mississippi',atlantic:'Atlantic'};
 // Plain names where hunters use them; elsewhere the latitude speaks for itself.
 const ROW_NAME={central:{26.0:'Rio Grande Valley',28.5:'South Texas',31.0:'Central Texas',33.5:'North Texas',
@@ -1117,6 +1119,7 @@ function setBplay(on){
   BTIMER=setInterval(function(){ BFRAME++; if(BFRAME>=WAVE.days.length-1){BFRAME=WAVE.days.length-1; drawBmap(); setBplay(false); return;} drawBmap(); },650);
 }
 $('#bplay').onclick=()=>setBplay(!BTIMER);
+$('#nearBy').onclick=function(){NEAR_BY=!NEAR_BY; this.setAttribute('aria-pressed',NEAR_BY); drawNear();};
 $('#bscrub').oninput=e=>{ setBplay(false); BFRAME=+e.target.value; drawBmap(); };
 
 function nearCircles(){
@@ -1143,10 +1146,17 @@ function drawNear(){
   $('#nearSub').innerHTML='eBird counts from <b>'+use.length+' circle'+(use.length>1?'s':'')+'</b> across <b>'+rowName(fw,lat)+'</b> ('+lat.toFixed(1)+'°N)'+
     (miles<40?', your latitude':', the closest we count &mdash; about <b>'+miles+' miles '+(lat>PLACE.lat?'north':'south')+'</b> of you')+
     '. Dots are single days, which are noisy; the line is a 3-day average, so read the line. '+
-    'The shaded band is '+NEAR_SER[GAME][0][1].toLowerCase()+'s’ own normal there.';
-  const pooled=sp=>days.map((d,i)=>{let b=0,k=0;use.forEach(c=>{if(c.counted[sp][i]){b+=c.birds[sp][i];k+=c.counted[sp][i];}});return k?b/k:null;});
-  const SER=NEAR_SER[GAME], lead=SER[0][0];
+    'The shaded band is the normal there for '+NEAR_SER[GAME][0][1].toLowerCase()+'.';
+  const pooled=sp=>days.map((d,i)=>{let b=0,k=0;use.forEach(c=>{if(c.counted[sp]&&c.counted[sp][i]){b+=c.birds[sp][i];k+=c.counted[sp][i];}});return k?b/k:null;});
+  const base=NEAR_SER[GAME], SER=NEAR_BY?[base[0]].concat(NEAR_SPLIT[GAME],base.slice(1)):base, lead=SER[0][0];
   const raw={}; SER.forEach(q=>raw[q[0]]=pooled(q[0]));
+  // Split lines share the combined line's counting stops, so the species add
+  // up to the total. On its own each species is "per stop that reported IT",
+  // which put white-wings (reported at few spots, in big numbers) above all
+  // doves - true, and useless to a hunter.
+  if(NEAR_BY) NEAR_SPLIT[GAME].forEach(function(q){
+    raw[q[0]]=days.map((d,i)=>{let b=0,k=0;use.forEach(c=>{if(c.counted[lead]&&c.counted[lead][i]){
+      k+=c.counted[lead][i]; b+=(c.birds[q[0]]&&c.birds[q[0]][i])||0;}});return k?b/k:null;});});
   const norm=rollMedian(raw[lead],7);
   // Never chart the control on its own: with no target birds on the chart, a
   // lone collared-dove line just looks like doves on the duck page.
@@ -1197,7 +1207,7 @@ function drawNear(){
     const pk=SITE.arrival.reduce((a,b)=>b.arrival>a.arrival?b:a);
     if(pk.arrival>0) fc='<span class="dim">Counts end yesterday. Next forecast push at your fields: <b>'+nice(pk.date)+'</b> &mdash; watch for the line to climb then.</span>';
   }
-  $('#nearLeg').innerHTML='<span><i style="background:'+tok('--s1')+';opacity:.25"></i>'+SER[0][1].toLowerCase()+'s’ normal here</span>'+
+  $('#nearLeg').innerHTML='<span><i style="background:'+tok('--s1')+';opacity:.25"></i>normal here for '+SER[0][1].toLowerCase()+'</span>'+
     '<span><i style="background:'+tok('--s3')+'"></i>collared doves don’t migrate &mdash; they’re the check: if they rise with the '+BIRDW()+', it’s more birders, not more birds</span>'+fc;
 }
 
@@ -1274,12 +1284,16 @@ function drawSppButtons(){
     b.onclick=function(){BIRD_SP=q[0]; drawSppButtons(); drawBirds(); drawBmap();}; box.appendChild(b);});
 }
 /* ---------- ducks (D27): one engine, a second section ---------- */
-const SPP={dove:[['moudov','Mourning dove'],['whwdov','White-winged'],['eucdov','Collared (the check)']],
-  duck:[['mallar3','Mallard'],['gnwtea','Green-winged teal'],['buwtea','Blue-winged teal'],['gadwal','Gadwall'],
+// The combined bird leads (D34): a hunting opportunity is any dove, any duck.
+const SPP={dove:[['doves','All doves'],['moudov','Mourning'],['whwdov','White-winged'],['eucdov','Collared (the check)']],
+  duck:[['ducks','All ducks'],['mallar3','Mallard'],['gnwtea','Green-winged teal'],['buwtea','Blue-winged teal'],['gadwal','Gadwall'],
         ['amewig','Wigeon'],['norpin','Pintail'],['eucdov','Collared (the check)']]};
-const NEAR_SER={dove:[['moudov','Mourning','--s1',2.6],['whwdov','White-wing','--s2',2],['eucdov','Collared (the check)','--s3',1.4]],
-  duck:[['mallar3','Mallard','--s1',2.6],['gnwtea','Green-winged teal','--s2',2],['gadwal','Gadwall','--wheat',2],
-        ['eucdov','Collared (the check)','--s3',1.4]]};
+const NEAR_SER={dove:[['doves','All doves','--s1',2.6],['eucdov','Collared (the check)','--s3',1.4]],
+  duck:[['ducks','All ducks','--s1',2.6],['eucdov','Collared (the check)','--s3',1.4]]};
+// "By species" opens the combined line into its parts, drawn thinner.
+const NEAR_SPLIT={dove:[['moudov','Mourning','--s2',1.6],['whwdov','White-winged','--wheat',1.6]],
+  duck:[['mallar3','Mallard','--s2',1.6],['gnwtea','Green-winged teal','--wheat',1.6],['gadwal','Gadwall','--ink2',1.6]]};
+let NEAR_BY=false;
 const DGROUPS=[['all','All ducks'],['duck_mallard','Mallards & big ducks'],['duck_teal','Teal'],['duck_puddle','Gadwall, wigeon & pintail']];
 let GAME='dove', DOVEWAVE=null, DUCKWAVE=null, DINDEX=null, DSITE=null, DFLOW=null, DGROUP='all', GRADES=null;
 

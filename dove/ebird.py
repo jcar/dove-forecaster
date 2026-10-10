@@ -1,11 +1,12 @@
 """eBird API 2.0 client — live ground truth.  See DECISIONS.md D9.
 
 Three species, deliberately:
-    moudov  Mourning Dove           migratory — the target
-    whwdov  White-winged Dove       partially migratory, expanding north into DFW
+    moudov  Mourning Dove           migratory    } together, "doves": the target.
+    whwdov  White-winged Dove       part-migratory} A hunter's opportunity is either
+                                                   bird; neither is favoured (D34)
     eucdov  Eurasian Collared-Dove  non-native, NON-MIGRATORY — the CONTROL
 
-The control is the point. If the Push Index correlates with mourning dove
+The control is the point. If the Push Index correlates with dove
 density but NOT with collared-dove density, we are detecting migration.
 If both spike on the same days, we are detecting BIRDERS (the observer-effort
 confound) and the model is measuring the wrong thing entirely.
@@ -31,12 +32,16 @@ DUCKS = {"mallar3": "Mallard",
          "gnwtea": "Green-winged Teal", "buwtea": "Blue-winged Teal",
          "gadwal": "Gadwall", "amewig": "American Wigeon", "norpin": "Northern Pintail"}
 GROUPS = {
-    "dove":         ("moudov",),
+    "dove":         ("moudov", "whwdov"),
     "duck_mallard": ("mallar3",),
     "duck_teal":    ("gnwtea", "buwtea"),
     "duck_puddle":  ("gadwal", "amewig", "norpin"),
 }
 ALL_SPECIES = {**SPECIES, **DUCKS}          # everything the morning pull collects
+
+# Combined series the page leads with (D34): a hunting opportunity is any
+# dove, or any duck. Built from the species above wherever counts are kept.
+COMBINED = {"doves": ("moudov", "whwdov"), "ducks": tuple(DUCKS)}
 
 BASE = "https://api.ebird.org/v2"
 CACHE = "data/ebird"

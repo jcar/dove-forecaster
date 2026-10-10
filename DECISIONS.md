@@ -1086,3 +1086,78 @@ environment variable, set only in the gitignored .env. The saved daily
 forecasts (data/forecasts/) had the old location's name in their "home"
 label; the label was replaced with "North Texas reference point (D11 anchor)".
 Nothing the model claimed was changed - only that label.
+
+## D33 — Effort-corrected counts, and the scoring rules written down first (2026-10-10)
+
+**The hindcast.** `hindcast.py` reruns the dove forecast as of each morning
+Sep 10 - Oct 7 on observed weather (418 Central locations, all three laws)
+and scores it with grade.py's own scorer. Result: no skill. Live lead-1 z
+-0.89 against mourning doves, -0.13 against all doves (D34); every law sits
+inside the range a forecast shifted 5-20 days out of step reaches. Forecasts
+slid ±1-3 days do no better, so it is not a timing offset. Against the one
+effort-corrected series we hold (Dallas County complete checklists, birds per
+hour, 28 days): live r +0.02; dove_v2 r +0.25 with the control at -0.23 -
+noted, not acted on; 28 days cannot carry it.
+
+**Why the test is weak, not just the model.** Only 9 of 46 Central circles
+had enough data to correlate and 3 (Dallas-Sherman, Tulsa, Omaha) real
+volume. Worse, the collared-dove control moved with the target at every lag:
+the wave counts SIGHTINGS, so a busy birding day reads as a dove day, and a
+birder who looked and saw none leaves no trace. Nothing is fit to this.
+
+**The fix: whole checklists** (`dove/checklists.py`, run by daily.py on a
+6-minute budget; a separate workflow needs a token with `workflow` scope). Each morning: the day three days back (most lists submitted by
+then; any missing day within 7 is filled), every county with a hotspot
+inside a Central circle (204 counties, `data/geo/checklist_counties.json`),
+lists inside the circle, group checklists de-duplicated, up to 20 read per
+circle per day (seeded random sample). One checklist gives doves, ducks and
+the control at once, with real zeros. Test day Oct 7: 252 lists, 227 read,
+163 complete and timed, 15 circles with three or more. ~430 calls, ~5.5 min.
+Stored without names, IDs or coordinates (eBird terms; personal locations).
+
+**Scoring rules for the effort-corrected record, fixed now - before the
+data exists - so the bar cannot drift toward whatever the model happens to
+do:**
+
+1. Measure: birds per hour on complete (all species reported), timed,
+   stationary or traveling checklists of 5 h or less; "X" counts dropped for
+   that species. Doves = mourning + white-winged (D34).
+2. Unit: a circle over a 3-day window centred on the target day (hunters
+   read days, not hours, and single days are mostly noise); forecast is the
+   3-day sum at the nearest location within 60 km. A window needs >= 6 such
+   checklists or it is skipped.
+3. Statistic: per-circle correlation of forecast with the log(1 + rate)
+   anomaly against the circle's own centred 21-day median, combined by
+   Fisher's z - and judged against the shift-null (forecast moved 5-20 days
+   out of step): a pass must beat at least 95% of shifts.
+4. Bars kept from D24/D28: control quiet (collared dove z < 1.64), beat the
+   calendar by z >= 1, at least 21 target days. Status & Trends replaces
+   the calendar when its key arrives.
+5. Primary: lead 1, Central. Everything else - other leads, single days,
+   state pooling, other flyways, duck species - is exploratory and labeled
+   so; a law goes live only on the primary.
+
+**Past seasons** run through the same scorer when the eBird Basic Dataset
+arrives (requested 2026-10-10); its checklists map onto the same row format.
+Weather for them needs an archive source (the cache holds 40 days).
+
+## D34 — Doves are one bird (2026-10-10)
+
+The user: "A hunting opportunity is a hunting opportunity." Mourning and
+white-winged doves are counted, shown and graded together as "doves", with
+the species one tap down; neither is favoured.
+
+- eBird: `COMBINED` in dove/ebird.py. Every circle-day gets a "doves" series
+  (and "ducks", for the same reason): birds summed; counting stops taken as
+  the most any one species was counted at (the older pulls cannot tell
+  distinct stops apart; same rule every day keeps each circle's normal
+  comparable). White-wings are 30-50% of the doves in the North Texas circle.
+- Page: the map, the latitude heatmap and "Doves near you" lead with All
+  doves. "By species" splits the near-you line; the species there share the
+  combined line's counting stops so they add up to it (each on its own stops
+  put white-wings above all doves - true, and useless).
+- Grading: the dove forecast is scored against all doves.
+- Model: same numbers; the profile says "Doves". Its flight and departure
+  settings come from mourning-dove studies - white-wing movement is barely
+  studied - and the page says so. The scorecard is where a white-wing
+  mismatch would show.

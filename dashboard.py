@@ -21,8 +21,8 @@ _fw.build_geo(_fw.GEO_SRC)
 
 KEEP_DAYS = 45
 from dove.ebird import SPECIES as _DOVES, DUCKS as _DUCKS, CONTROL
-DOVE_SPECIES = list(_DOVES)                       # includes the control
-DUCK_SPECIES = list(_DUCKS) + [CONTROL]
+DOVE_SPECIES = ["doves"] + list(_DOVES)           # combined first; includes the control
+DUCK_SPECIES = ["ducks"] + list(_DUCKS) + [CONTROL]
 
 # One record per location per pull (eBird returns each spot's LATEST
 # sighting), so overlapping pulls are UNIONED by (location, day) where the
@@ -75,6 +75,20 @@ for k in list(cells):
     start = first_pull.get((k[0], k[1]))
     if start and k[2] < (_date.fromisoformat(start) - _td(days=1)).isoformat():
         del cells[k]
+
+# Combined series (D34): "doves" = mourning + white-winged, "ducks" = all six.
+# Birds add up. Counting stops are not distinct per species in the older
+# aggregate-only pulls, so the stops behind a combined day are taken as the
+# most any one species was counted at - a lower bound on the real number, and
+# the same rule on every day, so the circle's own normal stays comparable.
+from dove.ebird import COMBINED
+for key, parts in COMBINED.items():
+    for (circle, day) in {(k[0], k[2]) for k in cells if k[1] in parts}:
+        cs = [cells.get((circle, s_, day)) for s_ in parts]
+        cs = [c_ for c_ in cs if c_]
+        cells[(circle, key, day)] = {"birds": sum(c_["birds"] for c_ in cs),
+                                     "locations": max(c_["locations"] for c_ in cs),
+                                     "counted": max(c_["counted"] for c_ in cs)}
 
 # Today is never complete at build time (the job runs at 7am), and a half-
 # counted day reads as a crash. The page says "counts end yesterday"; make it so.

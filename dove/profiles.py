@@ -41,7 +41,11 @@ class Profile:
     gate: object = field(default=photoperiod_gate, compare=False, repr=False)
 
 
-DOVE = Profile(key="dove", name="Mourning dove", species=("moudov",))
+# Doves as one bird (D34): mourning and white-winged together. The flight and
+# departure settings below come from mourning-dove studies - white-wing
+# migration is far less studied - and the scorecard grades the forecast
+# against both species combined, so a white-wing mismatch shows up there.
+DOVE = Profile(key="dove", name="Doves", species=("moudov", "whwdov"))
 
 
 def _gate_v2(lat, doy):
@@ -57,7 +61,7 @@ def _gate_v2(lat, doy):
 # The dove model corrected by the published evidence (D26/D28). A CHALLENGER:
 # scored daily beside DOVE, live only if the scorecard says it wins.
 DOVE_V2 = Profile(
-    key="dove_v2", name="Mourning dove (evidence-based challenger)", species=("moudov",),
+    key="dove_v2", name="Doves (evidence-based challenger)", species=("moudov", "whwdov"),
     push_key="wind_push100",        # doves fly low; 925 hPa is underground on the High Plains
     airspeed_mph=39.0,              # radar 65 km/h (Birds of the World); Taber 35-40 mph
     flight_hours=5.0,               # one leg <= ~200 mi
