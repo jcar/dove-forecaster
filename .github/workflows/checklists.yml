@@ -27,7 +27,9 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements.txt
       - name: Pull checklists
-        run: python -c "from dove.checklists import run; run()"
+        # its own job: room to wait out a slow eBird (a day takes ~6 min at
+        # normal pace); daily.py's backup keeps the 6-minute default
+        run: python -c "from dove.checklists import run; run(budget_s=25 * 60)"
         env:
           EBIRD_API_KEY: ${{ secrets.EBIRD_API_KEY }}
       - name: Commit
