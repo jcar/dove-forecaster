@@ -5,15 +5,19 @@ from .grid import LON_STEP, snap_lat, snap_lon
 
 R_EARTH_MI = 3958.7613
 
-# Named hunt locations.
-LOCATIONS = {
-    "North Texas": (33.391, -96.579, "North Texas reference point (D11 anchor)"),
-    "dallas":       (32.780, -96.800, "Dallas, TX"),
-}
+# The single location daily.py writes its audit-trail forecast for: a North
+# Texas lattice node with the whole Central Flyway upstream. Nothing else
+# depends on it - every published location is forecast the same way. A local
+# test location can be set without touching the code: DOVE_HOME="lat,lon,name"
+# (e.g. in the gitignored .env).
+import os as _os
 
-HOME_KEY = "North Texas"
-HOME = LOCATIONS[HOME_KEY][:2]
-HOME_NAME = LOCATIONS[HOME_KEY][2]
+REFERENCE = (33.75, -97.0, "North Texas reference point")
+_env = [x.strip() for x in _os.environ.get("DOVE_HOME", "").split(",", 2)]
+_loc = (float(_env[0]), float(_env[1]), _env[2] if len(_env) > 2 else "Test location") \
+    if len(_env) >= 2 and _env[1] else REFERENCE
+HOME = _loc[:2]
+HOME_NAME = _loc[2]
 SAMPLES_PER_ARC = 9   # denser sampling across the corridor; same request count
 
 # Central Management Unit outer bounds. Doves east of roughly the Mississippi

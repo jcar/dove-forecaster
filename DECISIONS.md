@@ -317,16 +317,13 @@ Also: the `events` field turned out unnecessary — test1.py reconstructs
 arrival by CONVOLUTION over arc_scores, which needs nothing but data we
 already store, and doesn't inherit the front detector's thresholds.
 
-## D11 — Anchor moved to the North Texas corridor (2026-09-12)
-The founder hunts in Collin/Grayson County. Hunting locations and field
-coordinates are private and never stored here (D10).
-
-Anchor: 33.391N -96.579W, the centroid of those four towns. ~44 mi north
-of downtown Dallas, which every earlier forecast in this project used. All
-their properties sit within ~25 mi of the centroid, which is well inside
-this model's real resolution - so ONE anchor covers the whole operation.
-Deliberately did not build a picker across the four towns: their forecasts
-would differ by less than the model's error, which is false precision.
+## D11 — Anchor moved north of Dallas (2026-09-12)
+The single forecast location moved from downtown Dallas to a point ~44 mi
+north in Collin/Grayson County, where the founder hunts. Hunting locations
+and field coordinates are private and never stored here (D10). The model's
+real resolution is ~25 mi, so one anchor stands for the whole area; a picker
+across nearby towns would be false precision. (Since 2026-10-10 the audit
+forecast uses a neutral North Texas lattice node instead - see D32.)
 
 Effect of the move: front speed on the live boundary re-measured 13.5 mph
 (was 10.5 from Dallas), front reaches the fields Sep 16 15:04 (was 22:48),
@@ -528,14 +525,13 @@ and 153 at home. Whitewings are a southern bird, absent from Kansas and
 Nebraska. The data is real.
 
 ## D15 — Hunt log: built minimal, deliberately
-data/hunt_log.csv, a header and nothing else. Founder was straight that he
-is not in the field enough for his own reports to be worth anything, and he
-is right - a couple of hunts a season is noise, and I should not have
+data/hunt_log.csv, a header and nothing else. The founder is not in the
+field enough for their own reports to be worth anything - a couple of hunts a season is noise, and I should not have
 listed it beside the wave as comparable. It exists so hunter-observed data
 has somewhere to go IF volume ever arrives.
-The real target is North Texas' own reservation data: half a dozen
-properties, which fields filled, how hunts went. Field-level, hunter-
-observed, exactly on target. That is a relationship to build, not code.
+The real target is an outfitter's own reservation data: which fields filled,
+how hunts went. Field-level, hunter-observed, exactly on target. That is a
+relationship to build, not code.
 
 ## F16 — FIXED: the reservoir never actually ran in the live forecast
 D5 claimed a finite northern population that depletes across the season and
@@ -746,7 +742,7 @@ Ladder extended to 48.5N (7 rows, 63 calls/morning); the new rows render as
 TRIGGER: forecasts from Sep 18-21 all called a Sep 22 arrival; from Sep 22 the
 near term went to ~0 and the peak slid to Oct 5 while growing (111 -> 231).
 
-HINDCAST on observed weather (Sep 10-25, no forecast error), home = North Texas:
+HINDCAST on observed weather (Sep 10-25, no forecast error), home = the D11 anchor:
 
     peak       surface + linear law   Sep 22 (148)
                925hPa + airspeed law  Sep 21 (148)
@@ -1079,3 +1075,14 @@ night when the birds land Friday morning. Three findings:
    Larger v2 changes at some locations come from flocks landing near v2's
    16-day flight cutoff, which a few hours can push either side of - a
    known weakness of the slow v2 law, not of this change.
+
+## D32 — No outfitter or private location in the code or on the site (2026-10-10)
+
+The founder's own hunting spot stays a private test location, never a
+public one. The code holds no named hunting locations: daily.py's audit
+forecast runs at a neutral lattice node (33.75 N, 97.0 W, "North Texas
+reference point"), and a local test location comes from the DOVE_HOME
+environment variable, set only in the gitignored .env. The saved daily
+forecasts (data/forecasts/) had the old location's name in their "home"
+label; the label was replaced with "North Texas reference point (D11 anchor)".
+Nothing the model claimed was changed - only that label.
