@@ -1105,8 +1105,9 @@ volume. Worse, the collared-dove control moved with the target at every lag:
 the wave counts SIGHTINGS, so a busy birding day reads as a dove day, and a
 birder who looked and saw none leaves no trace. Nothing is fit to this.
 
-**The fix: whole checklists** (`dove/checklists.py`, run by daily.py on a
-6-minute budget; a separate workflow needs a token with `workflow` scope). Each morning: the day three days back (most lists submitted by
+**The fix: whole checklists** (`dove/checklists.py`, its own workflow at
+09:41 UTC; daily.py runs it again as a backup, which costs nothing when the
+day is already saved). Each morning: the day three days back (most lists submitted by
 then; any missing day within 7 is filled), every county with a hotspot
 inside a Central circle (204 counties, `data/geo/checklist_counties.json`),
 lists inside the circle, group checklists de-duplicated, up to 20 read per

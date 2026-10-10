@@ -1,0 +1,41 @@
+name: ebird-checklists
+
+# Effort-corrected eBird counts (D33): whole checklists for one settled day,
+# every county touching a Central sample circle. Its own job, hours before
+# the forecast build, so its ~430 slow calls neither delay the site nor share
+# a burst with the morning's species pull. daily.py calls the same pull as a
+# backup; it finds the day already saved and makes no calls.
+on:
+  schedule:
+    - cron: "41 9 * * *"    # 09:41 UTC; odd minute, see daily.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-forecast      # never commit at the same time as the forecast job
+  cancel-in-progress: false
+
+jobs:
+  pull:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Pull checklists
+        run: python -c "from dove.checklists import run; run()"
+        env:
+          EBIRD_API_KEY: ${{ secrets.EBIRD_API_KEY }}
+      - name: Commit
+        run: |
+          git config user.name  "dove-forecaster"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/checklists data/geo/checklist_counties.json
+          if git diff --staged --quiet; then echo "no change"; exit 0; fi
+          git commit -m "checklists $(date -u +%Y-%m-%d)"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

@@ -7,7 +7,7 @@ the mourning dove at every lag. A checklist knows how long its birder looked
 and, when complete, that every bird seen was reported, so an absent species
 is a real zero. Birds per hour of complete checklists measures birds.
 
-Each morning (daily.py, after the forecast and the wave) this pulls the checklists of ONE settled day (LAG_DAYS back;
+Each morning (the ebird-checklists workflow; daily.py as backup) this pulls the checklists of ONE settled day (LAG_DAYS back;
 most are submitted within two days) for every county touching a Central
 sample circle, keeps those inside a circle, and fetches each list's detail.
 One checklist gives every tracked species at once - doves, ducks and the

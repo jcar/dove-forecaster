@@ -47,8 +47,8 @@ def main():
     except Exception as e:
         print(f"  wave skipped ({type(e).__name__})")
 
-    # Whole checklists for one settled day (D33): effort-corrected counts with
-    # real zeros. Last, and on a time budget, so it never costs the forecast.
+    # Whole checklists for one settled day (D33). The ebird-checklists job
+    # pulls them at dawn; this is the backup, and finds the day already saved.
     try:
         from dove.checklists import run as pull_checklists
         pull_checklists()
