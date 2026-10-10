@@ -215,7 +215,8 @@ def season(cache, routes, today=None, horizon=15):
     out, new_ck = {}, {}
     for key, g in DUCK_GROUPS.items():
         if ck and ck["date"] >= first and key in ck["groups"]:
-            start, pop = ck["date"], ck["groups"][key]
+            # a checkpoint can hold nodes the lattice no longer carries (D36)
+            start, pop = ck["date"], {pt: v for pt, v in ck["groups"][key].items() if pt in F.nodes}
         else:
             start, pop = first, None
         if start < ck_day:

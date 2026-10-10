@@ -43,12 +43,12 @@ COLS = [-123.5 + 3.0 * k for k in range(19)]          # -123.5 ... -69.5
 
 
 def circles():
-    """Fixed lattice across the lower 48, named by where it is on the ground.
-    Kept only where the centre is in (or within ~50 mi of) a US state: a
-    circle in the open Gulf or deep in Canada has no birders to count."""
+    """Fixed lattice, named by where it is on the ground - the Central
+    Flyway's circles only (D36; the other flyways were counted Oct 4-10).
+    Kept only where the centre is in (or within ~50 mi of) a Central state."""
     from .regions import nearest_flyway
     return [(f"r{lat}_c{lon}", lat, lon) for lat in ROWS for lon in COLS
-            if nearest_flyway(lat, lon) is not None]
+            if nearest_flyway(lat, lon) == "central"]
 
 
 # The lower 48 (and DC) by eBird region code. One call per STATE per species
@@ -60,10 +60,13 @@ STATES = ["AL", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "ID", "IL"
           "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE",
           "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
           "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"]
-# Border circles reach into Canada and Mexico; their history (from 50 km geo
-# calls) includes those spots, so leaving them out would put a step in it.
-# One country-wide call each covers them.
-REGIONS = [f"US-{s}" for s in STATES] + ["CA", "MX"]
+# Only the regions the Central circles reach into (D36): the ten Central
+# states, the neighbours whose spots fall inside a border circle (Omaha's
+# reaches Iowa, Sioux Falls' Minnesota), and Mexico for the Rio Grande
+# Valley. From the hotspots inside each circle (data/geo/checklist_counties.json).
+# Leaving out a neighbour would put a step in a border circle's history.
+REGIONS = ["US-" + s for s in ("TX", "OK", "KS", "NE", "SD", "ND", "NM", "CO", "WY", "MT",
+                               "IA", "MN")] + ["MX"]
 
 
 def _km(la1, lo1, la2, lo2):

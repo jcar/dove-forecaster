@@ -1178,3 +1178,22 @@ The user: focus on the Central Flyway; show nothing outside it on any map.
 - Behind the scenes the other flyways are still forecast, pulled from eBird
   and graded (D24). Nothing of them is shown. Whether to keep paying for
   them (eBird calls, build minutes) is the user's call.
+
+## D36 — The hidden flyways are switched off too (2026-10-10)
+
+With the site Central-only (D35), the user chose to stop paying for the
+other three flyways behind the scenes. Forecasts, weather, history backfill,
+eBird counts and grading now cover the Central Flyway alone:
+
+- build_sites.py and backfill_history.py: Central locations only (418), so
+  the weather lattice is the 862 nodes they read, not 2,062. Cached weather
+  for the rest is pruned from the wxcache branch on the next build.
+- eBird species pull: the 46 Central circles, from the regions they reach
+  into - ten Central states, Iowa and Minnesota (border circles), Mexico
+  (Rio Grande Valley): 13 regions x 10 species = ~130 calls, down from 459,
+  which had started to outrun its 15-minute budget.
+- grade.py: Central only. The duck checkpoint drops nodes the lattice no
+  longer carries.
+- The shadow-flyway records already saved (Oct 4-10) stay in the repo. The
+  machinery stays too: adding a flyway back is one list in build_sites.py,
+  one in dove/wave.py, one in grade.py - and its scorecard starts from zero.

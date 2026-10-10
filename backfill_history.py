@@ -21,7 +21,6 @@ from datetime import date, timedelta
 from dove.flyway import catalogue, PUBLISH_FLYWAYS
 from dove.geo import arc_points
 from dove.grid import PointCache, snap, CACHE_KEEP_DAYS
-from dove.regions import FLYWAY_STATES
 
 CACHE_DIR = "data/wxcache"
 WANT_DAYS = 21                 # a full 16-day flight plus margin; the reservoir takes what exists
@@ -54,7 +53,7 @@ def nodes_for(sites):
 
 
 def main():
-    every = catalogue(flyways=list(FLYWAY_STATES))
+    every = catalogue(flyways=list(PUBLISH_FLYWAYS))           # Central only (D36)
     pub = nodes_for([s for s in every if s["flyway"] in PUBLISH_FLYWAYS])
     rest = nodes_for(every) - pub
     need = [p for p in sorted(pub) if short(p)] + [p for p in sorted(rest) if short(p)]

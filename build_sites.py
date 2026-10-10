@@ -6,7 +6,6 @@ per location. Per-location work is then pure arithmetic.
 """
 import json, os, sys, time
 from dove.flyway import catalogue, PUBLISH_FLYWAYS
-from dove.regions import FLYWAY_STATES
 from dove.geo import arc_points
 from dove.grid import PointCache, snap, BATCH
 from dove.weather import OpenMeteo
@@ -56,11 +55,9 @@ def slim(res, site, hist=None):
 
 def main():
     limit = int(sys.argv[1]) if len(sys.argv) > 1 else None
-    # Every flyway is FORECAST; only PUBLISH_FLYWAYS are published. The rest
-    # are saved to data/shadow/ so their calls can be graded against eBird
-    # before anyone sees them (D24). With ECMWF open data the extra flyways
-    # cost compute, not quota.
-    every = catalogue(flyways=list(FLYWAY_STATES))[:limit]
+    # The Central Flyway only (D36). The shadow flyways (D24) ran Oct 4-10;
+    # the machinery for them is kept, so adding one back is this one list.
+    every = catalogue(flyways=list(PUBLISH_FLYWAYS))[:limit]
     sites = [s for s in every if s["flyway"] in PUBLISH_FLYWAYS]
     shadow = [s for s in every if s["flyway"] not in PUBLISH_FLYWAYS]
     t0 = time.time()
@@ -90,6 +87,16 @@ def main():
         print(f"  {len(missing)} nodes missing from ECMWF; falling back to Open-Meteo", flush=True)
         cache.source = "open-meteo"
         cache.load(missing)
+
+    # Drop cached weather for nodes no Central location reads: the wxcache
+    # branch is re-pushed whole every morning, so they would ride along forever.
+    keep = {f"{p[0]}_{p[1]}.json" for p in band_pts}
+    gone = [f for f in os.listdir("data/wxcache") if f.endswith(".json") and f not in keep] \
+        if os.path.isdir("data/wxcache") else []
+    for f in gone:
+        os.remove(os.path.join("data/wxcache", f))
+    if gone:
+        print(f"  pruned {len(gone)} cached nodes outside the Central Flyway's reach")
 
     lreq = 0          # locations are lattice nodes now; no separate fetch
 

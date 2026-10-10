@@ -107,7 +107,7 @@ def publish_wave(species, path):
     spots = []
     for name, c in sorted(circles.items(), key=lambda kv: (-kv[1]["lat"], kv[1]["lon"])):
         fw = nearest_flyway(c["lat"], c["lon"])
-        if not fw:
+        if fw != "central":                     # Central only (D36)
             continue
         x, y = fit(c["lat"], c["lon"])
         _, y2 = fit(c["lat"] + 50 / 111.0, c["lon"])

@@ -107,7 +107,7 @@ def grade_one(spec, sites, logs):
     wave = json.load(open(spec["wave"]))
     wdays = {d: i for i, d in enumerate(wave["days"])}
     out = {}
-    for fw in ("central", "mississippi", "atlantic", "pacific"):
+    for fw in ("central",):                     # the site's only flyway (D36)
         circles = [c for c in wave["map"]["circles"] if c["flyway"] == fw]
         fw_sites = {k: v for k, v in sites.items() if v["flyway"] == fw}
         pairs = []
