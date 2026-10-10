@@ -1044,3 +1044,38 @@ Phone-width screens draw the chart at phone size.
 
 grade.py scores every layer: each species against its own eBird counts, each
 group, and all ducks together.
+
+## D31 — A front that clears after the birds land (2026-10-10)
+
+The user asked why Dallas showed "Front hits Fri" as a dashed line on Friday
+night when the birds land Friday morning. Three findings:
+
+1. **Two weather models on one chart.** The bars and the front line come from
+   ECMWF (D23). The wind tiles and the day-by-day table were fetched live from
+   Open-Meteo's default, which in the US is the American model (GFS). For
+   Oct 16 they disagreed by a day: GFS put the front through Dallas around
+   1-3 am Friday (north 13-18 mph all day), and ECMWF stalled it just north
+   (calm Friday, north wind at midnight). The page showed north-wind arrows
+   under a "front Friday night" line. The live table now asks for
+   `ecmwf_ifs025`, so the whole page reads one model.
+2. **The line is in the right place for ECMWF.** A front that hangs up just
+   north of the fields leaves calm air ahead of it, and birds that rode it
+   pile up at its edge and drift in before it formally clears. The page now
+   says so ("Front clears Fri night / hangs up just north of you first") and
+   gives the time of day on every front label. The Sept 13 rule that names
+   the next strong morning behind the front as the pick is kept, since a
+   stalled front's clearing time is the least certain part of the forecast,
+   but the chart no longer calls the peak "the morning to go" when the tile
+   says otherwise. A slow measured front speed was tried as the stall signal
+   and rejected: the tracker reports under 8 mph at 384 of 415 locations.
+3. **Do birds fly past a stalled front?** The flight sim reads one wind per
+   day at the flock's starting latitude, so a flock can sail through the wind
+   shift into the south wind ahead of it. `simulate_arrival(substeps=N)`
+   splits the day into N legs, re-reads the wind at each, and sets the flock
+   down where the tailwind turns to a headwind (a day that starts without a
+   tailwind still drifts as before). On the live law it moves Dallas by 2-3%,
+   so it goes to the `dove_v2` challenger only (`flight_substeps=6`); the
+   live dove forecast is bit-identical across all 418 Central locations.
+   Larger v2 changes at some locations come from flocks landing near v2's
+   16-day flight cutoff, which a few hours can push either side of - a
+   known weakness of the slow v2 law, not of this change.

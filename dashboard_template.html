@@ -340,7 +340,7 @@ foot{display:block; margin-top:44px; padding-top:18px; border-top:1px solid var(
     </section>
     <section>
       <h2>Day by day at your fields</h2>
-      <p class="sub">Conditions at your exact coordinates, pulled live. <b>North wind in bold</b> &mdash; that's post-front air.
+      <p class="sub">Conditions at your exact coordinates, pulled live from the same European model the forecast runs on. <b>North wind in bold</b> &mdash; that's post-front air.
          Doves turn into the wind to land, so set up with it at your back and they work toward you.</p>
       <div class="scroll"><table id="cond"></table></div>
     </section>
@@ -729,6 +729,8 @@ $('#play').onclick=()=>setPlaying(!PLAYING);
 $('#scrub').addEventListener('input',e=>{setPlaying(false); setFrame(+e.target.value);});
 
 const WARM_DAYS=21;
+function partOfDay(d){const h=d.getHours();
+  return h<5?'overnight':h<12?'morning':h<17?'afternoon':h<20?'evening':'night';}
 function drawSite(){
   const D=SITE, ramp=RAMP();
   // A location whose upstream grid points were added recently has only a
@@ -753,14 +755,18 @@ function drawSite(){
                         < Math.abs(new Date(a.reaches_home)-dt(peak.date))?b:a)
     : null);
   let bestDate=peak.date, note='';
-  if(fr&&peak.arrival>=4){
-    const rh=new Date(fr.reaches_home), pm=dt(peak.date); pm.setHours(8,0,0,0);
-    if(rh>pm){
-      const nxt=D.arrival.find(r=>dt(r.date)>dt(peak.date)&&r.arrival>=peak.arrival*0.6);
-      if(nxt){bestDate=nxt.date; note=' The front does not clear until '+DOW[rh.getDay()]+
-        ' evening, so '+DOW[dt(peak.date).getDay()]+' morning is still ahead of it. '+
-        DOW[dt(nxt.date).getDay()]+' sits behind the wind shift with nearly as many birds.';}
-    }
+  // Birds landing BEFORE the front clears means it hung up just north of the
+  // fields: the birds riding it pile up at its edge and drift in ahead of it.
+  // They are real, but a stalled front's clearing time is the least certain
+  // part of the forecast, so the first strong morning behind it is the safer
+  // pick (D31).
+  const stall=!!(fr&&peak.arrival>=4&&new Date(fr.reaches_home)>(function(){const m=dt(peak.date);m.setHours(8,0,0,0);return m;})());
+  if(stall){
+    const rh=new Date(fr.reaches_home);
+    const nxt=D.arrival.find(r=>dt(r.date)>dt(peak.date)&&r.arrival>=peak.arrival*0.6);
+    note=' The front hangs up just north of you and does not clear your fields until '+DOW[rh.getDay()]+' '+partOfDay(rh)+
+      ', so birds riding it pile up at its edge and drift in ahead of it.';
+    if(nxt){bestDate=nxt.date; note+=' '+DOW[dt(nxt.date).getDay()]+' morning, behind the wind shift, has nearly as many and does not depend on when the front clears.';}
   }
   const froms=peak.from_arcs.slice(0,2).map(a=>bandName(a[0]));
   $('#eyebrow').textContent=(PLACE&&PLACE.name?PLACE.name:'Your fields')+' · '+
@@ -825,9 +831,9 @@ function drawSite(){
       const pxx=peakI>=0?centre(peakI):null, close=pxx!==null&&Math.abs(pxx-frX)<190;
       const fa=close?(pxx>=frX?'end':'start'):'middle', fdx=close?(pxx>=frX?-6:6):0;
       const c1=el('text',{x:frX+fdx,y:36,'text-anchor':fa,'font-size':12,'font-weight':600,fill:tok('--ink')});
-      c1.textContent='Front hits '+DOW3[rh.getDay()]; s.appendChild(c1);
+      c1.textContent=(stall?'Front clears ':'Front hits ')+DOW3[rh.getDay()]+' '+partOfDay(rh); s.appendChild(c1);
       const c2=el('text',{x:frX+fdx,y:50,'text-anchor':fa,'font-size':10.5,fill:tok('--ink3')});
-      c2.textContent='wind switches, feels great'; s.appendChild(c2);
+      c2.textContent=stall?'hangs up just north of you first':'wind switches, feels great'; s.appendChild(c2);
       if(peakI>=0&&rows[peakI].arrival>=4){
         const px=centre(peakI), gy=70;
         if(px-frX>44){
@@ -841,7 +847,7 @@ function drawSite(){
         const p1=el('text',{x:px+pdx,y:36,'text-anchor':pa,'font-size':12,'font-weight':600,fill:tok('--ink')});
         p1.textContent='Birds land '+DOW3[dt(peak.date).getDay()]; s.appendChild(p1);
         const p2=el('text',{x:px+pdx,y:50,'text-anchor':pa,'font-size':10.5,fill:tok('--ink3')});
-        p2.textContent='this is the morning to go'; s.appendChild(p2);
+        p2.textContent=bestDate===peak.date?'this is the morning to go':'most birds; '+DOW3[dt(bestDate).getDay()]+' is the safer bet'; s.appendChild(p2);
         // Near the right edge the birds' note runs off the chart: slide the
         // whole label pair left by however much it overflows.
         try{
@@ -952,7 +958,11 @@ async function loadLocal(){
   try{
     const u='https://api.open-meteo.com/v1/forecast?latitude='+PLACE.lat+'&longitude='+PLACE.lon+
       '&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation_probability'+
-      '&daily=sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=10';
+      '&daily=sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=10'+
+      // the model the forecast itself runs on (D23). Open-Meteo's default is
+      // the American model in the US, which can put a front a day away from
+      // the dashed line on the chart above it (D31).
+      '&models=ecmwf_ifs025';
     const r=await (await fetch(u)).json();
     const h=r.hourly, idx={}; h.time.forEach((x,i)=>idx[x]=i);
     const arr={}; SITE.arrival.forEach(x=>arr[x.date]=x.arrival);

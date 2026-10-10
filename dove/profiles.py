@@ -34,6 +34,7 @@ class Profile:
     max_mi_per_day: float = 420.0
     fly_prob: float = 1.0                # share of a flyable day spent flying (expected value)
     arrival_hour: int = 8
+    flight_substeps: int = 0             # >0: re-read the wind along the day's path (front.simulate_arrival)
     season_start: tuple = (8, 15)        # (month, day) the reservoir replay starts
     reservoir_k: float = 0.25
     bands: tuple = tuple(BANDS)
@@ -64,6 +65,7 @@ DOVE_V2 = Profile(
     fly_prob=0.4,                   # flocks "dally ... for several days" (Taber 1930):
                                     # average progress lands in the evidenced 10-110 mi/day
     arrival_hour=11,                # a dawn start plus a ~5 h leg lands late morning
+    flight_substeps=6,              # D31: come down at a stalled front, not past it
     gate=_gate_v2)
 
 PROFILES = {p.key: p for p in (DOVE, DOVE_V2)}

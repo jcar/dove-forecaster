@@ -291,7 +291,7 @@ def push_at(push_field, day_iso, lat):
 
 
 def simulate_arrival(depart_day, north_mi, push_field, home_lat, max_days=16,
-                    trace=None, law=None):
+                    trace=None, law=None, substeps=0):
     """March one departure south. Returns fractional days to the fields, or
     None if they are still in the air past the horizon.
 
@@ -299,7 +299,16 @@ def simulate_arrival(depart_day, north_mi, push_field, home_lat, max_days=16,
     latitude, miles still to go, the tailwind it got and how far it flew.
     The loop already computes all of that and throws it away; collecting it
     costs nothing and is what the flyway animation is drawn from.
+
+    `substeps` (D31): split each day's flight into that many legs, reading the
+    wind again at each leg's own latitude, and come down where the tailwind
+    turns into a headwind. With 0 (the live dove law) the whole day flies on
+    the wind at the start latitude - which lets a flock sail past a stalled
+    front into the south wind ahead of it.
     """
+    if substeps:
+        return _simulate_substeps(depart_day, north_mi, push_field, home_lat,
+                                  max_days, trace, law or daily_flight_mi, substeps)
     remaining, day = float(north_mi), date.fromisoformat(depart_day)
     for n in range(1, max_days + 1):
         day += timedelta(days=1)
@@ -322,15 +331,52 @@ def simulate_arrival(depart_day, north_mi, push_field, home_lat, max_days=16,
     return None
 
 
+def _simulate_substeps(depart_day, north_mi, push_field, home_lat, max_days, trace,
+                       law, substeps):
+    remaining, day = float(north_mi), date.fromisoformat(depart_day)
+    for n in range(1, max_days + 1):
+        day += timedelta(days=1)
+        di, flown, first = day.isoformat(), 0.0, None
+        for k in range(substeps):
+            push = push_at(push_field, di, home_lat + remaining / 69.0)
+            if push is None:
+                return None
+            if first is None:
+                first = push
+                if push < 0:                         # no tailwind: a staging day, as before
+                    flown = min(law(push), remaining)
+                    if flown >= remaining and flown > 0:
+                        return n - 1 + remaining / flown
+                    remaining -= flown
+                    break
+            elif push < 0:
+                break                                # the front's edge: they set down
+            leg = law(push) / substeps
+            if leg >= remaining:
+                if trace is not None:
+                    trace.append({"date": di, "lat": round(home_lat + (remaining + flown) / 69.0, 3),
+                                  "remaining_mi": round(remaining + flown), "push_mph": round(first, 1),
+                                  "flown_mi": round(flown + remaining)})
+                return n - 1 + (k + remaining / leg) / substeps
+            remaining -= leg
+            flown += leg
+        if trace is not None:
+            trace.append({"date": di, "lat": round(home_lat + (remaining + flown) / 69.0, 3),
+                          "remaining_mi": round(remaining + flown), "push_mph": round(first, 1),
+                          "flown_mi": round(flown)})
+    return None
+
+
 def arrival_forecast_wind(events, push_field, home_lat, days_out=10,
                           today=None, spread=0.6, law=None, max_days=16,
-                          arrival_hour=ARRIVAL_HOUR):
+                          arrival_hour=ARRIVAL_HOUR, substeps=0):
     """Superpose per-band pulses, each timed by an actual simulated flight."""
     today = today or datetime.now().date()
     legs, airborne = [], 0.0
     for e in events:
         lead = simulate_arrival(e["when"].date().isoformat(), e["north_mi"],
-                                push_field, home_lat, max_days=max_days, law=law)
+                                push_field, home_lat, max_days=max_days, law=law,
+                                substeps=substeps)
         if lead is None:
             # Only a departure recent enough to still be flying counts as
             # airborne. An August front that never "landed" inside its 16-day

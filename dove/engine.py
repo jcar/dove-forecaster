@@ -184,12 +184,13 @@ def run(home=HOME, home_name=HOME_NAME, past=None, future=14, grid=None,
     cb = math.cos(math.radians(bearing))
     law = flight_law(pr)
     _arr = arrival_forecast_wind(events, push_field, home[0], days_out=future,
-                                 law=lambda p: law(p) * cb, arrival_hour=pr.arrival_hour)
+                                 law=lambda p: law(p) * cb, arrival_hour=pr.arrival_hour,
+                                 substeps=pr.flight_substeps)
     # Same birds, same wind, the old flight law. Recorded every day so the
     # season's counts can grade the two against each other (DECISIONS D21).
     _alt = arrival_forecast_wind(events, push_field, home[0], days_out=future,
                                  law=lambda p: linear_flight_mi(p) * cb,
-                                 arrival_hour=pr.arrival_hour)
+                                 arrival_hour=pr.arrival_hour, substeps=pr.flight_substeps)
 
     # Replace the extrapolated ETA with the DETECTED arrival at the fields.
     # Match each tracked boundary to the strongest local passage that happens
